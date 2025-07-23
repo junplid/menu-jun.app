@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { LayoutPrivateContext } from "./layout-private.context";

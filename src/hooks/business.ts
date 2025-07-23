@@ -2,13 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as BusinessService from "../services/api/Business";
 import { toaster } from "@components/ui/toaster";
 import { AxiosError } from "axios";
-import { useContext } from "react";
-import { AuthContext } from "@contexts/auth.context";
 import { ErrorResponse_I } from "../services/api/ErrorResponse";
 import { UseFormSetError } from "react-hook-form";
 
 export function useGetBusinessDetails(id: number) {
-  const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["business-details", id],
     queryFn: async () => {
@@ -16,7 +13,7 @@ export function useGetBusinessDetails(id: number) {
         return await BusinessService.getBusinessDetails(id);
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
+          // if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;
             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -29,7 +26,6 @@ export function useGetBusinessDetails(id: number) {
 }
 
 export function useGetBusiness(id: number) {
-  const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["business", id],
     queryFn: async () => {
@@ -37,7 +33,7 @@ export function useGetBusiness(id: number) {
         return await BusinessService.getBusiness(id);
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
+          // if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;
             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -50,7 +46,6 @@ export function useGetBusiness(id: number) {
 }
 
 export function useGetBusinesses(params?: { name?: string; page?: number }) {
-  const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["businesses", params],
     queryFn: async () => {
@@ -58,7 +53,7 @@ export function useGetBusinesses(params?: { name?: string; page?: number }) {
         return await BusinessService.getBusinesses(params || {});
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
+          // if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;
             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -74,7 +69,6 @@ export function useGetBusinessesOptions(params?: {
   name?: string;
   filterIds?: number[];
 }) {
-  const { logout } = useContext(AuthContext);
   return useQuery({
     queryKey: ["businesses-options", params],
     queryFn: async () => {
@@ -82,7 +76,7 @@ export function useGetBusinessesOptions(params?: {
         return await BusinessService.getOptionsBusinesses(params || {});
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response?.status === 401) logout();
+          // if (error.response?.status === 401) logout();
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;
             if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -98,7 +92,6 @@ export function useCreateBusiness(props?: {
   setError?: UseFormSetError<{ name: string; description?: string }>;
   onSuccess?: () => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: { name: string; description?: string }) =>
@@ -126,7 +119,7 @@ export function useCreateBusiness(props?: {
     },
     onError(error: unknown) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
+        // if (error.response?.status === 401) logout();
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -146,7 +139,6 @@ export function useUpdateBusiness(props?: {
   setError?: UseFormSetError<{ name?: string; description?: string }>;
   onSuccess?: () => Promise<void>;
 }) {
-  const { logout } = useContext(AuthContext);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -186,7 +178,7 @@ export function useUpdateBusiness(props?: {
     },
     onError(error: unknown) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
+        // if (error.response?.status === 401) logout();
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
@@ -204,7 +196,6 @@ export function useUpdateBusiness(props?: {
 
 export function useDeleteBusiness(props?: { onSuccess?: () => Promise<void> }) {
   const queryClient = useQueryClient();
-  const { logout } = useContext(AuthContext);
 
   return useMutation({
     mutationFn: (id: number) => BusinessService.deleteBusiness(id),
@@ -221,7 +212,7 @@ export function useDeleteBusiness(props?: { onSuccess?: () => Promise<void> }) {
     },
     onError(error: unknown) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === 401) logout();
+        // if (error.response?.status === 401) logout();
         if (error.response?.status === 400) {
           const dataError = error.response?.data as ErrorResponse_I;
           if (dataError.toast.length) dataError.toast.forEach(toaster.create);
