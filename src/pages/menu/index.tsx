@@ -79,7 +79,7 @@ const responsiveSabores: ResponsiveType = {
   },
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    partialVisibilityGutter: 5,
+    partialVisibilityGutter: 25,
     items: 3,
   },
   tablet: {
@@ -113,108 +113,165 @@ export const MenuPage: React.FC = (): JSX.Element => {
   const ref = useRef<Carousel>(null);
   const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
   const [tSelected, setTSelected] = useState<string | null>(null);
+  const [currentTag, setCurrentTab] = useState(0);
 
   function irPara(i: number) {
-    ref.current?.goToSlide(i); // animação normal
-    // ref.current?.goToSlide(i, true); // pula animação e callbacks
+    ref.current?.goToSlide(i);
   }
 
   return (
-    <main className="w-full max-w-lg mx-auto relative px-3 grid grid-rows-[auto_auto_1fr_100px] min-h-0">
-      <div className="flex items-center gap-x-3">
-        <span
-          onClick={() => {
-            irPara(0);
-          }}
+    <main className="w-full max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0">
+      <div className="grid grid-cols-5 items-center gap-x-3 mt-2">
+        <div onClick={() => irPara(0)} className="flex flex-col items-center">
+          <div
+            className={clsx(
+              "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
+              currentTag === 0 && "bg-zinc-200"
+            )}
+          >
+            <img
+              src="/img-icons/pizza-img-icon.png"
+              className="max-h-[50px]"
+              alt="pizza"
+            />
+          </div>
+          <span
+            className={clsx(
+              "font-semibold duration-300 text-sm",
+              currentTag === 0 ? "text-zinc-900" : "text-zinc-500"
+            )}
+          >
+            Pizzas
+          </span>
+        </div>
+        <div
+          onClick={() => irPara(1)}
+          className="flex flex-col items-center cursor-pointer"
         >
-          Pizzas
-        </span>
-        <span
-          onClick={() => {
-            irPara(1);
-          }}
-        >
-          Burgers
-        </span>
-        <span onClick={() => irPara(2)}>Bebidas</span>
+          <div
+            className={clsx(
+              "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
+              currentTag === 1 && "bg-zinc-200"
+            )}
+          >
+            <img
+              src="/img-icons/drinks-img-icon.png"
+              className="max-h-[50px]"
+              alt="pizza"
+            />
+          </div>
+          <span
+            className={clsx(
+              "font-semibold duration-300  text-sm",
+              currentTag === 1 ? "text-zinc-900" : "text-zinc-500"
+            )}
+          >
+            Bebidas
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-rows-[20px_auto] gap-y-2">
-        {tSelected && (
-          <div className="flex items-center font-semibold gap-x-2">
-            <span>Pizza tamanho: {tSelected}</span>
-            <a
-              className="text-blue-500 cursor-pointer"
-              onClick={() => setTSelected(null)}
+      <div className="flex flex-col gap-y-2 mt-2">
+        <div className="grid grid-rows-[20px_auto] gap-y-2">
+          {tSelected && (
+            <div className="flex items-center font-semibold gap-x-2">
+              <span>
+                <span className="text-zinc-500 text-sm">
+                  Tamanho selecionado:
+                </span>{" "}
+                Pizza {tSelected}
+              </span>
+              <a
+                className="text-blue-500 cursor-pointer text-sm"
+                onClick={() => setTSelected(null)}
+              >
+                {"(Clique para alterar)"}
+              </a>
+            </div>
+          )}
+          {tSelected && (
+            <Carousel
+              infinite={false}
+              responsive={responsiveSabores}
+              partialVisible
+              arrows={false}
+              itemClass="relative select-none cursor-pointer mt-4"
+              className=""
             >
-              {"(Clique para alterar)"}
-            </a>
-          </div>
-        )}
-        {tSelected && (
-          <Carousel
-            ref={ref}
-            infinite={false}
-            responsive={responsiveSabores}
-            partialVisible
-            arrows={false}
-            itemClass="relative select-none cursor-pointer"
-          >
-            {sabores.map((tamanho) => (
-              <div className="first:pr-1 px-1" key={tamanho.name}>
-                <div className="flex flex-col p-2 h-[90px] rounded-md border justify-between border-zinc-200">
-                  <span className="text-sm font-medium">{tamanho.name}</span>
-                  <div className="flex gap-x-1">
-                    <span className="bg-zinc-200 py-1 text-sm w-12 flex items-center justify-center rounded-md">
-                      1
-                    </span>
-                    <a className="bg-green-200 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md">
-                      +
-                    </a>
-                    <a className="bg-red-200 py-1 w-8 text-lg leading-0 flex items-center justify-center rounded-md">
-                      -
-                    </a>
+              {sabores.map((tamanho) => (
+                <div className="first:pr-1 px-1 relative" key={tamanho.name}>
+                  <a
+                    onClick={() => {}}
+                    className="text-red-700 absolute bg-red-300 text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 opacity-65 hover:opacity-100 duration-200"
+                  >
+                    Retirar
+                  </a>
+                  <div className="flex flex-col p-2 h-[90px] rounded-md border justify-between border-zinc-200">
+                    <span className="text-sm font-medium">{tamanho.name}</span>
+                    <div className="flex gap-x-1">
+                      <span className="bg-zinc-200 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                        1
+                      </span>
+                      <a className="bg-green-200 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md">
+                        +
+                      </a>
+                      <a className="bg-red-200 py-1 w-8 text-lg leading-0 flex items-center justify-center rounded-md">
+                        -
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </Carousel>
-        )}
-        {!tSelected && (
-          <span className="font-semibold text-center">
-            Selecione o tamanho da pizza
-          </span>
-        )}
-        {!tSelected && (
-          <Carousel
-            ref={ref}
-            infinite={false}
-            responsive={responsiveTamanhos}
-            partialVisible
-            itemClass="relative select-none cursor-pointer"
-          >
-            {tamanhos.map((tamanho) => (
-              <div
-                className="pr-1"
-                key={tamanho.name}
-                onClick={() => {
-                  setTSelected(tamanho.name);
-                  setHeaderOpen(false);
-                }}
-              >
-                <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                  <span className="text-center">{tamanho.name}</span>
-                  <strong className="text-sm text-center">R$ 37,99</strong>
-                  <span className="leading-4 text-sm text-center text-zinc-600">
-                    {tamanho.sabor} Sabor
-                  </span>
-                  <span className="leading-4 text-sm text-center text-zinc-600">
-                    {tamanho.fatias} Fatias
-                  </span>
+              ))}
+            </Carousel>
+          )}
+          {!tSelected && (
+            <span className="font-semibold text-center">
+              Selecione o tamanho da pizza
+            </span>
+          )}
+          {!tSelected && (
+            <Carousel
+              infinite={false}
+              responsive={responsiveTamanhos}
+              partialVisible
+              itemClass="relative select-none cursor-pointer"
+            >
+              {tamanhos.map((tamanho) => (
+                <div
+                  className="pr-1"
+                  key={tamanho.name}
+                  onClick={() => {
+                    setTSelected(tamanho.name);
+                    setHeaderOpen(false);
+                  }}
+                >
+                  <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
+                    <span className="text-center">{tamanho.name}</span>
+                    <strong className="text-sm text-center">R$ 37,99</strong>
+                    <span className="leading-4 text-sm text-center text-zinc-600">
+                      {tamanho.sabor} Sabor
+                    </span>
+                    <span className="leading-4 text-sm text-center text-zinc-600">
+                      {tamanho.fatias} Fatias
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </Carousel>
+              ))}
+            </Carousel>
+          )}
+        </div>
+        {tSelected && (
+          <div className="flex items-center gap-x-1 justify-center">
+            <a
+              onClick={() => setTSelected(null)}
+              className="bg-red-300 text-red-600 text-sm opacity-40 font-medium p-2 px-2.5 rounded-full"
+            >
+              Desfazer
+            </a>
+            <a className="bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full">
+              Adicionar pizza ao carrinho
+            </a>
+          </div>
         )}
       </div>
 
@@ -224,30 +281,31 @@ export const MenuPage: React.FC = (): JSX.Element => {
         arrows={false}
         responsive={responsive}
         itemClass="relative"
+        beforeChange={(before) => setCurrentTab(before)}
+        className="mt-2"
       >
         <div
-          className={clsx(
-            "duration-200 overflow-y-scroll",
-            headerOpen ? "h-[200px]" : "h-[300px]"
-          )}
+          className={clsx("duration-300 overflow-y-scroll scroll-hidden")}
+          style={{ height: "100%" }}
         >
           <ShadowTopMemoComponent
             onChange={(isTop) => {
               if (headerOpen && !isTop) setHeaderOpen(false);
             }}
           />
-          <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+
+          <div>
+            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
+          </div>
         </div>
 
         <div
-          className={clsx(
-            "overflow-y-scroll duration-200",
-            headerOpen ? "h-[200px]" : "h-[300px]"
-          )}
+          className={clsx("overflow-y-scroll duration-200 scroll-hidden")}
+          style={{ height: "100%" }}
         >
           <ShadowTopMemoComponent />
           <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
@@ -255,23 +313,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
           <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
           <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
           <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-        </div>
-        <div
-          className={clsx(
-            "overflow-y-scroll duration-200",
-            headerOpen ? "h-[200px]" : "h-[300px]"
-          )}
-        >
-          <ShadowTopMemoComponent />
-          <div className="bg-green-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-green-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-green-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-green-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-green-400 min-h-[100px] w-10 my-1"></div>
         </div>
       </Carousel>
-
-      <div>as</div>
     </main>
   );
 };

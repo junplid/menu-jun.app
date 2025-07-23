@@ -24,7 +24,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           <Flipper flipKey={headerOpen}>
             <div
               className={clsx(
-                "bg-zinc-300 py-2 duration-400",
+                "bg-zinc-300 py-2 duration-300",
                 headerOpen ? "px-3" : "px-5"
               )}
               style={{ height: headerOpen ? 127 : 58 }}
@@ -68,6 +68,16 @@ export function LayoutPrivateProvider(): JSX.Element {
         </header>
 
         <Outlet />
+        <footer className="w-full max-w-lg mx-auto px-3 text-sm text-center text-black/70">
+          © 2025 - Developed & maintained by{" "}
+          <a
+            className="text-blue-600 font-semibold"
+            href="https://www.instagram.com/junplid/"
+            target="_blank"
+          >
+            Junplid
+          </a>
+        </footer>
       </div>
     </LayoutPrivateContext.Provider>
   );
