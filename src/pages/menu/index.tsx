@@ -298,7 +298,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
       style={{
-        paddingBottom: showPresence ? "80px" : "8px",
+        paddingBottom: showPresence ? "70px" : "8px",
       }}
     >
       <div className="grid grid-cols-5 items-center gap-x-3 mt-2 px-3">

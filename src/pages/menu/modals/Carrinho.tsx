@@ -127,7 +127,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
           </SegmentGroup.Root>
 
           <span className="text-center block font-medium text-zinc-600">
-            Formas de pagamento
+            Forma de pagamento
           </span>
         </div>
       </DialogBody>
