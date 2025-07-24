@@ -86,7 +86,7 @@ export default function GridWithShadows<T>({
       />
 
       <div
-        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[100px] w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[70px] w-full`}
         style={{
           background: "linear-gradient(transparent, rgb(255, 255, 255))",
           opacity: Number(showBottomShadow),

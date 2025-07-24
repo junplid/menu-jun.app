@@ -20,7 +20,7 @@ export function LayoutPrivateProvider(): JSX.Element {
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
       <div className="h-svh overflow-y-hidden grid grid-rows-[auto_1fr]">
-        <header className="sticky top-0">
+        <header className="">
           <Flipper flipKey={headerOpen}>
             <div
               className={clsx("bg-zinc-300 py-2 duration-300 px-3")}
@@ -48,7 +48,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <label
                     className={clsx(
                       "flex bg-white p-1 px-3 items-center gap-x-2.5 rounded-full",
-                      headerOpen ? "w-[calc(100%-150px)]" : "w-full"
+                      headerOpen
+                        ? "w-[calc(100%-30px)] md:w-[calc(100%-150px)]"
+                        : "w-full"
                     )}
                   >
                     <IoSearch size={22} color="#c8c8c8" />
@@ -65,7 +67,7 @@ export function LayoutPrivateProvider(): JSX.Element {
         </header>
 
         <Outlet />
-        <footer className="w-full max-w-lg mx-auto px-3 text-xs text-center text-black/70">
+        <footer className="w-full max-w-lg mx-auto px-3 z-50 text-xs text-center text-black/70">
           © 2025 - Desenvolvido & mantido por{" "}
           <a
             className="text-blue-600 font-semibold"

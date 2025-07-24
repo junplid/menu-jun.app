@@ -1,7 +1,7 @@
-import { AspectRatio } from "@chakra-ui/react";
+import { AspectRatio, Collapsible, Presence } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
-import { JSX, useContext, useRef, useState } from "react";
+import { JSX, useContext, useEffect, useRef, useState } from "react";
 import Carousel, { ResponsiveType } from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
@@ -9,6 +9,7 @@ import { useDialogModal } from "../../hooks/dialog.modal";
 import { ModalViewSabor } from "./modals/viewSabor";
 import { ModalSelecionarTamanho } from "./modals/SelecionarTamanho";
 import { formatToBRL } from "brazilian-values";
+import { PiShoppingCartBold } from "react-icons/pi";
 
 const responsive = {
   superLargeDesktop: {
@@ -270,7 +271,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
   } = useDialogModal({ placement: "center" });
 
   const ref = useRef<Carousel>(null);
-  const { setHeaderOpen } = useContext(LayoutPrivateContext);
+  const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
   const [tSelected, setTSelected] = useState<string | null>(null);
   const [currentTag, setCurrentTab] = useState(0);
 
@@ -278,9 +279,28 @@ export const MenuPage: React.FC = (): JSX.Element => {
     ref.current?.goToSlide(i);
   }
 
+  const [showPresence, setShowPresence] = useState(false);
+
+  useEffect(() => {
+    let id: NodeJS.Timeout;
+
+    if (tSelected) {
+      id = setTimeout(() => setShowPresence(true), 500); // 300 ms
+    } else {
+      setShowPresence(false); // fecha imediatamente
+    }
+
+    return () => clearTimeout(id); // limpeza se o usuário cancelar antes
+  }, [tSelected]);
+
   return (
-    <main className="w-full max-w-lg px-3 mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0">
-      <div className="grid grid-cols-5 items-center gap-x-3 mt-2">
+    <main
+      className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
+      style={{
+        paddingBottom: showPresence ? "80px" : "8px",
+      }}
+    >
+      <div className="grid grid-cols-5 items-center gap-x-3 mt-2 px-3">
         <div onClick={() => irPara(0)} className="flex flex-col items-center">
           <AspectRatio ratio={1 / 1} w={"100%"}>
             <div
@@ -296,14 +316,16 @@ export const MenuPage: React.FC = (): JSX.Element => {
               />
             </div>
           </AspectRatio>
-          <span
-            className={clsx(
-              "font-semibold duration-300 text-sm",
-              currentTag === 0 ? "text-zinc-900" : "text-zinc-500"
-            )}
-          >
-            Pizzas
-          </span>
+          {headerOpen && (
+            <span
+              className={clsx(
+                "font-semibold duration-300 text-sm",
+                currentTag === 0 ? "text-zinc-900" : "text-zinc-500"
+              )}
+            >
+              Pizzas
+            </span>
+          )}
         </div>
 
         <div
@@ -324,120 +346,133 @@ export const MenuPage: React.FC = (): JSX.Element => {
               />
             </div>
           </AspectRatio>
-          <span
-            className={clsx(
-              "font-semibold duration-300  text-sm",
-              currentTag === 1 ? "text-zinc-900" : "text-zinc-500"
-            )}
-          >
-            Bebidas
-          </span>
+          {headerOpen && (
+            <span
+              className={clsx(
+                "font-semibold duration-300  text-sm",
+                currentTag === 1 ? "text-zinc-900" : "text-zinc-500"
+              )}
+            >
+              Bebidas
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="flex flex-col gap-y-2 mt-2">
-        <div className="grid grid-rows-[20px_auto] gap-y-2">
-          {tSelected && (
-            <div className="flex items-center font-semibold gap-x-2">
-              <span>
-                <span className="text-zinc-500 text-sm">
-                  Tamanho selecionado:
-                </span>{" "}
-                {tSelected}
-              </span>
-              <a
-                className="text-blue-500 cursor-pointer text-sm"
-                onClick={() => setTSelected(null)}
-              >
-                {"(Alterar tamanho)"}
-              </a>
-            </div>
-          )}
-          {tSelected && (
-            <Carousel
-              infinite={false}
-              responsive={responsiveSabores}
-              partialVisible
-              arrows={false}
-              itemClass="relative select-none cursor-pointer mt-4"
-              className=""
-            >
-              {sabores.map((tamanho) => (
-                <div className="first:pr-1 px-1 relative" key={tamanho.name}>
+      <Collapsible.Root open={!currentTag}>
+        <Collapsible.Content>
+          <div className="flex flex-col gap-y-2 mt-2">
+            <div className="grid grid-rows-[20px_auto] gap-y-1">
+              {tSelected && (
+                <div className="flex items-center font-semibold gap-x-2 px-3">
+                  <span>
+                    <span className="text-zinc-500 text-sm">
+                      Tamanho selecionado:
+                    </span>{" "}
+                    {tSelected}
+                  </span>
                   <a
-                    onClick={() => {}}
-                    className="cursor-pointer text-red-400 absolute bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 duration-200"
+                    className="text-blue-500 cursor-pointer text-sm"
+                    onClick={() => setTSelected(null)}
                   >
-                    Retirar
+                    {"(Alterar tamanho)"}
                   </a>
-                  <div className="flex flex-col p-2 h-[95px] rounded-md border justify-between border-zinc-200">
-                    <span className="text-sm font-medium">{tamanho.name}</span>
-                    <div className="flex gap-x-1">
-                      <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                        1
-                      </span>
-                      <a className="bg-green-200 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md">
-                        +
-                      </a>
-                      <a className="bg-red-200 py-1 w-8 text-lg leading-0 flex items-center justify-center rounded-md">
-                        -
-                      </a>
-                    </div>
-                  </div>
                 </div>
-              ))}
-            </Carousel>
-          )}
-          {!tSelected && (
-            <span className="font-semibold text-center">
-              Selecione o tamanho da pizza
-            </span>
-          )}
-          {!tSelected && (
-            <Carousel
-              infinite={false}
-              responsive={responsiveTamanhos}
-              partialVisible
-              itemClass="relative select-none cursor-pointer"
-            >
-              {tamanhos.map((tamanho) => (
-                <div
-                  className="pr-1"
-                  key={tamanho.name}
-                  onClick={() => {
-                    setTSelected(tamanho.name);
-                    setHeaderOpen(false);
-                  }}
+              )}
+              {tSelected && (
+                <Carousel
+                  infinite={false}
+                  responsive={responsiveSabores}
+                  partialVisible
+                  arrows={false}
+                  itemClass="relative select-none cursor-pointer mt-4"
+                  className=""
                 >
-                  <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                    <span className="text-center">{tamanho.name}</span>
-                    <strong className="text-sm text-center">R$ 37,99</strong>
-                    <span className="leading-4 text-sm text-center text-zinc-600">
-                      {tamanho.sabor} Sabor
-                    </span>
-                    <span className="leading-4 text-sm text-center text-zinc-600">
-                      {tamanho.fatias} Fatias
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </Carousel>
-          )}
-        </div>
-        {tSelected && (
-          <div className="flex items-center gap-x-1 justify-center">
-            <a
-              onClick={() => setTSelected(null)}
-              className="bg-red-300 text-red-600 text-sm opacity-40 font-medium p-2 px-2.5 rounded-full"
-            >
-              Desfazer
-            </a>
-            <a className="bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full">
-              Adicionar pizza ao carrinho
-            </a>
+                  {sabores.map((tamanho) => (
+                    <div
+                      className="first:pr-1 px-1 relative"
+                      key={tamanho.name}
+                    >
+                      <a
+                        onClick={() => {}}
+                        className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 absolute text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 duration-200"
+                      >
+                        Retirar
+                      </a>
+                      <div className="flex flex-col p-2 h-[95px] rounded-md border justify-between border-zinc-200">
+                        <span className="text-sm font-medium">
+                          {tamanho.name}
+                        </span>
+                        <div className="flex gap-x-1">
+                          <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                            1
+                          </span>
+                          <a className="bg-green-200 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md">
+                            +
+                          </a>
+                          <a className="bg-red-200 py-1 w-8 text-lg leading-0 flex items-center justify-center rounded-md">
+                            -
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </Carousel>
+              )}
+              {!tSelected && (
+                <span className="font-semibold text-center px-3">
+                  Selecione o tamanho da pizza
+                </span>
+              )}
+              {!tSelected && (
+                <Carousel
+                  infinite={false}
+                  responsive={responsiveTamanhos}
+                  partialVisible
+                  itemClass="relative select-none cursor-pointer"
+                >
+                  {tamanhos.map((tamanho) => (
+                    <div
+                      className="px-1"
+                      key={tamanho.name}
+                      onClick={() => {
+                        setTSelected(tamanho.name);
+                        setHeaderOpen(false);
+                      }}
+                    >
+                      <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
+                        <span className="text-center">{tamanho.name}</span>
+                        <strong className="text-sm text-center">
+                          R$ 37,99
+                        </strong>
+                        <span className="leading-4 text-sm text-center text-zinc-600">
+                          {tamanho.sabor} Sabor
+                        </span>
+                        <span className="leading-4 text-sm text-center text-zinc-600">
+                          {tamanho.fatias} Fatias
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </Carousel>
+              )}
+            </div>
+            {tSelected && (
+              <div className="flex items-center gap-x-1 justify-center">
+                <a
+                  onClick={() => setTSelected(null)}
+                  className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm duration-200 font-medium p-2 px-2.5 rounded-full"
+                >
+                  Desfazer
+                </a>
+                <a className="cursor-pointer bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full">
+                  Adicionar pizza ao carrinho
+                </a>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </Collapsible.Content>
+      </Collapsible.Root>
 
       <Carousel
         ref={ref}
@@ -560,6 +595,41 @@ export const MenuPage: React.FC = (): JSX.Element => {
           }}
         />
       </Carousel>
+
+      <Presence
+        animationName={{
+          _open: "slide-from-bottom-full, fade-in",
+          _closed: "slide-to-bottom-full",
+        }}
+        animationDuration="moderate"
+        present={showPresence}
+        position={"fixed"}
+        left={0}
+        zIndex={1}
+        // style={{ boxShadow: "0 -12px 14px #97979752" }}
+        className="absolute w-full left-0 bottom-0 bg-white"
+      >
+        <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-7 px-2">
+          <div className="flex flex-col">
+            <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
+              {formatToBRL(138)}
+            </span>
+            <span className="text-xl sm:text-2xl font-bold">
+              {formatToBRL(98.3)}
+            </span>
+          </div>
+          <div className="flex gap-x-2">
+            <button className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-2 font-semibold">
+              <PiShoppingCartBold size={20} />
+              Ver carrinho
+            </button>
+            <button className="duration-200 cursor-pointer hover:bg-[#bedeaf] bg-[#c0eaac] rounded-full text-green-700 p-2 px-3 font-semibold">
+              Fazer pedido
+            </button>
+          </div>
+        </div>
+      </Presence>
+
       {DialogModal}
     </main>
   );
