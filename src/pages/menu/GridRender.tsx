@@ -67,7 +67,7 @@ export default function GridWithShadows<T>({
   );
 
   return (
-    <div className="h-full pb-4">
+    <div className="h-full">
       <div
         className={`pointer-events-none absolute duration-300 left-0 z-30 h-[70px] w-full`}
         style={{
@@ -80,7 +80,7 @@ export default function GridWithShadows<T>({
         style={{ height: "100%" }}
         totalCount={items.length}
         overscan={200}
-        listClassName="grid w-full sm:grid-cols-4 grid-cols-3 pb-5"
+        listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
         components={virtuosoComponents}
         itemContent={(index) => renderItem(items[index], index)}
       />

@@ -319,7 +319,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   <span className="line-clamp-2 text-sm font-medium text-center">
                     {item.name}
                   </span>
-                  <span className="line-clamp-3 text-xs text-center font-light">
+                  <span className="line-clamp-3 overflow-hidden text-xs text-center font-light">
                     {item.desc}
                   </span>
                 </div>
