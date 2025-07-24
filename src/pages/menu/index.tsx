@@ -312,7 +312,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 }}
               >
                 <AspectRatio ratio={1 / 1} w={"100%"}>
-                  <img src="/pizza-img.png" alt="" />
+                  <img src="/pizza-img.png" alt="" className="p-1" />
                 </AspectRatio>
 
                 <div>

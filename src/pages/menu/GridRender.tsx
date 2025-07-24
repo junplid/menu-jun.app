@@ -67,7 +67,7 @@ export default function GridWithShadows<T>({
   );
 
   return (
-    <div className="h-full">
+    <div className="h-full pb-4">
       <div
         className={`pointer-events-none absolute duration-300 left-0 z-30 h-[70px] w-full`}
         style={{
