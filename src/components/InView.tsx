@@ -13,5 +13,5 @@ export function InViewComponent(props: IPropsInView) {
     },
   });
 
-  return <div ref={ref} className={props.className} />;
+  return <div ref={ref} className={props.className ?? "block h-px w-full"} />;
 }

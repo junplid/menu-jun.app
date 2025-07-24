@@ -23,10 +23,7 @@ export function LayoutPrivateProvider(): JSX.Element {
         <header className="sticky top-0">
           <Flipper flipKey={headerOpen}>
             <div
-              className={clsx(
-                "bg-zinc-300 py-2 duration-300",
-                headerOpen ? "px-3" : "px-5"
-              )}
+              className={clsx("bg-zinc-300 py-2 duration-300 px-3")}
               style={{ height: headerOpen ? 127 : 58 }}
             >
               <div

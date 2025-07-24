@@ -1,37 +1,10 @@
-import { InViewComponent } from "@components/InView";
+import { AspectRatio } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
-import { FC, JSX, useContext, useRef, useState } from "react";
+import { JSX, useContext, useRef, useState } from "react";
 import Carousel, { ResponsiveType } from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-
-interface PropsShadow {
-  onChange?: (isTop: boolean) => void;
-}
-
-const ShadowTopMemoComponent: FC<PropsShadow> = ({ onChange }) => {
-  const [shadow, setShadow] = useState(false);
-
-  return (
-    <>
-      <InViewComponent
-        onChange={(isTop) => {
-          onChange?.(isTop);
-          setShadow(isTop);
-        }}
-      />
-      <div
-        className={`pointer-events-none absolute left-0 z-30 h-10 w-full`}
-        style={{
-          background:
-            "linear-gradient(rgba(255, 255, 255, 0.797) 0%, rgba(214, 214, 214, 0) 90%)",
-          opacity: Number(!shadow),
-          top: -2,
-        }}
-      ></div>
-    </>
-  );
-};
+import GridWithShadows from "./GridRender";
 
 const responsive = {
   superLargeDesktop: {
@@ -109,9 +82,13 @@ const sabores = [
   { name: "Calabresa" },
 ];
 
+const mockdata = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+];
+
 export const MenuPage: React.FC = (): JSX.Element => {
   const ref = useRef<Carousel>(null);
-  const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
+  const { setHeaderOpen } = useContext(LayoutPrivateContext);
   const [tSelected, setTSelected] = useState<string | null>(null);
   const [currentTag, setCurrentTab] = useState(0);
 
@@ -120,21 +97,23 @@ export const MenuPage: React.FC = (): JSX.Element => {
   }
 
   return (
-    <main className="w-full max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0">
+    <main className="w-full max-w-lg px-3 mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0">
       <div className="grid grid-cols-5 items-center gap-x-3 mt-2">
         <div onClick={() => irPara(0)} className="flex flex-col items-center">
-          <div
-            className={clsx(
-              "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
-              currentTag === 0 && "bg-zinc-200"
-            )}
-          >
-            <img
-              src="/img-icons/pizza-img-icon.png"
-              className="max-h-[50px]"
-              alt="pizza"
-            />
-          </div>
+          <AspectRatio ratio={1 / 1} w={"100%"}>
+            <div
+              className={clsx(
+                "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
+                currentTag === 0 && "bg-zinc-200"
+              )}
+            >
+              <img
+                src="/img-icons/pizza-img-icon.png"
+                className="max-h-[50px] min-h-[40px]"
+                alt="pizza"
+              />
+            </div>
+          </AspectRatio>
           <span
             className={clsx(
               "font-semibold duration-300 text-sm",
@@ -144,22 +123,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
             Pizzas
           </span>
         </div>
+
         <div
           onClick={() => irPara(1)}
           className="flex flex-col items-center cursor-pointer"
         >
-          <div
-            className={clsx(
-              "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
-              currentTag === 1 && "bg-zinc-200"
-            )}
-          >
-            <img
-              src="/img-icons/drinks-img-icon.png"
-              className="max-h-[50px]"
-              alt="pizza"
-            />
-          </div>
+          <AspectRatio ratio={1 / 1} w={"100%"}>
+            <div
+              className={clsx(
+                "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
+                currentTag === 1 && "bg-zinc-200"
+              )}
+            >
+              <img
+                src="/img-icons/drinks-img-icon.png"
+                className="max-h-[50px]"
+                alt="pizza"
+              />
+            </div>
+          </AspectRatio>
           <span
             className={clsx(
               "font-semibold duration-300  text-sm",
@@ -179,7 +161,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 <span className="text-zinc-500 text-sm">
                   Tamanho selecionado:
                 </span>{" "}
-                Pizza {tSelected}
+                {tSelected}
               </span>
               <a
                 className="text-blue-500 cursor-pointer text-sm"
@@ -280,40 +262,89 @@ export const MenuPage: React.FC = (): JSX.Element => {
         infinite={false}
         arrows={false}
         responsive={responsive}
-        itemClass="relative"
         beforeChange={(before) => setCurrentTab(before)}
         className="mt-2"
       >
-        <div
-          className={clsx("duration-300 overflow-y-scroll scroll-hidden")}
-          style={{ height: "100%" }}
-        >
-          <ShadowTopMemoComponent
-            onChange={(isTop) => {
-              if (headerOpen && !isTop) setHeaderOpen(false);
-            }}
-          />
-
-          <div>
-            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-            <div className="bg-red-400 min-h-[100px] w-10 my-1"></div>
-          </div>
-        </div>
-
-        <div
-          className={clsx("overflow-y-scroll duration-200 scroll-hidden")}
-          style={{ height: "100%" }}
-        >
-          <ShadowTopMemoComponent />
-          <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-          <div className="bg-blue-400 min-h-[100px] w-10 my-1"></div>
-        </div>
+        <GridWithShadows
+          items={mockdata}
+          renderItem={(index) => {
+            const file = mockdata[index];
+            // const selected = selecteds.includes(file.id);
+            return (
+              <article
+                key={file}
+                className="cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
+                // style={{
+                //   ...(selected
+                //     ? {
+                //         borderStyle: "solid",
+                //         borderWidth: 2,
+                //         borderColor: "#ffffff",
+                //       }
+                //     : { borderWidth: 2, borderColor: "transparent" }),
+                // }}
+                onClick={() => {
+                  // if (selected) {
+                  // } else {
+                  // }
+                }}
+              >
+                <div
+                  style={{
+                    // borderColor: selecteds.includes(file.id)
+                    //   ? "transparent"
+                    //   : "#272727",
+                    border: "2px solid transparent",
+                  }}
+                  className="cursor-pointer bg-amber-300 w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm"
+                ></div>
+                <span className="line-clamp-2 text-xs text-center font-light">
+                  teste
+                </span>
+              </article>
+            );
+          }}
+        />
+        <GridWithShadows
+          items={mockdata}
+          renderItem={(index) => {
+            const file = mockdata[index];
+            // const selected = selecteds.includes(file.id);
+            return (
+              <article
+                key={file}
+                className="cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
+                // style={{
+                //   ...(selected
+                //     ? {
+                //         borderStyle: "solid",
+                //         borderWidth: 2,
+                //         borderColor: "#ffffff",
+                //       }
+                //     : { borderWidth: 2, borderColor: "transparent" }),
+                // }}
+                onClick={() => {
+                  // if (selected) {
+                  // } else {
+                  // }
+                }}
+              >
+                <div
+                  style={{
+                    // borderColor: selecteds.includes(file.id)
+                    //   ? "transparent"
+                    //   : "#272727",
+                    border: "2px solid transparent",
+                  }}
+                  className="cursor-pointer bg-blue-300 w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm"
+                ></div>
+                <span className="line-clamp-2 text-xs text-center font-light">
+                  teste
+                </span>
+              </article>
+            );
+          }}
+        />
       </Carousel>
     </main>
   );
