@@ -24,6 +24,7 @@
     "@types/lodash.debounce": "^4.0.9",
     "@xyflow/react": "^12.4.4",
     "axios": "^1.8.3",
+    "brazilian-values": "^0.13.1",
     "chart.js": "^4.4.8",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",

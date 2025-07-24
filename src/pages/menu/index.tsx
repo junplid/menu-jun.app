@@ -7,6 +7,8 @@ import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
 import { useDialogModal } from "../../hooks/dialog.modal";
 import { ModalViewSabor } from "./modals/viewSabor";
+import { ModalSelecionarTamanho } from "./modals/SelecionarTamanho";
+import { formatToBRL } from "brazilian-values";
 
 const responsive = {
   superLargeDesktop: {
@@ -72,7 +74,6 @@ const tamanhos = [
   { name: "Média", price: "", sabor: 1, fatias: 4 },
   { name: "Grande", price: "", sabor: 1, fatias: 4 },
   { name: "Familia", price: "", sabor: 1, fatias: 4 },
-  { name: "FamiliaX", price: "", sabor: 1, fatias: 4 },
 ];
 
 const sabores = [
@@ -109,6 +110,156 @@ const mockdata = [
     desc: "mussarela, ervilha, milho, cebola, tomate, pimentão, azeitonas, orégano",
   },
   { name: "Alemão", desc: "mussarela, frango, bacon, ervilha orégano" },
+];
+
+const mockbebidasdata = [
+  {
+    key: "1",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "2",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "3",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "4",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "5",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "6",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "7",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "8",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "9",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "10",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "11",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "12",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "13",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "14",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "15",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "16",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "17",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "18",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "19",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "20",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
+  {
+    key: "21",
+    name: "Coca-Cola",
+    desc: "Sem açucar 220ml",
+    priceAfter: 6.8,
+    priceBefore: 8,
+  },
 ];
 
 export const MenuPage: React.FC = (): JSX.Element => {
@@ -215,14 +366,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 <div className="first:pr-1 px-1 relative" key={tamanho.name}>
                   <a
                     onClick={() => {}}
-                    className="text-red-700 absolute bg-red-300 text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 opacity-65 hover:opacity-100 duration-200"
+                    className="cursor-pointer text-red-400 absolute bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 duration-200"
                   >
                     Retirar
                   </a>
-                  <div className="flex flex-col p-2 h-[90px] rounded-md border justify-between border-zinc-200">
+                  <div className="flex flex-col p-2 h-[95px] rounded-md border justify-between border-zinc-200">
                     <span className="text-sm font-medium">{tamanho.name}</span>
                     <div className="flex gap-x-1">
-                      <span className="bg-zinc-200 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                      <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
                         1
                       </span>
                       <a className="bg-green-200 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md">
@@ -314,18 +465,28 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 //     : { borderWidth: 2, borderColor: "transparent" }),
                 // }}
                 onClick={() => {
-                  onOpen({
-                    content: <ModalViewSabor close={close} id={1} />,
-                  });
+                  if (tSelected) {
+                    onOpen({
+                      content: <ModalViewSabor close={close} id={1} />,
+                    });
+                  } else {
+                    onOpen({
+                      content: <ModalSelecionarTamanho close={close} id={1} />,
+                    });
+                  }
                   // if (selected) {
                   // } else {
                   // }
                 }}
               >
                 <AspectRatio ratio={1 / 1} w={"100%"}>
-                  <img src="/pizza-img.png" alt="" className="p-1" />
+                  <img
+                    src="/pizza-img.png"
+                    alt=""
+                    className="p-1 pointer-events-none"
+                    draggable={false}
+                  />
                 </AspectRatio>
-
                 <div>
                   <span className="line-clamp-2 text-sm font-medium text-center">
                     {item.name}
@@ -339,13 +500,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
           }}
         />
         <GridWithShadows
-          items={mockdata}
+          items={mockbebidasdata}
           renderItem={(item) => {
             // const selected = selecteds.includes(file.id);
             return (
               <article
                 key={item.name}
-                className="cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
+                className="cursor-pointer p-0.5 pb-2 h-full flex flex-col select-none items-center w-full"
                 // style={{
                 //   ...(selected
                 //     ? {
@@ -356,23 +517,44 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 //     : { borderWidth: 2, borderColor: "transparent" }),
                 // }}
                 onClick={() => {
+                  if (tSelected) {
+                    onOpen({
+                      content: <ModalViewSabor close={close} id={1} />,
+                    });
+                  } else {
+                    onOpen({
+                      content: <ModalSelecionarTamanho close={close} id={1} />,
+                    });
+                  }
                   // if (selected) {
                   // } else {
                   // }
                 }}
               >
-                <div
-                  style={{
-                    // borderColor: selecteds.includes(file.id)
-                    //   ? "transparent"
-                    //   : "#272727",
-                    border: "2px solid transparent",
-                  }}
-                  className="cursor-pointer bg-blue-300 w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm"
-                ></div>
-                <span className="line-clamp-2 text-xs text-center font-light">
-                  teste
-                </span>
+                <AspectRatio ratio={1 / 1} w={"100%"}>
+                  <img
+                    src="/refri-img.png"
+                    alt=""
+                    className="p-2 pointer-events-none"
+                    draggable={false}
+                  />
+                </AspectRatio>
+                <div className="w-full flex flex-col items-end -mt-5 pr-4 mb-1 h-[29px]">
+                  <span className="text-zinc-600 line-through text-xs">
+                    {formatToBRL(item.priceBefore)}
+                  </span>
+                  <span className="font-semibold leading-3 text-sm">
+                    {formatToBRL(item.priceAfter)}
+                  </span>
+                </div>
+                <div>
+                  <span className="line-clamp-2 font-medium text-center">
+                    {item.name}
+                  </span>
+                  <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
+                    {item.desc}
+                  </span>
+                </div>
               </article>
             );
           }}
