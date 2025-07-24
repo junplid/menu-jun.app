@@ -65,8 +65,8 @@ export function LayoutPrivateProvider(): JSX.Element {
         </header>
 
         <Outlet />
-        <footer className="w-full max-w-lg mx-auto px-3 text-sm text-center text-black/70">
-          © 2025 - Developed & maintained by{" "}
+        <footer className="w-full max-w-lg mx-auto px-3 text-xs text-center text-black/70">
+          © 2025 - Desenvolvido & mantido por{" "}
           <a
             className="text-blue-600 font-semibold"
             href="https://www.instagram.com/junplid/"

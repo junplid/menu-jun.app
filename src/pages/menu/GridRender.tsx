@@ -17,7 +17,7 @@ const Scroller = forwardRef<
   return (
     <div ref={ref} style={{ ...style }} {...props} className="scroll-hidden">
       <InView
-        rootMargin="0px"
+        // rootMargin="0px"
         threshold={0}
         onChange={(inView) => setShowTopShadow(!inView)}
       >
@@ -39,7 +39,7 @@ export default function GridWithShadows<T>({
 
   const FooterSentinel = () => (
     <InView
-      rootMargin="0px"
+      //   rootMargin="0px"
       threshold={0}
       onChange={(inView) => {
         setShowBottomShadow(!inView);
@@ -69,11 +69,11 @@ export default function GridWithShadows<T>({
   return (
     <div className="h-full">
       <div
-        className={`pointer-events-none absolute left-0 z-30 h-[70px] w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[70px] w-full`}
         style={{
           background: "linear-gradient(rgba(255, 255, 255, 1), transparent)",
           opacity: Number(showTopShadow),
-          top: 0,
+          top: -2,
         }}
       />
       <VirtuosoGrid
@@ -86,11 +86,11 @@ export default function GridWithShadows<T>({
       />
 
       <div
-        className={`pointer-events-none absolute left-0 z-30 h-[100px] w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[100px] w-full`}
         style={{
           background: "linear-gradient(transparent, rgb(255, 255, 255))",
           opacity: Number(showBottomShadow),
-          bottom: 0,
+          bottom: -2,
         }}
       />
     </div>

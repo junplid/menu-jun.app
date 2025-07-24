@@ -167,7 +167,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 className="text-blue-500 cursor-pointer text-sm"
                 onClick={() => setTSelected(null)}
               >
-                {"(Clique para alterar)"}
+                {"(Alterar tamanho)"}
               </a>
             </div>
           )}
