@@ -5,6 +5,8 @@ import { JSX, useContext, useRef, useState } from "react";
 import Carousel, { ResponsiveType } from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
+import { useDialogModal } from "../../hooks/dialog.modal";
+import { ModalViewSabor } from "./modals/viewSabor";
 
 const responsive = {
   superLargeDesktop: {
@@ -110,6 +112,12 @@ const mockdata = [
 ];
 
 export const MenuPage: React.FC = (): JSX.Element => {
+  const {
+    dialog: DialogModal,
+    close,
+    onOpen,
+  } = useDialogModal({ placement: "center" });
+
   const ref = useRef<Carousel>(null);
   const { setHeaderOpen } = useContext(LayoutPrivateContext);
   const [tSelected, setTSelected] = useState<string | null>(null);
@@ -306,6 +314,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 //     : { borderWidth: 2, borderColor: "transparent" }),
                 // }}
                 onClick={() => {
+                  onOpen({
+                    content: <ModalViewSabor close={close} id={1} />,
+                  });
                   // if (selected) {
                   // } else {
                   // }
@@ -367,6 +378,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           }}
         />
       </Carousel>
+      {DialogModal}
     </main>
   );
 };
