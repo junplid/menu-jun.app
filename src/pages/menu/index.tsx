@@ -607,7 +607,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         left={0}
         zIndex={1}
         // style={{ boxShadow: "0 -12px 14px #97979752" }}
-        className="absolute w-full left-0 bottom-0 bg-white"
+        className="absolute w-full left-0 bottom-0 bg-white border-t border-t-zinc-300"
       >
         <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-7 px-2">
           <div className="flex flex-col">
@@ -619,12 +619,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
             </span>
           </div>
           <div className="flex gap-x-2">
-            <button className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-2 font-semibold">
+            <button className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-3 px-5 font-semibold">
               <PiShoppingCartBold size={20} />
-              Ver carrinho
-            </button>
-            <button className="duration-200 cursor-pointer hover:bg-[#bedeaf] bg-[#c0eaac] rounded-full text-green-700 p-2 px-3 font-semibold">
-              Fazer pedido
+              Ver meu carrinho
             </button>
           </div>
         </div>
