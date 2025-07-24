@@ -21,7 +21,7 @@ const Scroller = forwardRef<
         threshold={0}
         onChange={(inView) => setShowTopShadow(!inView)}
       >
-        <div className="bg-red-300 w-full h-7" />
+        <div className="w-full h-7" />
       </InView>
 
       {children}

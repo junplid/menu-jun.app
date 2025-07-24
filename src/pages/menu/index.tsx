@@ -84,17 +84,17 @@ const sabores = [
 
 const mockdata = [
   { name: "Baurú", desc: "mussarela, frango, tomate, orégano" },
-  { name: "Calabresa", desc: "mussarela, orégano" },
-  { name: "Catupiry", desc: "mussarela, orégano" },
-  { name: "Cheddar", desc: "mussarela" },
+  { name: "Calabresa", desc: "mussarela, calabresa, orégano" },
+  { name: "Catupiry", desc: "mussarela, catupiry, orégano" },
+  { name: "Cheddar", desc: "mussarela, cheddar, orégano" },
   { name: "Dois queijos", desc: "mussarela, provolone, orégano" },
-  { name: "Frango", desc: "mussarela, catupiry, orégano" },
+  { name: "Frango", desc: "mussarela, frango, catupiry, orégano" },
   { name: "Mussarela", desc: "molho especial, orégano" },
   { name: "Marguerita", desc: "mussarela, tomate, majericão, orégano" },
-  { name: "Milho verde", desc: "mussarela, orégano" },
+  { name: "Milho verde", desc: "mussarela, milho, orégano" },
   { name: "Napolitana", desc: "mussarela, molho, tomate, orégano" },
-  { name: "Palmito", desc: "mussarela, orégano" },
-  { name: "Presunto", desc: "mussarela, orégano" },
+  { name: "Palmito", desc: "mussarela, palmito, orégano" },
+  { name: "Presunto", desc: "mussarela, presunto, orégano" },
   { name: "Portuguesa", desc: "mussarela, presunto, ovos, cebola, orégano" },
   {
     name: "Quatro Queijos",
@@ -319,7 +319,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   <span className="line-clamp-2 text-sm font-medium text-center">
                     {item.name}
                   </span>
-                  <span className="line-clamp-1 overflow-hidden text-xs text-center font-light">
+                  <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
                     {item.desc}
                   </span>
                 </div>
