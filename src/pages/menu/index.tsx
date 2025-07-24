@@ -83,7 +83,30 @@ const sabores = [
 ];
 
 const mockdata = [
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+  { name: "Baurú", desc: "mussarela, frango, tomate, orégano" },
+  { name: "Calabresa", desc: "mussarela, orégano" },
+  { name: "Catupiry", desc: "mussarela, orégano" },
+  { name: "Cheddar", desc: "mussarela" },
+  { name: "Dois queijos", desc: "mussarela, provolone, orégano" },
+  { name: "Frango", desc: "mussarela, catupiry, orégano" },
+  { name: "Mussarela", desc: "molho especial, orégano" },
+  { name: "Marguerita", desc: "mussarela, tomate, majericão, orégano" },
+  { name: "Milho verde", desc: "mussarela, orégano" },
+  { name: "Napolitana", desc: "mussarela, molho, tomate, orégano" },
+  { name: "Palmito", desc: "mussarela, orégano" },
+  { name: "Presunto", desc: "mussarela, orégano" },
+  { name: "Portuguesa", desc: "mussarela, presunto, ovos, cebola, orégano" },
+  {
+    name: "Quatro Queijos",
+    desc: "mussarela, provolone, gorgonzola, catupiry, orégano",
+  },
+  { name: "Siciliana", desc: "mussarela, calabresa, cebola, orégano" },
+  { name: "Três Queijos", desc: "mussarela, provolone, catupiry, orégano" },
+  {
+    name: "Vegetariana",
+    desc: "mussarela, ervilha, milho, cebola, tomate, pimentão, azeitonas, orégano",
+  },
+  { name: "Alemão", desc: "mussarela, frango, bacon, ervilha orégano" },
 ];
 
 export const MenuPage: React.FC = (): JSX.Element => {
@@ -267,13 +290,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
       >
         <GridWithShadows
           items={mockdata}
-          renderItem={(index) => {
-            const file = mockdata[index];
+          renderItem={(item) => {
             // const selected = selecteds.includes(file.id);
             return (
               <article
-                key={file}
-                className="cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
+                key={item.name}
+                className="cursor-pointer p-0.5 pb-2 h-full flex flex-col select-none items-center w-full"
                 // style={{
                 //   ...(selected
                 //     ? {
@@ -289,30 +311,29 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   // }
                 }}
               >
-                <div
-                  style={{
-                    // borderColor: selecteds.includes(file.id)
-                    //   ? "transparent"
-                    //   : "#272727",
-                    border: "2px solid transparent",
-                  }}
-                  className="cursor-pointer bg-amber-300 w-full h-20 overflow-hidden object-center origin-center bg-center flex items-center justify-center rounded-sm"
-                ></div>
-                <span className="line-clamp-2 text-xs text-center font-light">
-                  teste
-                </span>
+                <AspectRatio ratio={1 / 1} w={"100%"}>
+                  <img src="/pizza-img.png" alt="" />
+                </AspectRatio>
+
+                <div>
+                  <span className="line-clamp-2 text-sm font-medium text-center">
+                    {item.name}
+                  </span>
+                  <span className="line-clamp-3 text-xs text-center font-light">
+                    {item.desc}
+                  </span>
+                </div>
               </article>
             );
           }}
         />
         <GridWithShadows
           items={mockdata}
-          renderItem={(index) => {
-            const file = mockdata[index];
+          renderItem={(item) => {
             // const selected = selecteds.includes(file.id);
             return (
               <article
-                key={file}
+                key={item.name}
                 className="cursor-pointer p-1 h-full flex flex-col select-none items-center w-full gap-1"
                 // style={{
                 //   ...(selected
