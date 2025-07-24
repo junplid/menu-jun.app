@@ -83,13 +83,16 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
             }}
           />
         </div>
-        <span className="font-medium text-lg">Endereço de entrega</span>
-        <div className="font-medium text-lg">
-          <span className="text-center block mb-1">Formas de pagamento</span>
+        <span className="font-medium">Endereço de entrega</span>
+        <div className="font-medium">
+          <span className="block text-end pr-[60px] text-sm font-semibold">
+            Cartão
+          </span>
+
           <SegmentGroup.Root
             bg={"#f7f7f7"}
             className="w-full py-2 px-2"
-            defaultValue="React"
+            defaultValue="pix"
           >
             <SegmentGroup.Indicator className="py-2" bg={"#d4d4d4"} />
             <SegmentGroup.Items
@@ -106,8 +109,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
                 {
                   label: (
                     <div className="flex flex-col">
-                      <span>Cartão</span>
-                      <span>credito</span>
+                      <span>Credito</span>
                     </div>
                   ),
                   value: "credit_card",
@@ -115,8 +117,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
                 {
                   label: (
                     <div className="flex flex-col">
-                      <span>Cartão</span>
-                      <span>debito</span>
+                      <span>Debito</span>
                     </div>
                   ),
                   value: "debit_card",
@@ -124,6 +125,10 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
               ]}
             />
           </SegmentGroup.Root>
+
+          <span className="text-center block font-medium text-zinc-600">
+            Formas de pagamento
+          </span>
         </div>
       </DialogBody>
       <DialogFooter justifyContent={"space-between"} p={4} gap={2}>
