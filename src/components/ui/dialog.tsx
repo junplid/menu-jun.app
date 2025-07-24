@@ -28,7 +28,7 @@ export const DialogContent = React.forwardRef<
           backdropFilter="blur(3px)" // desfoca o que está por trás
         />
       )}
-      <ChakraDialog.Positioner>
+      <ChakraDialog.Positioner px={"16px"}>
         <ChakraDialog.Content ref={ref} {...rest} asChild={false}>
           {children}
         </ChakraDialog.Content>

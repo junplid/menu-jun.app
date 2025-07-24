@@ -15,7 +15,7 @@ interface IProps {
 
 export const ModalViewSabor: React.FC<IProps> = (): JSX.Element => {
   return (
-    <DialogContent backdrop w={"300px"}>
+    <DialogContent backdrop w={"320px"}>
       <DialogHeader p={4} flexDirection={"column"} gap={0}>
         <DialogTitle>Frango com catupiry</DialogTitle>
       </DialogHeader>

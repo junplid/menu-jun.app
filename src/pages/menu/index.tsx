@@ -10,6 +10,7 @@ import { ModalViewSabor } from "./modals/viewSabor";
 import { ModalSelecionarTamanho } from "./modals/SelecionarTamanho";
 import { formatToBRL } from "brazilian-values";
 import { PiShoppingCartBold } from "react-icons/pi";
+import { ModalCarrinho } from "./modals/Carrinho";
 
 const responsive = {
   superLargeDesktop: {
@@ -483,6 +484,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         className="mt-2"
       >
         <GridWithShadows
+          listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
           items={mockdata}
           renderItem={(item) => {
             // const selected = selecteds.includes(file.id);
@@ -535,6 +537,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           }}
         />
         <GridWithShadows
+          listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
           items={mockbebidasdata}
           renderItem={(item) => {
             // const selected = selecteds.includes(file.id);
@@ -619,7 +622,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
             </span>
           </div>
           <div className="flex gap-x-2">
-            <button className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-3 px-5 font-semibold">
+            <button
+              onClick={() => {
+                onOpen({
+                  content: <ModalCarrinho close={close} id={1} />,
+                });
+              }}
+              className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-3 px-5 font-semibold"
+            >
               <PiShoppingCartBold size={20} />
               Ver meu carrinho
             </button>

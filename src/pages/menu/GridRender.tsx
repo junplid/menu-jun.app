@@ -6,6 +6,7 @@ interface GridWithShadowsProps<T> {
   items: T[];
   renderItem: (item: T, index: number) => React.ReactNode;
   onScroll?(s: boolean): void;
+  listClassName: string;
 }
 
 const Scroller = forwardRef<
@@ -32,6 +33,7 @@ const Scroller = forwardRef<
 export default function GridWithShadows<T>({
   items,
   renderItem,
+  listClassName,
   ...props
 }: GridWithShadowsProps<T>) {
   const [showTopShadow, setShowTopShadow] = useState(false);
@@ -80,7 +82,7 @@ export default function GridWithShadows<T>({
         style={{ height: "100%" }}
         totalCount={items.length}
         // overscan={200}
-        listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
+        listClassName={listClassName}
         components={virtuosoComponents}
         itemContent={(index) => renderItem(items[index], index)}
       />
