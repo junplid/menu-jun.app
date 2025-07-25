@@ -12,6 +12,9 @@ import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
 import { Field } from "@components/ui/field";
 import { withMask } from "use-mask-input";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface IProps {
   id: number;
@@ -45,12 +48,33 @@ const mockdata = [
   { name: "Alemão", desc: "mussarela, frango, bacon, ervilha orégano" },
 ];
 
+const FormSchema = z.object({
+  address: z.string().min(1),
+  cep: z.string().length(9),
+  persona: z.string().min(1),
+  complement: z.string().optional(),
+});
+
+type Fields = z.infer<typeof FormSchema>;
+
 export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
-  const [handleAddress, setHandleAddress] = useState(false);
+  const [isAddress, setIsAddress] = useState(false);
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<Fields>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  const handleAddress = (fields: Fields) => {
+    console.log(fields);
+  };
+
   return (
     <DialogContent backdrop w={"100%"} className="!h-[calc(100svh-100px)]">
       <DialogHeader
-        zIndex={99999}
+        zIndex={999}
         position={"relative"}
         p={4}
         flexDirection={"column"}
@@ -60,7 +84,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
       </DialogHeader>
       <DialogBody px={4} className="flex flex-col gap-y-2 -my-4 h-full -mt-6">
         <DialogCloseTrigger />
-        {!handleAddress && (
+        {!isAddress && (
           <div className="relative h-full">
             <GridWithShadows
               listClassName="grid w-full grid-cols-1 !relative h-full"
@@ -98,53 +122,73 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
         )}
 
         <div className="flex flex-col justify-between mb-2">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-center">Endereço de entrega</span>
-            <div className="flex flex-col gap-y-1">
-              {!handleAddress && (
-                <a
-                  className="p-2 px-3 border border-zinc-200"
-                  onClick={() => {
-                    setHandleAddress(true);
-                  }}
-                >
-                  Adicionar endereço
-                </a>
-              )}
+          <div className="flex items-center justify-end gap-x-1.5">
+            <a
+              className="p-2 px-3 border text-center border-zinc-200"
+              onClick={() => setIsAddress(false)}
+            >
+              Vou retirar na loja
+            </a>
+            {!isAddress && (
               <a
-                className="p-2 px-3 border text-center border-zinc-200"
-                onClick={() => setHandleAddress(false)}
+                className="p-2 px-3 border border-zinc-200"
+                onClick={() => {
+                  setIsAddress(true);
+                }}
               >
-                Vou retirar na loja
+                Adicionar endereço
               </a>
-            </div>
+            )}
           </div>
-          {handleAddress && (
-            <form className="flex flex-col gap-y-1.5" style={{ marginTop: 20 }}>
-              <Field label="Endereço completo">
-                <Input placeholder="Digite o endereço" size={"sm"} />
+          {isAddress && (
+            <form
+              onSubmit={handleSubmit(handleAddress)}
+              className="flex flex-col gap-y-1.5"
+              style={{ marginTop: 10 }}
+            >
+              <Field label="Endereço completo" invalid={!!errors.address}>
+                <Input
+                  {...register("address")}
+                  placeholder="Digite o endereço"
+                  size={"sm"}
+                  autoComplete="off"
+                />
               </Field>
               <div className="grid grid-cols-[90px_1fr] justify-between gap-x-1.5 mb-2">
-                <Field label=" CEP">
+                <Field label=" CEP" invalid={!!errors.cep}>
                   <Input
+                    {...register("cep")}
                     ref={withMask("99999-999")}
                     placeholder="00000-000"
                     size={"sm"}
+                    autoComplete="off"
                   />
                 </Field>
-                <Field label="Quem recebe?">
-                  <Input placeholder="Digite o nome" size={"sm"} />
+                <Field label="Quem recebe?" invalid={!!errors.persona}>
+                  <Input
+                    {...register("persona")}
+                    placeholder="Digite o nome"
+                    size={"sm"}
+                    autoComplete="off"
+                  />
                 </Field>
               </div>
-              <Field label="Complemento">
-                <Input size={"sm"} placeholder="Ao lado da ..." />
+              <Field label="Complemento" invalid={!!errors.complement}>
+                <Input
+                  size={"sm"}
+                  {...register("complement")}
+                  placeholder="Ao lado da ..."
+                  autoComplete="off"
+                />
               </Field>
-              <Button className="mt-4">Salvar endereço</Button>
+              <Button type={"submit"} className="mt-4">
+                Salvar endereço
+              </Button>
             </form>
           )}
         </div>
 
-        {!handleAddress && (
+        {!isAddress && (
           <div className="font-medium">
             <span className="block text-end pr-[60px] text-sm font-semibold">
               Cartão
@@ -193,7 +237,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
           </div>
         )}
       </DialogBody>
-      <DialogFooter justifyContent={"space-between"} p={4} gap={2}>
+      <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
         <div className="flex flex-col -space-y-1.5">
           <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
             {formatToBRL(138)}
