@@ -4,6 +4,7 @@ import {
   DialogTitle,
   DialogBody,
   DialogFooter,
+  DialogCloseTrigger,
 } from "@components/ui/dialog";
 import { JSX } from "react";
 import { Button, SegmentGroup } from "@chakra-ui/react";
@@ -49,6 +50,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
         <DialogTitle>Meu carrinho</DialogTitle>
       </DialogHeader>
       <DialogBody px={4} className="flex flex-col gap-y-2 -my-4 h-full -mt-6">
+        <DialogCloseTrigger />
         <div className="relative h-full">
           <GridWithShadows
             listClassName="grid w-full grid-cols-1 !relative h-full"
@@ -83,7 +85,15 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
             }}
           />
         </div>
-        <span className="font-medium">Endereço de entrega</span>
+        <div>
+          <div className="flex items-center justify-between">
+            <span className="font-medium">Endereço de entrega</span>
+            <a className="border border-zinc-200 p-1 px-2">
+              Adicionar endereço
+            </a>
+          </div>
+        </div>
+
         <div className="font-medium">
           <span className="block text-end pr-[60px] text-sm font-semibold">
             Cartão
@@ -136,7 +146,10 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
           <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
             {formatToBRL(138)}
           </span>
-          <span className="text-xl font-bold">{formatToBRL(98.3)}</span>
+          <div className="flex items-center gap-x-2">
+            <span>Valor total:</span>
+            <span className="text-xl font-bold">{formatToBRL(98.3)}</span>
+          </div>
         </div>
         <Button
           colorPalette={"green"}
