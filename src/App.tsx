@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { LayoutPrivateProvider } from "@contexts/layout-private.provider";
 
 import { MenuPage } from "./pages/menu";
-import { DialogProvider } from "@contexts/dialog.context";
+import { CartProvider } from "@contexts/cart.provider";
 
 export default function App() {
   return (
@@ -11,9 +11,9 @@ export default function App() {
         <Route
           caseSensitive
           element={
-            <DialogProvider>
+            <CartProvider>
               <LayoutPrivateProvider />
-            </DialogProvider>
+            </CartProvider>
           }
         >
           <Route path="" element={<MenuPage />} />
