@@ -605,6 +605,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                             close={() => {
                               close();
                               addFlavor({ name: item.name, qnt: 1 });
+                              setHeaderOpen(false);
                             }}
                             sizes={tamanhos}
                           />
