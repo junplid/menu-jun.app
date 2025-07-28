@@ -64,11 +64,12 @@ const responsiveSabores: ResponsiveType = {
   },
   tablet: {
     breakpoint: { max: 1024, min: 464 },
-    items: 3,
+    items: 4,
   },
   mobile: {
     breakpoint: { max: 464, min: 0 },
     items: 3,
+    partialVisibilityGutter: 10,
   },
 };
 
@@ -309,7 +310,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           onClick={() => handleTab(0)}
           className="flex flex-col items-center"
         >
-          <AspectRatio ratio={1 / 1} w={"100%"}>
+          <AspectRatio ratio={1} w={"100%"}>
             <div
               className={clsx(
                 "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
@@ -339,7 +340,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           onClick={() => handleTab(1)}
           className="flex flex-col items-center cursor-pointer"
         >
-          <AspectRatio ratio={1 / 1} w={"100%"}>
+          <AspectRatio ratio={1} w={"100%"}>
             <div
               className={clsx(
                 "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
@@ -366,9 +367,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
         </div>
       </div>
 
-      <Collapsible.Root open={!currentTab}>
+      <Collapsible.Root
+        lazyMount={false}
+        unmountOnExit={false}
+        open={!currentTab}
+      >
         <Collapsible.Content>
-          <div className="flex flex-col gap-y-2 mt-2">
+          <div className="flex flex-col gap-y-2 mt-1">
             <div className="grid grid-rows-[20px_auto] gap-y-1">
               {sizeSelected && (
                 <div className="flex items-center font-semibold gap-x-2 px-3">
@@ -387,8 +392,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 </div>
               )}
               {sizeSelected && !!flavorsSelected.length && (
-                <div className="grid grid-cols-[16px_1fr] bg-zinc-50 pt-1 rounded-sm">
-                  <div className="flex flex-col items-center text-sm -space-y-[5px] -translate-y-1 font-medium text-zinc-400">
+                <div className="grid grid-cols-[16px_1fr] rounded-sm">
+                  <div className="flex flex-col items-center text-sm -space-y-[7px] -translate-y-2 font-medium text-zinc-400">
                     <span>s</span>
                     <span>a</span>
                     <span>b</span>
@@ -402,20 +407,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     responsive={responsiveSabores}
                     partialVisible
                     arrows={false}
-                    itemClass="relative select-none cursor-pointer mt-4"
+                    itemClass="relative select-none cursor-pointer"
                   >
                     {flavorsSelected.map((flavor, index) => (
                       <div
                         className="first:pr-1 px-1 relative"
                         key={flavor.name}
                       >
-                        <a
-                          onClick={() => removeFlavor(flavor.name)}
-                          className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 absolute text-sm p-0.5 px-2 rounded-full -top-3.5 right-3 duration-200"
-                        >
-                          Retirar
-                        </a>
-                        <div className="flex flex-col p-2 h-[86px] rounded-md border justify-between border-zinc-200">
+                        <div className="flex flex-col p-2 h-[82px] rounded-md border justify-between border-zinc-200">
                           <span className="text-sm font-medium leading-[15px]">
                             {flavor.name}
                           </span>
@@ -435,7 +434,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                                 }
                               }}
                               className={clsx(
-                                "bg-green-200 text-green-600 py-1 text-lg leading-0 w-8 flex items-center justify-center rounded-md",
+                                "bg-green-200 text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
                                 qntFlavorsMissing
                                   ? "hover:bg-green-300 duration-200 cursor-pointer"
                                   : "opacity-50 cursor-not-allowed"
@@ -462,7 +461,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                                   );
                                 }
                               }}
-                              className="bg-red-200 hover:bg-red-300 text-red-600 duration-200 py-1 w-8 text-lg leading-0 flex items-center justify-center rounded-md"
+                              className="bg-red-200 hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
                             >
                               -
                             </a>
@@ -475,7 +474,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
               )}
               {!sizeSelected && (
                 <span className="font-semibold text-center px-3">
-                  Selecione o tamanho da pizza
+                  Escolha o tamanho da pizza
                 </span>
               )}
               {!sizeSelected && (
@@ -517,7 +516,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             {sizeSelected && (
               <>
                 {flavorsSelected.length ? (
-                  <div className="flex items-center gap-x-1 justify-center">
+                  <div className="flex items-center gap-x-1 -mt-3 justify-center">
                     <a
                       onClick={() => reset()}
                       className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm duration-200 font-medium p-2 px-2.5 rounded-full"
@@ -720,8 +719,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
         // style={{ boxShadow: "0 -12px 14px #97979752" }}
         className="absolute w-full left-0 bottom-0 bg-white border-t border-t-zinc-300"
       >
-        <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-7 px-2">
-          <div className="flex flex-col">
+        <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
+          <div className="flex flex-col -space-y-2">
             <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
               {formatToBRL(138)}
             </span>
@@ -736,7 +735,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   content: <ModalCarrinho close={close} id={1} />,
                 });
               }}
-              className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-3 px-5 font-semibold"
+              className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-2.5 px-3 font-semibold"
             >
               <PiShoppingCartBold size={20} />
               Ver meu carrinho

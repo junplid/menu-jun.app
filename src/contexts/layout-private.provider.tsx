@@ -19,12 +19,12 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className="h-svh overflow-y-hidden grid grid-rows-[auto_1fr]">
+      <div className="h-svh overflow-y-hidden grid grid-rows-[auto_1fr_20px]">
         <header className="">
           <Flipper flipKey={headerOpen}>
             <div
-              className={clsx("bg-zinc-300 py-2 duration-300 px-3")}
-              style={{ height: headerOpen ? 127 : 58 }}
+              className={clsx("bg-zinc-300 py-1.5 duration-300 px-3")}
+              style={{ height: headerOpen ? 127 : 54 }}
             >
               <div
                 className={clsx(

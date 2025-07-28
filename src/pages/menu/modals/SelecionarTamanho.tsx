@@ -27,7 +27,7 @@ export const ModalSelecionarTamanho: React.FC<IProps> = ({
     <DialogContent backdrop w={"320px"}>
       <DialogHeader p={4} pb={2} flexDirection={"column"} gap={0}>
         <DialogTitle className="text-center">
-          Selecione o tamanho da pizza
+          Escolha o tamanho da pizza
         </DialogTitle>
       </DialogHeader>
       <DialogBody px={4} className="flex flex-col gap-y-2 -mt-6">
