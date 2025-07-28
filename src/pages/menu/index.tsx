@@ -303,7 +303,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
   return (
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
-      style={{ paddingBottom: showPresence ? "70px" : "8px" }}
+      style={{ paddingBottom: showPresence ? "57px" : "8px" }}
     >
       <div className="grid grid-cols-5 items-center gap-x-3 mt-2 px-3">
         <div
@@ -516,7 +516,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             {sizeSelected && (
               <>
                 {flavorsSelected.length ? (
-                  <div className="flex items-center gap-x-1 -mt-3 justify-center">
+                  <div className="flex items-center gap-x-1 -mt-4 justify-center">
                     <a
                       onClick={() => reset()}
                       className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm duration-200 font-medium p-2 px-2.5 rounded-full"
