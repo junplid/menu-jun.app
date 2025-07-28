@@ -437,7 +437,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                                 "bg-green-200 text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
                                 qntFlavorsMissing
                                   ? "hover:bg-green-300 duration-200 cursor-pointer"
-                                  : "opacity-50 cursor-not-allowed"
+                                  : "opacity-30 cursor-not-allowed"
                               )}
                             >
                               +
