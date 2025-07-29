@@ -364,10 +364,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
                             qnt: 1,
                           });
                           setTimeout(() => {
-                            handleTab(1);
+                            setFlavorsSelected([]);
+                            setSizeSelected(null);
+                            setTimeout(() => {
+                              handleTab(1);
+                            }, 100);
                           }, 300);
-                          setFlavorsSelected([]);
-                          setSizeSelected(null);
                         }
                       }}
                     >
