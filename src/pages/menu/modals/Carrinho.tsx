@@ -6,8 +6,8 @@ import {
   DialogFooter,
   DialogCloseTrigger,
 } from "@components/ui/dialog";
-import { JSX, useEffect, useState } from "react";
-import { Button, Input, SegmentGroup } from "@chakra-ui/react";
+import { JSX, useContext, useEffect, useState } from "react";
+import { AspectRatio, Button, Input, SegmentGroup } from "@chakra-ui/react";
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
 import { Field } from "@components/ui/field";
@@ -19,37 +19,34 @@ import {
   Fields,
   FormSchema,
 } from "../../../hooks/addressStore";
+import { CartContext } from "@contexts/cart.context";
+import { mocks } from "../mock";
+import clsx from "clsx";
 
 interface IProps {
   id: number;
   close: () => void;
 }
 
-const mockdata = [
-  { name: "Baurú", desc: "mussarela, frango, tomate, orégano" },
-  { name: "Calabresa", desc: "mussarela, calabresa, orégano" },
-  { name: "Catupiry", desc: "mussarela, catupiry, orégano" },
-  { name: "Cheddar", desc: "mussarela, cheddar, orégano" },
-  { name: "Dois queijos", desc: "mussarela, provolone, orégano" },
-  { name: "Frango", desc: "mussarela, frango, catupiry, orégano" },
-  { name: "Mussarela", desc: "molho especial, orégano" },
-  { name: "Marguerita", desc: "mussarela, tomate, majericão, orégano" },
-  { name: "Milho verde", desc: "mussarela, milho, orégano" },
-  { name: "Napolitana", desc: "mussarela, molho, tomate, orégano" },
-  { name: "Palmito", desc: "mussarela, palmito, orégano" },
-  { name: "Presunto", desc: "mussarela, presunto, orégano" },
-  { name: "Portuguesa", desc: "mussarela, presunto, ovos, cebola, orégano" },
+const payment_methods = [
+  { label: "PIX", value: "pix" },
+  { label: "Dinheiro", value: "money" },
   {
-    name: "Quatro Queijos",
-    desc: "mussarela, provolone, gorgonzola, catupiry, orégano",
+    label: (
+      <div className="flex flex-col">
+        <span>Credito</span>
+      </div>
+    ),
+    value: "credit_card",
   },
-  { name: "Siciliana", desc: "mussarela, calabresa, cebola, orégano" },
-  { name: "Três Queijos", desc: "mussarela, provolone, catupiry, orégano" },
   {
-    name: "Vegetariana",
-    desc: "mussarela, ervilha, milho, cebola, tomate, pimentão, azeitonas, orégano",
+    label: (
+      <div className="flex flex-col">
+        <span>Debito</span>
+      </div>
+    ),
+    value: "debit_card",
   },
-  { name: "Alemão", desc: "mussarela, frango, bacon, ervilha orégano" },
 ];
 
 function FormAddress(props: {
@@ -132,6 +129,8 @@ function Body() {
   const { address, upsertAddress } = useAddressStore();
   const [isAddress, setIsAddress] = useState(false);
 
+  const { items, incrementQnt } = useContext(CartContext);
+
   useEffect(() => {
     return () => {
       setIsAddress(false);
@@ -143,32 +142,99 @@ function Body() {
       {!isAddress && (
         <div className="relative h-full">
           <GridWithShadows
-            listClassName="grid w-full grid-cols-1 !relative h-full"
-            items={mockdata}
-            renderItem={(item) => {
+            listClassName="grid w-full grid-cols-1 !relative justify-start"
+            items={items}
+            renderItem={(item, index) => {
+              let flavorsLenght: null | number = 0;
+              if (item.type === "pizza") {
+                flavorsLenght =
+                  mocks.sizes.find((s) => s.name === item.size)?.sabor || null;
+              }
               return (
-                <div className="py-1">
+                <div
+                  className={clsx(
+                    "py-1",
+                    !index && item.type === "pizza" && "first:pt-4"
+                  )}
+                >
                   <article
-                    key={item.name}
-                    className="bg-red-300 w-full"
+                    key={item.key}
+                    className="w-full grid p-2 pr-0 grid-cols-[1fr_minmax(60px,120px)] items-start"
                     onClick={() => {}}
                   >
-                    {/* <AspectRatio ratio={1 / 1} w={"100%"}>
-                  <img
-                    src="/pizza-img.png"
-                    alt=""
-                    className="p-1 pointer-events-none"
-                    draggable={false}
-                  />
-                </AspectRatio> */}
                     <div>
-                      <span className="line-clamp-2 text-sm font-medium text-center">
-                        {item.name}
-                      </span>
-                      <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
-                        {item.desc}
-                      </span>
+                      {item.type === "pizza" && (
+                        <div className="flex flex-col items-baseline">
+                          <div className="relative">
+                            <span className="font-medium text-lg">
+                              Pizza tamanho {item.size}
+                            </span>
+                            {flavorsLenght && (
+                              <span className="absolute -right-4 -top-3 font-semibold text-black/40">
+                                {flavorsLenght > 1
+                                  ? `Até ${flavorsLenght} sabores`
+                                  : "1 sabor"}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex flex-col -mt-1.5">
+                            <ul className="list-disc ml-5 -space-y-1.5">
+                              {item.flavors.map((f) => (
+                                <li key={f.name}>
+                                  {f.qnt} {f.name}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                      {item.type === "drink" && (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-lg">
+                            {item.name}
+                          </span>
+                          <span className="block -mt-1.5">{item.desc}</span>
+                        </div>
+                      )}
+                      <div className="flex gap-x-1 mt-1">
+                        <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                          {item.qnt}
+                        </span>
+                        <a
+                          onClick={() => incrementQnt(item.key, +1)}
+                          className={
+                            "bg-green-200 text-green-600 hover:bg-green-300 duration-200 cursor-pointer py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md"
+                          }
+                        >
+                          +
+                        </a>
+                        <a
+                          onClick={() => incrementQnt(item.key, -1)}
+                          className="bg-red-200 hover:bg-red-300 cursor-pointer text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                        >
+                          -
+                        </a>
+                        <a
+                          onClick={() => {
+                            // antes de remover, passar todo o item para a construção
+                            // removeItem(item.key);
+                          }}
+                          className="bg-blue-200 ml-2 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
+                        >
+                          Editar
+                        </a>
+                      </div>
                     </div>
+                    <AspectRatio ratio={1 / 1} w={"100%"}>
+                      <img
+                        src={
+                          item.type === "pizza" ? "/pizza-img.png" : item.img
+                        }
+                        alt=""
+                        className="p-1 pointer-events-none"
+                        draggable={false}
+                      />
+                    </AspectRatio>
                   </article>
                 </div>
               );
@@ -226,35 +292,7 @@ function Body() {
             defaultValue="pix"
           >
             <SegmentGroup.Indicator className="py-2" bg={"#d4d4d4"} />
-            <SegmentGroup.Items
-              className="w-full"
-              items={[
-                {
-                  label: "PIX",
-                  value: "pix",
-                },
-                {
-                  label: "Dinheiro",
-                  value: "money",
-                },
-                {
-                  label: (
-                    <div className="flex flex-col">
-                      <span>Credito</span>
-                    </div>
-                  ),
-                  value: "credit_card",
-                },
-                {
-                  label: (
-                    <div className="flex flex-col">
-                      <span>Debito</span>
-                    </div>
-                  ),
-                  value: "debit_card",
-                },
-              ]}
-            />
+            <SegmentGroup.Items className="w-full" items={payment_methods} />
           </SegmentGroup.Root>
 
           <span className="text-center block font-medium text-zinc-600">

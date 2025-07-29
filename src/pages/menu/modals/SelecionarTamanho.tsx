@@ -6,20 +6,14 @@ import {
 } from "@components/ui/dialog";
 import { JSX } from "react";
 import { usePizzaStore } from "../../../store/useStore";
+import { mocks } from "../mock";
 
 interface IProps {
   close: () => void;
-  sizes: {
-    name: string;
-    price: number;
-    sabor: number;
-    fatias: number;
-  }[];
 }
 
 export const ModalSelecionarTamanho: React.FC<IProps> = ({
   close,
-  sizes,
 }): JSX.Element => {
   const { setSizeSelected } = usePizzaStore();
 
@@ -33,7 +27,7 @@ export const ModalSelecionarTamanho: React.FC<IProps> = ({
       <DialogBody px={4} className="flex flex-col gap-y-2 -mt-6">
         <div className="flex flex-col">
           <div className="grid grid-cols-2 gap-3 mt-5">
-            {sizes.map((size) => (
+            {mocks.sizes.map((size) => (
               <div
                 key={size.name}
                 className="flex cursor-pointer duration-200 flex-col py-1 pb-2 rounded-md items-center hover:bg-zinc-200 border border-zinc-300"

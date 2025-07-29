@@ -1,4 +1,4 @@
-import { AspectRatio, Collapsible, Presence } from "@chakra-ui/react";
+import { AspectRatio, Collapsible } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
 import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -9,9 +9,12 @@ import { useDialogModal } from "../../hooks/dialog.modal";
 import { ModalViewSabor } from "./modals/viewSabor";
 import { ModalSelecionarTamanho } from "./modals/SelecionarTamanho";
 import { formatToBRL } from "brazilian-values";
-import { PiShoppingCartBold } from "react-icons/pi";
 import { ModalCarrinho } from "./modals/Carrinho";
 import { usePizzaStore } from "../../store/useStore";
+import { CartContext } from "@contexts/cart.context";
+import { PreviewCartComponent } from "./PreviewCart";
+import { nanoid } from "nanoid";
+import { mocks } from "./mock";
 
 const responsive = {
   superLargeDesktop: {
@@ -73,191 +76,12 @@ const responsiveSabores: ResponsiveType = {
   },
 };
 
-const tamanhos = [
-  { name: "Pequena", price: 28, sabor: 1, fatias: 4 },
-  { name: "Média", price: 36, sabor: 2, fatias: 6 },
-  { name: "Grande", price: 45.99, sabor: 3, fatias: 8 },
-  { name: "Familia", price: 57.99, sabor: 4, fatias: 12 },
-];
-
-const mockdata = [
-  { name: "Baurú", desc: "mussarela, frango, tomate, orégano" },
-  { name: "Calabresa com catupiry", desc: "mussarela, calabresa, orégano" },
-  { name: "Catupiry", desc: "mussarela, catupiry, orégano" },
-  { name: "Cheddar", desc: "mussarela, cheddar, orégano" },
-  { name: "Dois queijos", desc: "mussarela, provolone, orégano" },
-  { name: "Frango", desc: "mussarela, frango, catupiry, orégano" },
-  { name: "Mussarela", desc: "molho especial, orégano" },
-  { name: "Marguerita", desc: "mussarela, tomate, majericão, orégano" },
-  { name: "Milho verde", desc: "mussarela, milho, orégano" },
-  { name: "Napolitana", desc: "mussarela, molho, tomate, orégano" },
-  { name: "Palmito", desc: "mussarela, palmito, orégano" },
-  { name: "Presunto", desc: "mussarela, presunto, orégano" },
-  { name: "Portuguesa", desc: "mussarela, presunto, ovos, cebola, orégano" },
-  {
-    name: "Quatro Queijos",
-    desc: "mussarela, provolone, gorgonzola, catupiry, orégano",
-  },
-  { name: "Siciliana", desc: "mussarela, calabresa, cebola, orégano" },
-  { name: "Três Queijos", desc: "mussarela, provolone, catupiry, orégano" },
-  {
-    name: "Vegetariana",
-    desc: "mussarela, ervilha, milho, cebola, tomate, pimentão, azeitonas, orégano",
-  },
-  { name: "Alemão", desc: "mussarela, frango, bacon, ervilha orégano" },
-];
-
-const mockbebidasdata = [
-  {
-    key: "1",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "2",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "3",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "4",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "5",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "6",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "7",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "8",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "9",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "10",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "11",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "12",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "13",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "14",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "15",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "16",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "17",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "18",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "19",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "20",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-  {
-    key: "21",
-    name: "Coca-Cola",
-    desc: "Sem açucar 220ml",
-    priceAfter: 6.8,
-    priceBefore: 8,
-  },
-];
-
 export const MenuPage: React.FC = (): JSX.Element => {
+  const {
+    items: cartItems,
+    addItem: addCartItem,
+    removeItem: removeCartItem,
+  } = useContext(CartContext);
   const {
     dialog: DialogModal,
     close,
@@ -286,14 +110,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
   useEffect(() => {
     let id: NodeJS.Timeout;
 
-    if (sizeSelected) {
+    if (cartItems.length) {
       id = setTimeout(() => setShowPresence(true), 500);
     } else {
       setShowPresence(false);
     }
 
     return () => clearTimeout(id);
-  }, [sizeSelected]);
+  }, [cartItems.length]);
 
   const qntFlavorsMissing = useMemo(() => {
     const totalQnt = flavorsSelected.reduce((p, c) => p + c.qnt, 0);
@@ -461,7 +285,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                                   );
                                 }
                               }}
-                              className="bg-red-200 hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                              className="bg-red-200 cursor-pointer hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
                             >
                               -
                             </a>
@@ -484,28 +308,28 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   partialVisible
                   itemClass="relative select-none cursor-pointer"
                 >
-                  {tamanhos.map((tamanho) => (
+                  {mocks.sizes.map((size) => (
                     <div
                       className="px-1"
-                      key={tamanho.name}
+                      key={size.name}
                       onClick={() => {
                         setSizeSelected({
-                          name: tamanho.name,
-                          qntFlavors: tamanho.sabor,
+                          name: size.name,
+                          qntFlavors: size.sabor,
                         });
                         setHeaderOpen(false);
                       }}
                     >
                       <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                        <span className="text-center">{tamanho.name}</span>
+                        <span className="text-center">{size.name}</span>
                         <strong className="text-sm text-center">
-                          {formatToBRL(tamanho.price)}
+                          {formatToBRL(size.price)}
                         </strong>
                         <span className="leading-4 text-sm text-center text-zinc-600">
-                          {tamanho.sabor} Sabor
+                          {size.sabor} Sabor
                         </span>
                         <span className="leading-4 text-sm text-center text-zinc-600">
-                          {tamanho.fatias} Fatias
+                          {size.fatias} Fatias
                         </span>
                       </div>
                     </div>
@@ -523,7 +347,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     >
                       Desfazer
                     </a>
-                    <a className="cursor-pointer bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full text-sm">
+                    <a
+                      className="cursor-pointer bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full text-sm"
+                      onClick={() => {
+                        const priceSize = mocks.sizes.find(
+                          (t) => t.name === sizeSelected.name
+                        )?.price;
+                        if (priceSize) {
+                          addCartItem({
+                            type: "pizza",
+                            size: sizeSelected.name,
+                            priceAfter: priceSize,
+                            priceBefore: 0,
+                            flavors: flavorsSelected,
+                            key: nanoid(),
+                            qnt: 1,
+                          });
+                        }
+                      }}
+                    >
                       Adicionar pizza ao carrinho
                     </a>
                   </div>
@@ -553,15 +395,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
       >
         <GridWithShadows
           listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
-          items={mockdata}
-          renderItem={(item) => {
+          items={mocks.flavors}
+          renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
-              (f) => f.name === item.name
+              (f) => f.name === flavor.name
             );
             return (
-              <div className="p-0.5 w-full">
+              <div key={flavor.name} className="p-0.5 w-full">
                 <article
-                  key={item.name}
                   className="cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative"
                   style={{ ...(selected && { background: "#edd7be" }) }}
                   onClick={() => {
@@ -569,33 +410,33 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       if (sizeSelected.qntFlavors > 1) {
                         if (qntFlavorsMissing) {
                           const exist = flavorsSelected.some(
-                            (s) => s.name === item.name
+                            (s) => s.name === flavor.name
                           );
                           if (exist) {
-                            removeFlavor(item.name);
+                            removeFlavor(flavor.name);
                           } else {
-                            addFlavor({ name: item.name, qnt: 1 });
+                            addFlavor({ name: flavor.name, qnt: 1 });
                           }
                         } else {
                           const exist = flavorsSelected.some(
-                            (s) => s.name === item.name
+                            (s) => s.name === flavor.name
                           );
                           if (exist) {
-                            removeFlavor(item.name);
+                            removeFlavor(flavor.name);
                           } else {
                             onOpen({
                               content: (
                                 <ModalViewSabor
                                   close={close}
-                                  name={item.name}
-                                  desc={item.desc}
+                                  name={flavor.name}
+                                  desc={flavor.desc}
                                 />
                               ),
                             });
                           }
                         }
                       } else {
-                        setFlavorsSelected([{ name: item.name, qnt: 1 }]);
+                        setFlavorsSelected([{ name: flavor.name, qnt: 1 }]);
                       }
                     } else {
                       onOpen({
@@ -603,10 +444,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
                           <ModalSelecionarTamanho
                             close={() => {
                               close();
-                              addFlavor({ name: item.name, qnt: 1 });
+                              addFlavor({ name: flavor.name, qnt: 1 });
                               setHeaderOpen(false);
                             }}
-                            sizes={tamanhos}
                           />
                         ),
                       });
@@ -632,10 +472,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   </AspectRatio>
                   <div className="-mt-3 h-[72px]">
                     <span className="line-clamp-2 text-sm font-medium text-center">
-                      {item.name}
+                      {flavor.name}
                     </span>
                     <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
-                      {item.desc}
+                      {flavor.desc}
                     </span>
                   </div>
                 </article>
@@ -645,104 +485,73 @@ export const MenuPage: React.FC = (): JSX.Element => {
         />
         <GridWithShadows
           listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
-          items={mockbebidasdata}
-          renderItem={(item) => {
-            // const selected = selecteds.includes(file.id);
+          items={mocks.drinks}
+          renderItem={(drink) => {
+            const selected = cartItems.some((cItem) => cItem.key === drink.key);
             return (
-              <article
-                key={item.name}
-                className="cursor-pointer p-0.5 pb-2 h-full flex flex-col select-none items-center w-full"
-                // style={{
-                //   ...(selected
-                //     ? {
-                //         borderStyle: "solid",
-                //         borderWidth: 2,
-                //         borderColor: "#ffffff",
-                //       }
-                //     : { borderWidth: 2, borderColor: "transparent" }),
-                // }}
-                onClick={() => {
-                  if (sizeSelected) {
-                    // onOpen({
-                    //   content: <ModalViewSabor close={close} id={1} />,
-                    // });
-                  } else {
-                    // onOpen({
-                    //   content: <ModalSelecionarTamanho close={close} id={1} />,
-                    // });
-                  }
-                  // if (selected) {
-                  // } else {
-                  // }
-                }}
-              >
-                <AspectRatio ratio={1 / 1} w={"100%"}>
-                  <img
-                    src="/refri-img.png"
-                    alt=""
-                    className="p-2 pointer-events-none"
-                    draggable={false}
+              <div key={drink.key} className="p-0.5 w-full">
+                <article
+                  className="cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative"
+                  style={{ ...(selected && { background: "#edd7be" }) }}
+                  onClick={() => {
+                    if (selected) {
+                      removeCartItem(drink.key);
+                    } else {
+                      addCartItem({
+                        type: "drink",
+                        priceAfter: drink.priceAfter,
+                        priceBefore: drink.priceBefore,
+                        key: drink.key,
+                        name: drink.name,
+                        qnt: 1,
+                        img: "/refri-img.png",
+                      });
+                    }
+                  }}
+                >
+                  <span
+                    className={clsx(
+                      "bg-[#e7aa64] h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      selected ? "opacity-100 border-white" : "opacity-0"
+                    )}
                   />
-                </AspectRatio>
-                <div className="w-full flex flex-col items-end -mt-5 pr-4 mb-1 h-[29px]">
-                  <span className="text-zinc-600 line-through text-xs">
-                    {formatToBRL(item.priceBefore)}
-                  </span>
-                  <span className="font-semibold leading-3 text-sm">
-                    {formatToBRL(item.priceAfter)}
-                  </span>
-                </div>
-                <div>
-                  <span className="line-clamp-2 font-medium text-center">
-                    {item.name}
-                  </span>
-                  <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
-                    {item.desc}
-                  </span>
-                </div>
-              </article>
+                  <AspectRatio ratio={1 / 1} w={"100%"}>
+                    <img
+                      src="/refri-img.png"
+                      alt=""
+                      className="p-2 pointer-events-none"
+                      draggable={false}
+                    />
+                  </AspectRatio>
+                  <div className="w-full flex flex-col items-end -mt-5 pr-4 mb-1 h-[29px]">
+                    <span className="text-zinc-600 line-through text-xs">
+                      {formatToBRL(drink.priceBefore)}
+                    </span>
+                    <span className="font-semibold leading-3 text-sm">
+                      {formatToBRL(drink.priceAfter)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="line-clamp-2 font-medium text-center">
+                      {drink.name}
+                    </span>
+                    <span className="line-clamp-2 overflow-hidden text-xs text-center font-light">
+                      {drink.desc}
+                    </span>
+                  </div>
+                </article>
+              </div>
             );
           }}
         />
       </Carousel>
 
-      <Presence
-        animationName={{
-          _open: "slide-from-bottom-full, fade-in",
-          _closed: "slide-to-bottom-full",
+      <PreviewCartComponent
+        showPresence={showPresence}
+        onClick={() => {
+          onOpen({ content: <ModalCarrinho close={close} id={1} /> });
         }}
-        animationDuration="moderate"
-        present={showPresence}
-        position={"fixed"}
-        left={0}
-        zIndex={1}
-        // style={{ boxShadow: "0 -12px 14px #97979752" }}
-        className="absolute w-full left-0 bottom-0 bg-white border-t border-t-zinc-300"
-      >
-        <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
-          <div className="flex flex-col -space-y-2">
-            <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
-              {formatToBRL(138)}
-            </span>
-            <span className="text-xl sm:text-2xl font-bold">
-              {formatToBRL(98.3)}
-            </span>
-          </div>
-          <div className="flex gap-x-2">
-            <button
-              onClick={() => {
-                onOpen({
-                  content: <ModalCarrinho close={close} id={1} />,
-                });
-              }}
-              className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-2.5 px-3 font-semibold"
-            >
-              <PiShoppingCartBold size={20} />
-              Ver meu carrinho
-            </button>
-          </div>
-        </div>
-      </Presence>
+      />
 
       {DialogModal}
     </main>
