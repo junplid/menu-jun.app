@@ -363,6 +363,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
                             key: nanoid(),
                             qnt: 1,
                           });
+                          setTimeout(() => {
+                            handleTab(1);
+                          }, 300);
+                          setFlavorsSelected([]);
+                          setSizeSelected(null);
                         }
                       }}
                     >
