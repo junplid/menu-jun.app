@@ -22,6 +22,7 @@ export function _PreviewCartComponent(props: IProps) {
       { after: 0, before: 0 }
     );
   }, [items]);
+
   return (
     <Presence
       animationName={{
@@ -33,14 +34,16 @@ export function _PreviewCartComponent(props: IProps) {
       position={"fixed"}
       left={0}
       zIndex={1}
-      style={{ boxShadow: "0 -12px 14px #97979752" }}
+      style={{ boxShadow: "0 -12px 14px #a2a2a22e" }}
       className="absolute w-full left-0 bottom-0 bg-white border-t border-t-zinc-300"
     >
       <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
-        <div className="flex flex-col -space-y-2">
-          <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
-            {formatToBRL(totalValues.before)}
-          </span>
+        <div className="flex flex-col -space-y-2 h-[53px]">
+          {totalValues.before > 0 && (
+            <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
+              {formatToBRL(totalValues.before)}
+            </span>
+          )}
           <span className="text-xl sm:text-2xl font-bold">
             {formatToBRL(totalValues.after)}
           </span>

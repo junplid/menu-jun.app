@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogCloseTrigger,
 } from "@components/ui/dialog";
-import { JSX, useContext, useEffect, useState } from "react";
+import { JSX, useContext, useEffect, useMemo, useState } from "react";
 import { AspectRatio, Button, Input, SegmentGroup } from "@chakra-ui/react";
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
@@ -219,10 +219,20 @@ function Body() {
                             // antes de remover, passar todo o item para a construção
                             // removeItem(item.key);
                           }}
-                          className="bg-blue-200 ml-2 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
+                          className="bg-blue-200 ml-1 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
                         >
                           Editar
                         </a>
+                        <div className="flex flex-col justify-end -space-y-1.5 ml-2">
+                          {(item.priceBefore || 0) > 0 && (
+                            <span className="text-zinc-400 font-medium line-through text-sm">
+                              {formatToBRL(item.priceBefore! * item.qnt)}
+                            </span>
+                          )}
+                          <span className="font-semibold text-[17px]">
+                            {formatToBRL(item.priceAfter * item.qnt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <AspectRatio ratio={1 / 1} w={"100%"}>
@@ -305,6 +315,19 @@ function Body() {
 }
 
 export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
+  const { items } = useContext(CartContext);
+  const totalValues = useMemo(() => {
+    if (!items.length) return { after: 0, before: 0 };
+    return items.reduce(
+      (prev, curr) => {
+        prev.after += (curr.priceAfter || 0) * curr.qnt;
+        prev.before += (curr.priceBefore || 0) * curr.qnt;
+        return prev;
+      },
+      { after: 0, before: 0 }
+    );
+  }, [items]);
+
   return (
     <DialogContent backdrop w={"100%"} className="!h-[calc(100svh-100px)]">
       <DialogHeader
@@ -320,12 +343,16 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
       <Body />
       <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
         <div className="flex flex-col -space-y-1.5">
-          <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
-            {formatToBRL(138)}
-          </span>
+          {totalValues.before > 0 && (
+            <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
+              {formatToBRL(totalValues.before)}
+            </span>
+          )}
           <div className="flex items-center gap-x-2">
-            <span>Valor total:</span>
-            <span className="text-xl font-bold">{formatToBRL(98.3)}</span>
+            <span>Valor a pagar:</span>
+            <span className="text-xl font-bold">
+              {formatToBRL(totalValues.after)}
+            </span>
           </div>
         </div>
         <Button

@@ -42,7 +42,7 @@ const responsiveTamanhos: ResponsiveType = {
   },
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    partialVisibilityGutter: 10,
+
     items: 4,
   },
   tablet: {
@@ -50,8 +50,9 @@ const responsiveTamanhos: ResponsiveType = {
     items: 4,
   },
   mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 4,
+    breakpoint: { max: 494, min: 0 },
+    partialVisibilityGutter: 15,
+    items: 3,
   },
 };
 
@@ -124,16 +125,17 @@ export const MenuPage: React.FC = (): JSX.Element => {
     return (sizeSelected?.qntFlavors || 0) - totalQnt;
   }, [sizeSelected?.qntFlavors, flavorsSelected]);
 
-  console.log({ currentTab: !!!currentTab });
-
   return (
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
       style={{ paddingBottom: showPresence ? "57px" : "8px" }}
     >
-      <div className="grid grid-cols-5 items-center gap-x-3 mt-2 px-3">
+      <div className="grid grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3">
         <div
-          onClick={() => handleTab(0)}
+          onClick={() => {
+            handleTab(0);
+            if (headerOpen) setHeaderOpen(false);
+          }}
           className="flex flex-col items-center"
         >
           <AspectRatio ratio={1} w={"100%"}>
@@ -163,7 +165,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
         </div>
 
         <div
-          onClick={() => handleTab(1)}
+          onClick={() => {
+            handleTab(1);
+            if (headerOpen) setHeaderOpen(false);
+          }}
           className="flex flex-col items-center cursor-pointer"
         >
           <AspectRatio ratio={1} w={"100%"}>
@@ -308,6 +313,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   infinite={false}
                   responsive={responsiveTamanhos}
                   partialVisible
+                  arrows={false}
                   itemClass="relative select-none cursor-pointer"
                 >
                   {mocks.sizes.map((size) => (
@@ -319,18 +325,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
                           name: size.name,
                           qntFlavors: size.sabor,
                         });
-                        setHeaderOpen(false);
+                        const nextFlavors = flavorsSelected.slice(
+                          0,
+                          size.sabor
+                        );
+                        setFlavorsSelected(nextFlavors);
+                        if (headerOpen) setHeaderOpen(false);
                       }}
                     >
                       <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                        <span className="text-center">{size.name}</span>
-                        <strong className="text-sm text-center">
+                        <span className="text-center leading-4">
+                          {size.name}
+                        </span>
+                        <strong className="text-sm text-center leading-4">
                           {formatToBRL(size.price)}
                         </strong>
                         <span className="leading-4 text-sm text-center text-zinc-600">
                           {size.sabor} Sabor
                         </span>
-                        <span className="leading-4 text-sm text-center text-zinc-600">
+                        <span className="leading-3 text-sm text-center text-zinc-600">
                           {size.fatias} Fatias
                         </span>
                       </div>
@@ -400,7 +413,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
         arrows={false}
         responsive={responsive}
         beforeChange={(before) => setCurrentTab(before)}
-        className="mt-2"
+        className={clsx(
+          "mt-1 border-t duration-300",
+          !currentTab ? "border-transparent" : "border-zinc-200 mt-2"
+        )}
       >
         <GridWithShadows
           listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
@@ -451,10 +467,15 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       onOpen({
                         content: (
                           <ModalSelecionarTamanho
-                            close={() => {
+                            close={(sizeQnt) => {
+                              const nextFlavors = flavorsSelected.slice(
+                                0,
+                                sizeQnt - 1
+                              );
+                              setFlavorsSelected(nextFlavors);
                               close();
                               addFlavor({ name: flavor.name, qnt: 1 });
-                              setHeaderOpen(false);
+                              if (headerOpen) setHeaderOpen(false);
                             }}
                           />
                         ),
@@ -558,6 +579,21 @@ export const MenuPage: React.FC = (): JSX.Element => {
           onOpen({ content: <ModalCarrinho close={close} id={1} /> });
         }}
       />
+
+      <div
+        className={clsx(
+          "bg-black/15 fixed text-zinc-700 text-center duration-300 backdrop-blur-xs left-1/2 w-40 -translate-x-1/2 p-0.5 px-2",
+          qntFlavorsMissing > 0
+            ? showPresence
+              ? "bottom-24"
+              : "bottom-8"
+            : "-bottom-8"
+        )}
+      >
+        {qntFlavorsMissing > 1
+          ? `Faltam ${qntFlavorsMissing} sabores`
+          : "Falta 1 sabor"}
+      </div>
 
       {DialogModal}
     </main>

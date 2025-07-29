@@ -9,7 +9,7 @@ import { usePizzaStore } from "../../../store/useStore";
 import { mocks } from "../mock";
 
 interface IProps {
-  close: () => void;
+  close: (sizeQnt: number) => void;
 }
 
 export const ModalSelecionarTamanho: React.FC<IProps> = ({
@@ -33,7 +33,7 @@ export const ModalSelecionarTamanho: React.FC<IProps> = ({
                 className="flex cursor-pointer duration-200 flex-col py-1 pb-2 rounded-md items-center hover:bg-zinc-200 border border-zinc-300"
                 onClick={() => {
                   setSizeSelected({ name: size.name, qntFlavors: size.sabor });
-                  close();
+                  close(size.sabor);
                 }}
               >
                 <span className="text-center">{size.name}</span>
