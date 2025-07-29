@@ -159,7 +159,7 @@ function Body() {
                 >
                   <article
                     key={item.key}
-                    className="w-full grid p-2 pr-0 grid-cols-[1fr_minmax(60px,120px)] items-start"
+                    className="w-full grid p-2 pr-0 grid-cols-[1fr_minmax(50px,80px)] items-start"
                     onClick={() => {}}
                   >
                     <div>

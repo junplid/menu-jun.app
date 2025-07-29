@@ -124,6 +124,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
     return (sizeSelected?.qntFlavors || 0) - totalQnt;
   }, [sizeSelected?.qntFlavors, flavorsSelected]);
 
+  console.log({ currentTab: !!!currentTab });
+
   return (
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
@@ -192,9 +194,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
       </div>
 
       <Collapsible.Root
-        lazyMount={false}
-        unmountOnExit={false}
-        open={!currentTab}
+        lazyMount={true}
+        unmountOnExit={true}
+        open={!!!currentTab}
       >
         <Collapsible.Content>
           <div className="flex flex-col gap-y-2 mt-1">
@@ -505,11 +507,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       removeCartItem(drink.key);
                     } else {
                       addCartItem({
+                        ...drink,
                         type: "drink",
-                        priceAfter: drink.priceAfter,
-                        priceBefore: drink.priceBefore,
-                        key: drink.key,
-                        name: drink.name,
                         qnt: 1,
                         img: "/refri-img.png",
                       });
