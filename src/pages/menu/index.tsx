@@ -39,15 +39,14 @@ const responsive = {
 const responsiveTamanhos: ResponsiveType = {
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-
     items: 4,
   },
   tablet: {
-    breakpoint: { max: 1024, min: 464 },
+    breakpoint: { max: 1024, min: 465 },
     items: 4,
   },
   mobile: {
-    breakpoint: { max: 494, min: 0 },
+    breakpoint: { max: 465, min: 0 },
     partialVisibilityGutter: 15,
     items: 3,
   },
@@ -128,7 +127,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
     >
       <div
         className={
-          "grid grid-cols-[repeat(5,1fr)_30px] min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
+          "grid grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
         }
       >
         <div
@@ -204,7 +203,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         open={!!!currentTab}
       >
         <Collapsible.Content>
-          <div className="flex flex-col mt-2 px-2">
+          <div className="grid mt-2 px-2">
             {sizeSelected && !!flavorsSelected.length && (
               <div className="grid grid-cols-[1fr_86px] rounded-sm gap-x-2">
                 <Carousel
