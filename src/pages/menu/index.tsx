@@ -215,12 +215,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   {flavorsSelected.map((flavor, index) => (
                     <div className="first:pr-1 px-1 relative" key={flavor.name}>
-                      <div className="flex flex-col p-2 h-[82px] rounded-md bg-zinc-100 justify-between">
+                      <div className="flex flex-col p-2 h-[82px] rounded-md bg-zinc-50 border border-zinc-100 justify-between">
                         <span className="text-sm font-medium leading-[15px] text-yellow-600">
                           {flavor.name}
                         </span>
                         <div className="flex gap-x-1">
-                          <span className="bg-white py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                          <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
                             {flavor.qnt}
                           </span>
                           <a
