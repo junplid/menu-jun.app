@@ -24,8 +24,12 @@ import { mocks } from "../mock";
 import clsx from "clsx";
 
 interface IProps {
-  id: number;
   close: () => void;
+  onReturnEdit(props: {
+    qntFlavors: number;
+    size: string;
+    flavors: { qnt: number; name: string }[];
+  }): void;
 }
 
 const payment_methods = [
@@ -125,11 +129,11 @@ function FormAddress(props: {
   );
 }
 
-function Body() {
+function Body(props: IProps) {
   const { address, upsertAddress } = useAddressStore();
   const [isAddress, setIsAddress] = useState(false);
 
-  const { items, incrementQnt } = useContext(CartContext);
+  const { items, incrementQnt, removeItem } = useContext(CartContext);
 
   useEffect(() => {
     return () => {
@@ -216,9 +220,15 @@ function Body() {
                         </a>
                         {item.type === "pizza" && (
                           <a
-                            onClick={() => {
-                              // antes de remover, passar todo o item para a construção
-                              // removeItem(item.key);
+                            onClick={async () => {
+                              props.onReturnEdit({
+                                flavors: item.flavors,
+                                size: item.size,
+                                qntFlavors: flavorsLenght || 0,
+                              });
+                              await new Promise((s) => setTimeout(s, 120));
+                              removeItem(item.key);
+                              props.close();
                             }}
                             className="bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
                           >
@@ -316,7 +326,7 @@ function Body() {
   );
 }
 
-export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
+export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
   const { items } = useContext(CartContext);
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
@@ -342,7 +352,7 @@ export const ModalCarrinho: React.FC<IProps> = (): JSX.Element => {
         <DialogTitle>Meu carrinho</DialogTitle>
         <DialogCloseTrigger />
       </DialogHeader>
-      <Body />
+      <Body {...props} />
       <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
         <div className="flex flex-col -space-y-1.5">
           {totalValues.before > 0 && (

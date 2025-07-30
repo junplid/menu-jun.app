@@ -511,7 +511,21 @@ export const MenuPage: React.FC = (): JSX.Element => {
       <PreviewCartComponent
         showPresence={showPresence}
         onClick={() => {
-          onOpen({ content: <ModalCarrinho close={close} id={1} /> });
+          onOpen({
+            content: (
+              <ModalCarrinho
+                onReturnEdit={(pizza) => {
+                  setSizeSelected({
+                    name: pizza.size,
+                    qntFlavors: pizza.qntFlavors,
+                  });
+                  setFlavorsSelected(pizza.flavors);
+                  handleTab(0);
+                }}
+                close={close}
+              />
+            ),
+          });
         }}
       />
 
