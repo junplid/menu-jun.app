@@ -34,8 +34,10 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
       <DialogBody px={4} className="flex flex-col gap-y-2 -my-4 -mt-6">
         {props.desc && <p className="text-zinc-600">Com: {props.desc}</p>}
         <div className="flex flex-col">
-          <span className="text-center">Sabores atuais da sua pizza</span>
-          <span className="text-center font-medium text-zinc-400">
+          <span className="text-center font-medium">
+            Sabores atuais da sua pizza
+          </span>
+          <span className="text-center text-zinc-400">
             Escolha um sabor para substituir
           </span>
           <div className="grid grid-cols-2 gap-2 gap-y-5 mt-5">
