@@ -141,7 +141,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             <div
               className={clsx(
                 "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
-                currentTab === 0 && "bg-zinc-200"
+                currentTab === 0 ? "bg-red-800" : "bg-orange-200/40"
               )}
             >
               <img
@@ -155,7 +155,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             <span
               className={clsx(
                 "font-semibold duration-300 text-sm",
-                currentTab === 0 ? "text-zinc-900" : "text-zinc-500"
+                currentTab === 0 ? "text-red-700" : "text-red-500/70"
               )}
             >
               Pizzas
@@ -174,7 +174,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             <div
               className={clsx(
                 "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
-                currentTab === 1 && "bg-zinc-200"
+                currentTab === 1 ? "bg-red-800" : "bg-orange-200/40"
               )}
             >
               <img
@@ -188,7 +188,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             <span
               className={clsx(
                 "font-semibold duration-300  text-sm",
-                currentTab === 1 ? "text-zinc-900" : "text-zinc-500"
+                currentTab === 1 ? "text-red-700" : "text-red-500/70"
               )}
             >
               Bebidas
@@ -310,7 +310,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
               >
                 {mocks.sizes.map((size) => (
                   <div
-                    className="px-1"
+                    className="px-1 pb-1"
                     key={size.name}
                     onClick={() => {
                       setSizeSelected({
@@ -322,16 +322,18 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       if (headerOpen) setHeaderOpen(false);
                     }}
                   >
-                    <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                      <span className="text-center leading-4">{size.name}</span>
-                      <strong className="text-sm text-center leading-4">
+                    <div className="flex flex-col py-2 rounded-md items-center bg-orange-200/40 shadow-md">
+                      <strong className="text-center leading-4 text-red-700">
+                        {size.name}
+                      </strong>
+                      <strong className="text-sm text-center leading-4 text-zinc-500">
                         {formatToBRL(size.price)}
                       </strong>
-                      <span className="leading-4 text-sm text-center text-zinc-600">
-                        {size.sabor} Sabor
+                      <span className="leading-4 text-sm text-center text-zinc-500">
+                        {size.sabor > 1 ? `${size.sabor} sabores` : "1 sabor"}
                       </span>
-                      <span className="leading-3 text-sm text-center text-zinc-600">
-                        {size.fatias} Fatias
+                      <span className="leading-3 text-sm text-center text-zinc-500">
+                        {size.fatias > 1 ? `${size.sabor} fatias` : "1 fatia"}
                       </span>
                     </div>
                   </div>
@@ -547,7 +549,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         <div className="flex flex-col items-center -space-y-1 h-[49px]">
           <div className="flex items-center font-semibold gap-x-1 bg-white/20 backdrop-blur-xs px-2 pt-0.5">
             <span>Pizza {sizeSelected?.name}</span>
-            <a className="text-blue-900 flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:text-blue-800 duration-200">
+            <a className="text-orange-700 flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
               Alterar
               <MdOutlineEdit size={20} />
             </a>
@@ -557,6 +559,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
               {qntFlavorsMissing > 1
                 ? `Faltam ${qntFlavorsMissing} sabores`
                 : "Falta 1 sabor"}
+              *
             </span>
           )}
         </div>
