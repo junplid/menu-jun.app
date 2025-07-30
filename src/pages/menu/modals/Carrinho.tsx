@@ -159,7 +159,7 @@ function Body() {
                 >
                   <article
                     key={item.key}
-                    className="w-full grid p-2 pr-0 grid-cols-[1fr_minmax(50px,80px)] items-start"
+                    className="w-full grid p-2 pr-0 grid-cols-[1fr_60px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start"
                     onClick={() => {}}
                   >
                     <div>
@@ -196,7 +196,7 @@ function Body() {
                           <span className="block -mt-1.5">{item.desc}</span>
                         </div>
                       )}
-                      <div className="flex gap-x-1 mt-1">
+                      <div className="flex gap-x-1 mt-1 -ml-2">
                         <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
                           {item.qnt}
                         </span>
@@ -214,16 +214,18 @@ function Body() {
                         >
                           -
                         </a>
-                        <a
-                          onClick={() => {
-                            // antes de remover, passar todo o item para a construção
-                            // removeItem(item.key);
-                          }}
-                          className="bg-blue-200 ml-1 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
-                        >
-                          Editar
-                        </a>
-                        <div className="flex flex-col justify-end -space-y-1.5 ml-2">
+                        {item.type === "pizza" && (
+                          <a
+                            onClick={() => {
+                              // antes de remover, passar todo o item para a construção
+                              // removeItem(item.key);
+                            }}
+                            className="bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
+                          >
+                            Editar
+                          </a>
+                        )}
+                        <div className="flex flex-col justify-end -space-y-1.5 ml-0.5">
                           {(item.priceBefore || 0) > 0 && (
                             <span className="text-zinc-400 font-medium line-through text-sm">
                               {formatToBRL(item.priceBefore! * item.qnt)}
@@ -255,7 +257,7 @@ function Body() {
 
       {address && !isAddress && (
         <div className="flex items-center justify-between mb-1">
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             <span className="font-medium">Endereço de entrega</span>
             <div className="flex flex-col">
               <span>
@@ -291,7 +293,7 @@ function Body() {
       )}
 
       {!isAddress && (
-        <div className="font-medium">
+        <div className="font-medium -mt-1">
           <span className="block text-end pr-[60px] text-sm font-semibold">
             Cartão
           </span>

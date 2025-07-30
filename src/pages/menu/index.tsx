@@ -15,6 +15,7 @@ import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
 import { nanoid } from "nanoid";
 import { mocks } from "./mock";
+import { MdOutlineEdit } from "react-icons/md";
 
 const responsive = {
   superLargeDesktop: {
@@ -36,10 +37,6 @@ const responsive = {
 };
 
 const responsiveTamanhos: ResponsiveType = {
-  superLargeDesktop: {
-    breakpoint: { max: 4000, min: 3000 },
-    items: 4,
-  },
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
 
@@ -57,22 +54,22 @@ const responsiveTamanhos: ResponsiveType = {
 };
 
 const responsiveSabores: ResponsiveType = {
-  superLargeDesktop: {
-    breakpoint: { max: 4000, min: 3000 },
-    items: 34,
-  },
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    partialVisibilityGutter: 25,
     items: 3,
   },
   tablet: {
     breakpoint: { max: 1024, min: 464 },
-    items: 4,
+    items: 3,
   },
   mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 3,
+    breakpoint: { max: 600, min: 450 },
+    items: 2,
+    partialVisibilityGutter: 30,
+  },
+  xmobile: {
+    breakpoint: { max: 450, min: 0 },
+    items: 2,
     partialVisibilityGutter: 10,
   },
 };
@@ -96,7 +93,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
     flavorsSelected,
     setFlavorsSelected,
     addFlavor,
-    reset,
     removeFlavor,
   } = usePizzaStore();
 
@@ -130,7 +126,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
       style={{ paddingBottom: showPresence ? "57px" : "8px" }}
     >
-      <div className="grid grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3">
+      <div
+        className={
+          "grid grid-cols-[repeat(5,1fr)_30px] min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
+        }
+      >
         <div
           onClick={() => {
             handleTab(0);
@@ -204,204 +204,140 @@ export const MenuPage: React.FC = (): JSX.Element => {
         open={!!!currentTab}
       >
         <Collapsible.Content>
-          <div className="flex flex-col gap-y-2 mt-1">
-            <div className="grid grid-rows-[20px_auto] gap-y-1">
-              {sizeSelected && (
-                <div className="flex items-center font-semibold gap-x-2 px-3">
-                  <span>
-                    <span className="text-zinc-500 text-sm">
-                      Tamanho selecionado:
-                    </span>{" "}
-                    {sizeSelected.name}
-                  </span>
-                  <a
-                    className="text-blue-500 cursor-pointer text-sm"
-                    onClick={() => setSizeSelected(null)}
-                  >
-                    {"(Alterar tamanho)"}
-                  </a>
-                </div>
-              )}
-              {sizeSelected && !!flavorsSelected.length && (
-                <div className="grid grid-cols-[16px_1fr] rounded-sm">
-                  <div className="flex flex-col items-center text-sm -space-y-[7px] -translate-y-2 font-medium text-zinc-400">
-                    <span>s</span>
-                    <span>a</span>
-                    <span>b</span>
-                    <span>o</span>
-                    <span>r</span>
-                    <span>e</span>
-                    <span>s</span>
-                  </div>
-                  <Carousel
-                    infinite={false}
-                    responsive={responsiveSabores}
-                    partialVisible
-                    arrows={false}
-                    itemClass="relative select-none cursor-pointer"
-                  >
-                    {flavorsSelected.map((flavor, index) => (
-                      <div
-                        className="first:pr-1 px-1 relative"
-                        key={flavor.name}
-                      >
-                        <div className="flex flex-col p-2 h-[82px] rounded-md border justify-between border-zinc-200">
-                          <span className="text-sm font-medium leading-[15px]">
-                            {flavor.name}
-                          </span>
-                          <div className="flex gap-x-1">
-                            <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                              {flavor.qnt}
-                            </span>
-                            <a
-                              onClick={() => {
-                                if (qntFlavorsMissing) {
-                                  setFlavorsSelected(
-                                    flavorsSelected.map((fl) => {
-                                      if (fl.name === flavor.name) fl.qnt += 1;
-                                      return fl;
-                                    })
-                                  );
-                                }
-                              }}
-                              className={clsx(
-                                "bg-green-200 text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
-                                qntFlavorsMissing
-                                  ? "hover:bg-green-300 duration-200 cursor-pointer"
-                                  : "opacity-30 cursor-not-allowed"
-                              )}
-                            >
-                              +
-                            </a>
-                            <a
-                              onClick={() => {
-                                const total = flavorsSelected[index].qnt - 1;
-                                if (total === 0) {
-                                  setFlavorsSelected(
-                                    flavorsSelected.filter(
-                                      (s) => s.name !== flavor.name
-                                    )
-                                  );
-                                } else {
-                                  setFlavorsSelected(
-                                    flavorsSelected.map((fl) => {
-                                      if (fl.name === flavor.name)
-                                        fl.qnt = total;
-                                      return fl;
-                                    })
-                                  );
-                                }
-                              }}
-                              className="bg-red-200 cursor-pointer hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-                            >
-                              -
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </Carousel>
-                </div>
-              )}
-              {!sizeSelected && (
-                <span className="font-semibold text-center px-3">
-                  Escolha o tamanho da pizza
-                </span>
-              )}
-              {!sizeSelected && (
+          <div className="flex flex-col mt-2 px-2">
+            {sizeSelected && !!flavorsSelected.length && (
+              <div className="grid grid-cols-[1fr_86px] rounded-sm gap-x-2">
                 <Carousel
                   infinite={false}
-                  responsive={responsiveTamanhos}
+                  responsive={responsiveSabores}
                   partialVisible
                   arrows={false}
                   itemClass="relative select-none cursor-pointer"
                 >
-                  {mocks.sizes.map((size) => (
-                    <div
-                      className="px-1"
-                      key={size.name}
-                      onClick={() => {
-                        setSizeSelected({
-                          name: size.name,
-                          qntFlavors: size.sabor,
-                        });
-                        const nextFlavors = flavorsSelected.slice(
-                          0,
-                          size.sabor
-                        );
-                        setFlavorsSelected(nextFlavors);
-                        if (headerOpen) setHeaderOpen(false);
-                      }}
-                    >
-                      <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
-                        <span className="text-center leading-4">
-                          {size.name}
+                  {flavorsSelected.map((flavor, index) => (
+                    <div className="first:pr-1 px-1 relative" key={flavor.name}>
+                      <div className="flex flex-col p-2 h-[82px] rounded-md border justify-between border-zinc-200">
+                        <span className="text-sm font-medium leading-[15px]">
+                          {flavor.name}
                         </span>
-                        <strong className="text-sm text-center leading-4">
-                          {formatToBRL(size.price)}
-                        </strong>
-                        <span className="leading-4 text-sm text-center text-zinc-600">
-                          {size.sabor} Sabor
-                        </span>
-                        <span className="leading-3 text-sm text-center text-zinc-600">
-                          {size.fatias} Fatias
-                        </span>
+                        <div className="flex gap-x-1">
+                          <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                            {flavor.qnt}
+                          </span>
+                          <a
+                            onClick={() => {
+                              if (qntFlavorsMissing) {
+                                setFlavorsSelected(
+                                  flavorsSelected.map((fl) => {
+                                    if (fl.name === flavor.name) fl.qnt += 1;
+                                    return fl;
+                                  })
+                                );
+                              }
+                            }}
+                            className={clsx(
+                              "bg-green-200 text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
+                              qntFlavorsMissing
+                                ? "hover:bg-green-300 duration-200 cursor-pointer"
+                                : "opacity-30 cursor-not-allowed"
+                            )}
+                          >
+                            +
+                          </a>
+                          <a
+                            onClick={() => {
+                              const total = flavorsSelected[index].qnt - 1;
+                              if (total === 0) {
+                                setFlavorsSelected(
+                                  flavorsSelected.filter(
+                                    (s) => s.name !== flavor.name
+                                  )
+                                );
+                              } else {
+                                setFlavorsSelected(
+                                  flavorsSelected.map((fl) => {
+                                    if (fl.name === flavor.name) fl.qnt = total;
+                                    return fl;
+                                  })
+                                );
+                              }
+                            }}
+                            className="bg-red-200 cursor-pointer hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                          >
+                            -
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </Carousel>
-              )}
-            </div>
-            {sizeSelected && (
-              <>
-                {flavorsSelected.length ? (
-                  <div className="flex items-center gap-x-1 -mt-4 justify-center">
-                    <a
-                      onClick={() => reset()}
-                      className="cursor-pointer text-red-400  bg-red-200 hover:bg-red-300 hover:text-red-700 text-sm duration-200 font-medium p-2 px-2.5 rounded-full"
-                    >
-                      Desfazer
-                    </a>
-                    <a
-                      className="cursor-pointer bg-orange-200 text-orange-500 p-2 font-medium px-4 rounded-full text-sm"
-                      onClick={() => {
-                        const priceSize = mocks.sizes.find(
-                          (t) => t.name === sizeSelected.name
-                        )?.price;
-                        if (priceSize) {
-                          addCartItem({
-                            type: "pizza",
-                            size: sizeSelected.name,
-                            priceAfter: priceSize,
-                            priceBefore: 0,
-                            flavors: flavorsSelected,
-                            key: nanoid(),
-                            qnt: 1,
-                          });
-                          setTimeout(() => {
-                            setFlavorsSelected([]);
-                            setSizeSelected(null);
-                            setTimeout(() => {
-                              handleTab(1);
-                            }, 100);
-                          }, 300);
-                        }
-                      }}
-                    >
-                      Adicionar pizza ao carrinho
-                    </a>
+                <a
+                  className="cursor-pointer bg-orange-200 leading-4 text-orange-500 p-2 font-semibold text-center flex items-center justify-center rounded-md text-sm"
+                  onClick={() => {
+                    const priceSize = mocks.sizes.find(
+                      (t) => t.name === sizeSelected.name
+                    )?.price;
+                    if (priceSize) {
+                      addCartItem({
+                        type: "pizza",
+                        size: sizeSelected.name,
+                        priceAfter: priceSize,
+                        priceBefore: 0,
+                        flavors: flavorsSelected,
+                        key: nanoid(),
+                        qnt: 1,
+                      });
+                      setTimeout(() => {
+                        setFlavorsSelected([]);
+                        setSizeSelected(null);
+                        setTimeout(() => {
+                          handleTab(1);
+                        }, 100);
+                      }, 300);
+                    }
+                  }}
+                >
+                  Adicionar ao carrinho
+                </a>
+              </div>
+            )}
+            {!sizeSelected && (
+              <Carousel
+                infinite={false}
+                responsive={responsiveTamanhos}
+                partialVisible
+                arrows={false}
+                itemClass="relative select-none cursor-pointer"
+              >
+                {mocks.sizes.map((size) => (
+                  <div
+                    className="px-1"
+                    key={size.name}
+                    onClick={() => {
+                      setSizeSelected({
+                        name: size.name,
+                        qntFlavors: size.sabor,
+                      });
+                      const nextFlavors = flavorsSelected.slice(0, size.sabor);
+                      setFlavorsSelected(nextFlavors);
+                      if (headerOpen) setHeaderOpen(false);
+                    }}
+                  >
+                    <div className="flex flex-col py-1 pb-2 rounded-md items-center bg-zinc-100 border border-zinc-300">
+                      <span className="text-center leading-4">{size.name}</span>
+                      <strong className="text-sm text-center leading-4">
+                        {formatToBRL(size.price)}
+                      </strong>
+                      <span className="leading-4 text-sm text-center text-zinc-600">
+                        {size.sabor} Sabor
+                      </span>
+                      <span className="leading-3 text-sm text-center text-zinc-600">
+                        {size.fatias} Fatias
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <span className="text-center text-zinc-400">
-                    Você pode escolher{" "}
-                    <strong className="text-zinc-600">
-                      {sizeSelected.qntFlavors > 1
-                        ? `até ${sizeSelected.qntFlavors} sabores`
-                        : `${sizeSelected.qntFlavors} sabor`}
-                    </strong>
-                  </span>
-                )}
-              </>
+                ))}
+              </Carousel>
             )}
           </div>
         </Collapsible.Content>
@@ -414,12 +350,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
         responsive={responsive}
         beforeChange={(before) => setCurrentTab(before)}
         className={clsx(
-          "mt-1 border-t duration-300",
-          !currentTab ? "border-transparent" : "border-zinc-200 mt-2"
+          "border-t duration-300 border-zinc-200",
+          !currentTab ? "mt-2" : "mt-2"
         )}
       >
         <GridWithShadows
-          listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
+          listClassName="grid w-full min-[460px]:grid-cols-4 grid-cols-3"
           items={mocks.flavors}
           renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
@@ -582,17 +518,31 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
       <div
         className={clsx(
-          "bg-black/15 fixed text-zinc-700 text-center duration-300 backdrop-blur-xs left-1/2 w-40 -translate-x-1/2 p-0.5 px-2",
-          qntFlavorsMissing > 0
+          "fixed text-zinc-700 text-center duration-300 left-1/2 -translate-x-1/2 w-full",
+          sizeSelected
             ? showPresence
               ? "bottom-24"
               : "bottom-8"
-            : "-bottom-8"
+            : "-bottom-12 opacity-0"
         )}
+        onClick={() => setSizeSelected(null)}
       >
-        {qntFlavorsMissing > 1
-          ? `Faltam ${qntFlavorsMissing} sabores`
-          : "Falta 1 sabor"}
+        <div className="flex flex-col items-center -space-y-1 h-[49px]">
+          <div className="flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5">
+            <span>Pizza {sizeSelected?.name}</span>
+            <a className="text-blue-900 flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:text-blue-800 duration-200">
+              Alterar
+              <MdOutlineEdit size={20} />
+            </a>
+          </div>
+          {/* {!!qntFlavorsMissing && ( */}
+          <span className="block bg-white/30 backdrop-blur-xs px-2 pb-0.5">
+            {qntFlavorsMissing > 1
+              ? `Faltam ${qntFlavorsMissing} sabores`
+              : "Falta 1 sabor"}
+          </span>
+          {/* )} */}
+        </div>
       </div>
 
       {DialogModal}
