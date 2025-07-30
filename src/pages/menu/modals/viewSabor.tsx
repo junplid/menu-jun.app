@@ -53,7 +53,7 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
                   className={clsx(
                     "flex flex-col p-2 h-[95px] rounded-md border justify-between",
                     selected === flavor.name
-                      ? "border-red-400 bg-red-100/80"
+                      ? "border-red-300 bg-red-100/80"
                       : "border-zinc-200"
                   )}
                 >
@@ -61,7 +61,7 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
                     {flavor.name}
                   </span>
                   <div className="flex gap-x-1">
-                    <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                    <span className="bg-white py-1 text-sm w-10 flex items-center justify-center rounded-md">
                       {flavor.qnt}
                     </span>
                     <a

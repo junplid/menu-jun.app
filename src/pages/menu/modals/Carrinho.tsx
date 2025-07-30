@@ -145,8 +145,8 @@ function Body(props: IProps) {
               return (
                 <div
                   className={clsx(
-                    "py-1",
-                    !index && item.type === "pizza" && "first:pt-4"
+                    "py-1"
+                    // !index && item.type === "pizza" && "first:pt-4"
                   )}
                 >
                   <article
