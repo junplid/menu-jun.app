@@ -216,7 +216,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   {flavorsSelected.map((flavor, index) => (
                     <div className="first:pr-1 px-1 relative" key={flavor.name}>
                       <div className="flex flex-col p-2 h-[82px] rounded-md border justify-between border-zinc-200">
-                        <span className="text-sm font-medium leading-[15px] text-yellow-700">
+                        <span className="text-sm font-medium leading-[15px] text-yellow-600">
                           {flavor.name}
                         </span>
                         <div className="flex gap-x-1">
@@ -440,10 +440,20 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     />
                   </AspectRatio>
                   <div className="-mt-3 h-[72px]">
-                    <span className="line-clamp-2 text-sm font-semibold text-center text-yellow-700">
+                    <span
+                      className={clsx(
+                        "line-clamp-2 text-sm font-semibold text-center",
+                        selected ? "text-yellow-700" : "text-yellow-600"
+                      )}
+                    >
                       {flavor.name}
                     </span>
-                    <span className="line-clamp-2 overflow-hidden text-zinc-700 text-xs text-center font-light">
+                    <span
+                      className={clsx(
+                        "line-clamp-2 overflow-hidden text-xs text-center font-light",
+                        selected ? "text-zinc-700" : "text-zinc-600"
+                      )}
+                    >
                       {flavor.desc}
                     </span>
                   </div>
@@ -500,10 +510,20 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     </span>
                   </div>
                   <div>
-                    <span className="line-clamp-2 font-medium text-center text-yellow-700">
+                    <span
+                      className={clsx(
+                        "line-clamp-2 font-medium text-center",
+                        selected ? "text-yellow-700" : "text-yellow-600"
+                      )}
+                    >
                       {drink.name}
                     </span>
-                    <span className="line-clamp-2 overflow-hidden text-zinc-700 text-xs text-center font-light">
+                    <span
+                      className={clsx(
+                        "line-clamp-2 overflow-hidden text-xs text-center font-light",
+                        selected ? "text-zinc-700" : "text-zinc-600"
+                      )}
+                    >
                       {drink.desc}
                     </span>
                   </div>
@@ -551,15 +571,15 @@ export const MenuPage: React.FC = (): JSX.Element => {
         onClick={() => setSizeSelected(null)}
       >
         <div className="flex flex-col items-center -space-y-1 h-[49px]">
-          <div className="flex items-center font-semibold gap-x-1 bg-white/20 backdrop-blur-xs px-2 pt-0.5">
+          <div className="text-red-800 flex items-center font-semibold gap-x-1 bg-white/20 backdrop-blur-xs px-2 pt-0.5">
             <span>Pizza {sizeSelected?.name}</span>
-            <a className="text-red-800 flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
+            <a className="flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
               Alterar
               <MdOutlineEdit size={20} />
             </a>
           </div>
           {!!qntFlavorsMissing && (
-            <span className="block bg-white/20 text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
+            <span className="block bg-white/20 text-sm text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
               {qntFlavorsMissing > 1
                 ? `Faltam ${qntFlavorsMissing} sabores`
                 : "Falta 1 sabor"}
