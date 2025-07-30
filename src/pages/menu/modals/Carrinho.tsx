@@ -136,7 +136,7 @@ function Body(props: IProps) {
           <GridWithShadows
             listClassName="grid w-full grid-cols-1 !relative justify-start"
             items={items}
-            renderItem={(item, index) => {
+            renderItem={(item) => {
               let flavorsLenght: null | number = 0;
               if (item.type === "pizza") {
                 flavorsLenght =
