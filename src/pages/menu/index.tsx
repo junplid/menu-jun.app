@@ -127,7 +127,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
     >
       <div
         className={
-          "grid grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
+          "grid grid-cols-[repeat(5,1fr)_30px] min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
         }
       >
         <div
@@ -349,7 +349,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         responsive={responsive}
         beforeChange={(before) => setCurrentTab(before)}
         className={clsx(
-          "border-t duration-300 border-zinc-200",
+          "border-t duration-300 border-zinc-200 ",
           !currentTab ? "mt-2" : "mt-2"
         )}
       >
@@ -518,29 +518,33 @@ export const MenuPage: React.FC = (): JSX.Element => {
       <div
         className={clsx(
           "fixed text-zinc-700 text-center duration-300 left-1/2 -translate-x-1/2 w-full",
-          sizeSelected
+          !currentTab && sizeSelected
             ? showPresence
-              ? "bottom-24"
-              : "bottom-8"
+              ? !!qntFlavorsMissing
+                ? "bottom-22"
+                : "bottom-[68px]"
+              : !!qntFlavorsMissing
+                ? "bottom-8"
+                : "bottom-2"
             : "-bottom-12 opacity-0"
         )}
         onClick={() => setSizeSelected(null)}
       >
         <div className="flex flex-col items-center -space-y-1 h-[49px]">
-          <div className="flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5">
+          <div className="flex items-center font-semibold gap-x-1 bg-white/20 backdrop-blur-xs px-2 pt-0.5">
             <span>Pizza {sizeSelected?.name}</span>
             <a className="text-blue-900 flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:text-blue-800 duration-200">
               Alterar
               <MdOutlineEdit size={20} />
             </a>
           </div>
-          {/* {!!qntFlavorsMissing && ( */}
-          <span className="block bg-white/30 backdrop-blur-xs px-2 pb-0.5">
-            {qntFlavorsMissing > 1
-              ? `Faltam ${qntFlavorsMissing} sabores`
-              : "Falta 1 sabor"}
-          </span>
-          {/* )} */}
+          {!!qntFlavorsMissing && (
+            <span className="block bg-white/20 text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
+              {qntFlavorsMissing > 1
+                ? `Faltam ${qntFlavorsMissing} sabores`
+                : "Falta 1 sabor"}
+            </span>
+          )}
         </div>
       </div>
 
