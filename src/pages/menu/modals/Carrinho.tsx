@@ -36,20 +36,8 @@ const payment_methods = [
   { label: "PIX", value: "pix" },
   { label: "Dinheiro", value: "money" },
   {
-    label: (
-      <div className="flex flex-col">
-        <span>Credito</span>
-      </div>
-    ),
+    label: "Cartão",
     value: "credit_card",
-  },
-  {
-    label: (
-      <div className="flex flex-col">
-        <span>Debito</span>
-      </div>
-    ),
-    value: "debit_card",
   },
 ];
 
@@ -170,7 +158,7 @@ function Body(props: IProps) {
                       {item.type === "pizza" && (
                         <div className="flex flex-col items-baseline">
                           <div className="relative">
-                            <span className="font-medium text-lg">
+                            <span className="font-medium text-lg text-yellow-600">
                               Pizza tamanho {item.size}
                             </span>
                             {flavorsLenght && (
@@ -182,7 +170,7 @@ function Body(props: IProps) {
                             )}
                           </div>
                           <div className="flex flex-col -mt-1.5">
-                            <ul className="list-disc ml-5 -space-y-1.5">
+                            <ul className="list-disc ml-5 -space-y-1.5 text-zinc-600">
                               {item.flavors.map((f) => (
                                 <li key={f.name}>
                                   {f.qnt} {f.name}
@@ -194,10 +182,12 @@ function Body(props: IProps) {
                       )}
                       {item.type === "drink" && (
                         <div className="flex flex-col">
-                          <span className="font-medium text-lg">
+                          <span className="font-medium text-lg text-yellow-600">
                             {item.name}
                           </span>
-                          <span className="block -mt-1.5">{item.desc}</span>
+                          <span className="block -mt-1.5 text-zinc-600">
+                            {item.desc}
+                          </span>
                         </div>
                       )}
                       <div className="flex gap-x-1 mt-1 -ml-2">
@@ -241,7 +231,7 @@ function Body(props: IProps) {
                               {formatToBRL(item.priceBefore! * item.qnt)}
                             </span>
                           )}
-                          <span className="font-semibold text-[17px]">
+                          <span className="font-semibold text-[17px] text-red-600">
                             {formatToBRL(item.priceAfter * item.qnt)}
                           </span>
                         </div>
@@ -268,7 +258,7 @@ function Body(props: IProps) {
       {address && !isAddress && (
         <div className="flex items-center justify-between mb-1">
           <div className="flex flex-col w-full">
-            <span className="font-medium">Endereço de entrega</span>
+            <span className="font-semibold">Endereço de entrega</span>
             <div className="flex flex-col">
               <span>
                 {address.address} | {address.cep}
@@ -279,7 +269,7 @@ function Body(props: IProps) {
             </div>
           </div>
           <a
-            className="p-2 px-3 border border-zinc-200"
+            className="p-2 px-3 bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 rounded-md border border-blue-300"
             onClick={() => setIsAddress(true)}
           >
             Editar endereço
@@ -304,9 +294,9 @@ function Body(props: IProps) {
 
       {!isAddress && (
         <div className="font-medium -mt-1">
-          <span className="block text-end pr-[60px] text-sm font-semibold">
+          {/* <span className="block text-end pr-[60px] text-sm font-semibold">
             Cartão
-          </span>
+          </span> */}
 
           <SegmentGroup.Root
             bg={"#f7f7f7"}
@@ -349,8 +339,8 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
         flexDirection={"column"}
         gap={0}
       >
-        <DialogTitle>Meu carrinho</DialogTitle>
-        <DialogCloseTrigger />
+        <DialogTitle className="text-black/70">Meu carrinho</DialogTitle>
+        <DialogCloseTrigger color={"red"} />
       </DialogHeader>
       <Body {...props} />
       <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
@@ -362,7 +352,7 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
           )}
           <div className="flex items-center gap-x-2">
             <span>Valor a pagar:</span>
-            <span className="text-xl font-bold">
+            <span className="text-xl font-bold text-red-600">
               {formatToBRL(totalValues.after)}
             </span>
           </div>

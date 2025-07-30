@@ -26,7 +26,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             <div
               className={clsx("py-1.5 duration-300 px-3")}
               style={{
-                height: headerOpen ? 155 : 71,
+                height: headerOpen ? 155 : 61,
                 background:
                   "linear-gradient(147deg,rgba(130, 3, 11, 1) 38%, rgba(219, 0, 7, 1) 91%)",
               }}
@@ -44,14 +44,16 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <Image
                       src="/logo.png"
                       style={{
-                        minWidth: headerOpen ? 85 : 56,
-                        maxWidth: headerOpen ? 85 : 56,
-                        height: headerOpen ? 85 : 56,
+                        minWidth: headerOpen ? 85 : 46,
+                        maxWidth: headerOpen ? 85 : 46,
+                        height: headerOpen ? 85 : 46,
                       }}
                     />
-                    <div className="flex flex-col font-semibold -space-y-2">
-                      <span className="text-white sm:text-lg">Pizzaria</span>
-                      <span className="text-yellow-300 text-lg sm:text-xl font-extrabold">
+                    <div className="flex flex-col font-semibold -space-y-1.5">
+                      <span className="text-white text-sm sm:text-lg">
+                        Pizzaria
+                      </span>
+                      <span className="text-yellow-300 sm:text-xl font-extrabold">
                         Deliciosa
                       </span>
                     </div>
@@ -61,7 +63,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <Flipped flipId="search">
                   <label
                     className={clsx(
-                      "flex bg-white p-3 px-3 text-red-700 items-center gap-x-2.5 rounded-full"
+                      "flex bg-white p-2.5 px-3 text-red-700 items-center gap-x-2.5 rounded-full"
                     )}
                   >
                     <IoSearch size={22} />

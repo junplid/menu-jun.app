@@ -24,8 +24,8 @@ export const DialogContent = React.forwardRef<
     <Portal disabled={!portalled} container={portalRef}>
       {backdrop && (
         <ChakraDialog.Backdrop
-          bg="rgba(0,0,0,0.5)" // sobre‑escurece a tela
-          backdropFilter="blur(3px)" // desfoca o que está por trás
+          bg="rgba(15, 3, 3, 0.5)"
+          backdropFilter="blur(3px)"
         />
       )}
       <ChakraDialog.Positioner px={"16px"}>

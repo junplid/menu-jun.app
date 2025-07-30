@@ -125,7 +125,7 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
       </DialogBody>
       <DialogFooter p={4} gap={2}>
         <Button
-          colorPalette={"teal"}
+          colorPalette={"blue"}
           disabled={!selected}
           onClick={() => {
             const index = flavorsSelected.findIndex((s) => s.name === selected);

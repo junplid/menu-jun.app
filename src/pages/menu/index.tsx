@@ -427,7 +427,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   <span
                     className={clsx(
-                      "bg-yellow-600 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      "bg-red-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
                       selected ? "opacity-100 border-white" : "opacity-0"
                     )}
                   />
@@ -489,7 +489,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   <span
                     className={clsx(
-                      "bg-yellow-600 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      "bg-yellow-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
                       selected ? "opacity-100 border-white" : "opacity-0"
                     )}
                   />
@@ -571,7 +571,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         onClick={() => setSizeSelected(null)}
       >
         <div className="flex flex-col items-center -space-y-1 h-[49px]">
-          <div className="text-red-800 flex items-center font-semibold gap-x-1 bg-white/20 backdrop-blur-xs px-2 pt-0.5">
+          <div className="text-red-700 flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5">
             <span>Pizza {sizeSelected?.name}</span>
             <a className="flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
               Alterar
@@ -579,7 +579,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             </a>
           </div>
           {!!qntFlavorsMissing && (
-            <span className="block bg-white/20 text-sm text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
+            <span className="block bg-white/30 text-sm text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
               {qntFlavorsMissing > 1
                 ? `Faltam ${qntFlavorsMissing} sabores`
                 : "Falta 1 sabor"}
