@@ -61,15 +61,15 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <Flipped flipId="search">
                   <label
                     className={clsx(
-                      "flex bg-orange-100 p-3 px-3 items-center gap-x-2.5 rounded-full"
+                      "flex bg-white p-3 px-3 text-red-700 items-center gap-x-2.5 rounded-full"
                     )}
                   >
-                    <IoSearch size={22} color="#b2b2b2" />
+                    <IoSearch size={22} />
                     <input
                       disabled
                       type="text"
                       placeholder="Buscar"
-                      className="outline-none w-full font-semibold"
+                      className="outline-none w-full font-semibold text-[#b60707] placeholder:text-red-400"
                     />
                   </label>
                 </Flipped>
@@ -82,7 +82,7 @@ export function LayoutPrivateProvider(): JSX.Element {
         <footer className="w-full max-w-lg mx-auto px-3 z-50 text-xs text-center text-black/70">
           © 2025 - Desenvolvido & mantido por{" "}
           <a
-            className="text-blue-600 font-semibold"
+            className="text-red-700 font-semibold"
             href="https://www.instagram.com/junplid/"
             target="_blank"
           >

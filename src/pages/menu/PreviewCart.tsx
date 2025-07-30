@@ -44,14 +44,14 @@ export function _PreviewCartComponent(props: IProps) {
               {formatToBRL(totalValues.before)}
             </span>
           )}
-          <span className="text-xl sm:text-2xl font-bold">
+          <span className="text-xl sm:text-2xl text-red-600 font-bold">
             {formatToBRL(totalValues.after)}
           </span>
         </div>
         <div className="flex gap-x-2">
           <button
             onClick={props.onClick}
-            className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-blue-500 hover:bg-blue-100 text-blue-600 p-2.5 px-3 font-semibold"
+            className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-red-600 hover:bg-blue-100 text-red-600 p-2.5 px-3 font-semibold"
           >
             <PiShoppingCartBold size={20} />
             Ver meu carrinho
