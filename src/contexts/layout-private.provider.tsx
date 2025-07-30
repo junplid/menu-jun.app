@@ -26,7 +26,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             <div
               className={clsx("py-1.5 duration-300 px-3")}
               style={{
-                height: headerOpen ? 155 : 77,
+                height: headerOpen ? 155 : 71,
                 background:
                   "linear-gradient(147deg,rgba(130, 3, 11, 1) 38%, rgba(219, 0, 7, 1) 91%)",
               }}
@@ -44,9 +44,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <Image
                       src="/logo.png"
                       style={{
-                        minWidth: headerOpen ? 85 : 62,
-                        maxWidth: headerOpen ? 85 : 62,
-                        height: headerOpen ? 85 : 62,
+                        minWidth: headerOpen ? 85 : 56,
+                        maxWidth: headerOpen ? 85 : 56,
+                        height: headerOpen ? 85 : 56,
                       }}
                     />
                     <div className="flex flex-col font-semibold -space-y-2">

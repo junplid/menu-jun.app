@@ -29,10 +29,10 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
   return (
     <DialogContent backdrop w={"320px"}>
       <DialogHeader p={4} flexDirection={"column"} gap={0}>
-        <DialogTitle>{props.name}</DialogTitle>
+        <DialogTitle className="text-yellow-600">{props.name}</DialogTitle>
       </DialogHeader>
       <DialogBody px={4} className="flex flex-col gap-y-2 -my-4 -mt-6">
-        {props.desc && <p className="text-black/80">Com: {props.desc}</p>}
+        {props.desc && <p className="text-zinc-600">Com: {props.desc}</p>}
         <div className="flex flex-col">
           <span className="text-center">Sabores atuais da sua pizza</span>
           <span className="text-center font-medium text-zinc-400">
@@ -51,11 +51,13 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
                   className={clsx(
                     "flex flex-col p-2 h-[95px] rounded-md border justify-between",
                     selected === flavor.name
-                      ? "border-zinc-400 bg-zinc-200"
-                      : "border-transparent bg-zinc-100"
+                      ? "border-red-400 bg-red-100/80"
+                      : "border-zinc-200"
                   )}
                 >
-                  <span className="text-sm font-medium">{flavor.name}</span>
+                  <span className="text-sm font-medium text-yellow-600">
+                    {flavor.name}
+                  </span>
                   <div className="flex gap-x-1">
                     <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
                       {flavor.qnt}
