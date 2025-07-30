@@ -34,8 +34,8 @@ export function _PreviewCartComponent(props: IProps) {
       position={"fixed"}
       left={0}
       zIndex={1}
-      style={{ boxShadow: "0 -12px 14px #a2a2a22e" }}
-      className="absolute w-full left-0 bottom-0 bg-white border-t border-t-zinc-300"
+      style={{ boxShadow: "0 -12px 14px #bebebe2d" }}
+      className="absolute w-full left-0 bottom-0 bg-white"
     >
       <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
         <div className="flex flex-col -space-y-2 h-[53px]">

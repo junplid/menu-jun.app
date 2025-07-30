@@ -215,7 +215,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   {flavorsSelected.map((flavor, index) => (
                     <div className="first:pr-1 px-1 relative" key={flavor.name}>
-                      <div className="flex flex-col p-2 h-[82px] rounded-md border justify-between border-zinc-200">
+                      <div className="flex flex-col p-2 h-[82px] rounded-md bg-red-50 justify-between">
                         <span className="text-sm font-medium leading-[15px] text-yellow-600">
                           {flavor.name}
                         </span>
@@ -351,8 +351,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
         responsive={responsive}
         beforeChange={(before) => setCurrentTab(before)}
         className={clsx(
-          "border-t duration-300 border-zinc-200 ",
-          !currentTab ? "mt-2" : "mt-2"
+          "duration-300 mt-2 border-t",
+          !currentTab ? "border-transparent" : "border-zinc-200"
         )}
       >
         <GridWithShadows
@@ -427,7 +427,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   <span
                     className={clsx(
-                      "bg-red-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      "bg-yellow-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
                       selected ? "opacity-100 border-white" : "opacity-0"
                     )}
                   />
