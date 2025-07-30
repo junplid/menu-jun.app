@@ -310,7 +310,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
               >
                 {mocks.sizes.map((size) => (
                   <div
-                    className="px-1 pb-1"
+                    className="px-1 pb-2.5"
                     key={size.name}
                     onClick={() => {
                       setSizeSelected({
@@ -322,7 +322,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       if (headerOpen) setHeaderOpen(false);
                     }}
                   >
-                    <div className="flex flex-col py-2 rounded-md items-center bg-orange-200/40 shadow-md">
+                    <div className="flex flex-col py-2 rounded-md items-center bg-orange-200/40 shadow-lg">
                       <strong className="text-center leading-4 text-red-700">
                         {size.name}
                       </strong>
