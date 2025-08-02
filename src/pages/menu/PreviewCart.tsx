@@ -1,5 +1,6 @@
 import { Presence } from "@chakra-ui/react";
 import { CartContext } from "@contexts/cart.context";
+import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
 import { memo, useContext, useMemo } from "react";
 import { PiShoppingCartBold } from "react-icons/pi";
@@ -9,7 +10,8 @@ interface IProps {
   showPresence: boolean;
 }
 
-export function _PreviewCartComponent(props: IProps) {
+function PreviewCartComponent_(props: IProps) {
+  const { bg_primary } = useContext(DataMenuContext);
   const { items } = useContext(CartContext);
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
@@ -44,14 +46,21 @@ export function _PreviewCartComponent(props: IProps) {
               {formatToBRL(totalValues.before)}
             </span>
           )}
-          <span className="text-xl sm:text-2xl text-red-600 font-bold">
+          <span
+            className={`text-xl sm:text-2xl font-bold`}
+            style={{ color: `${bg_primary || "#111111"}` }}
+          >
             {formatToBRL(totalValues.after)}
           </span>
         </div>
         <div className="flex gap-x-2">
           <button
             onClick={props.onClick}
-            className="duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full border-red-600 hover:bg-blue-100 text-red-600 p-2.5 px-3 font-semibold"
+            className={`duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full p-2.5 px-3 font-semibold`}
+            style={{
+              borderColor: `${bg_primary || "#111111"}`,
+              color: `${bg_primary || "#111111"}`,
+            }}
           >
             <PiShoppingCartBold size={20} />
             Ver meu carrinho
@@ -63,6 +72,6 @@ export function _PreviewCartComponent(props: IProps) {
 }
 
 export const PreviewCartComponent = memo(
-  _PreviewCartComponent,
+  PreviewCartComponent_,
   (prev, next) => prev.showPresence === next.showPresence
 );

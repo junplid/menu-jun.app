@@ -14,8 +14,8 @@ import { usePizzaStore } from "../../store/useStore";
 import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
 import { nanoid } from "nanoid";
-import { mocks } from "./mock";
 import { MdOutlineEdit } from "react-icons/md";
+import { DataMenuContext } from "@contexts/data-menu.context";
 
 const responsive = {
   superLargeDesktop: {
@@ -73,7 +73,13 @@ const responsiveSabores: ResponsiveType = {
   },
 };
 
+const categories = [
+  { name: "Pizzas", img: "/img-icons/pizza-img-icon.png" },
+  { name: "Bebidas", img: "/img-icons/drinks-img-icon.png" },
+];
+
 export const MenuPage: React.FC = (): JSX.Element => {
+  const { sizes, items, bg_primary } = useContext(DataMenuContext);
   const {
     items: cartItems,
     addItem: addCartItem,
@@ -120,6 +126,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
     return (sizeSelected?.qntFlavors || 0) - totalQnt;
   }, [sizeSelected?.qntFlavors, flavorsSelected]);
 
+  const listPizza = useMemo(() => {
+    return items.filter((i) => i.category === "pizzas");
+  }, []);
+
+  const listDrink = useMemo(() => {
+    return items.filter((i) => i.category === "drinks");
+  }, []);
+
   return (
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
@@ -130,71 +144,44 @@ export const MenuPage: React.FC = (): JSX.Element => {
           "grid grid-cols-[repeat(5,1fr)_30px] min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
         }
       >
-        <div
-          onClick={() => {
-            handleTab(0);
-            if (headerOpen) setHeaderOpen(false);
-          }}
-          className="flex flex-col items-center"
-        >
-          <AspectRatio ratio={1} w={"100%"}>
-            <div
-              className={clsx(
-                "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer",
-                currentTab === 0 ? "bg-red-800" : "bg-orange-200/40"
-              )}
-            >
-              <img
-                src="/img-icons/pizza-img-icon.png"
-                className="max-h-[50px] min-h-[40px]"
-                alt="pizza"
-              />
-            </div>
-          </AspectRatio>
-          {headerOpen && (
-            <span
-              className={clsx(
-                "font-semibold duration-300 text-sm",
-                currentTab === 0 ? "text-red-700" : "text-red-500/70"
-              )}
-            >
-              Pizzas
-            </span>
-          )}
-        </div>
+        {categories.map((cat, index) => {
+          const background = `${bg_primary || "#111111"}${index === currentTab ? "90" : "10"}`;
+          const textOn = `${bg_primary || "#111111"}${index === currentTab ? "" : "60"}`;
 
-        <div
-          onClick={() => {
-            handleTab(1);
-            if (headerOpen) setHeaderOpen(false);
-          }}
-          className="flex flex-col items-center cursor-pointer"
-        >
-          <AspectRatio ratio={1} w={"100%"}>
+          return (
             <div
-              className={clsx(
-                "p-1.5 rounded-xl w-full flex justify-center duration-300 items-center",
-                currentTab === 1 ? "bg-red-800" : "bg-orange-200/40"
-              )}
+              key={cat.name}
+              onClick={() => {
+                handleTab(index);
+                if (headerOpen) setHeaderOpen(false);
+              }}
+              className="flex flex-col items-center"
             >
-              <img
-                src="/img-icons/drinks-img-icon.png"
-                className="max-h-[50px]"
-                alt="pizza"
-              />
+              <AspectRatio ratio={1} w={"100%"}>
+                <div
+                  className={`p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer`}
+                  style={{
+                    background,
+                  }}
+                >
+                  <img
+                    src={cat.img}
+                    className="max-h-[50px] min-h-[40px]"
+                    alt={cat.name}
+                  />
+                </div>
+              </AspectRatio>
+              {headerOpen && (
+                <span
+                  className={clsx("font-semibold duration-300 text-sm")}
+                  style={{ color: textOn }}
+                >
+                  {cat.name}
+                </span>
+              )}
             </div>
-          </AspectRatio>
-          {headerOpen && (
-            <span
-              className={clsx(
-                "font-semibold duration-300  text-sm",
-                currentTab === 1 ? "text-red-700" : "text-red-500/70"
-              )}
-            >
-              Bebidas
-            </span>
-          )}
-        </div>
+          );
+        })}
       </div>
 
       <Collapsible.Root
@@ -216,7 +203,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   {flavorsSelected.map((flavor, index) => (
                     <div className="first:pr-1 px-1 relative" key={flavor.name}>
                       <div className="flex flex-col p-2 h-[82px] rounded-md bg-zinc-50 border border-zinc-100 justify-between">
-                        <span className="text-sm font-medium leading-[15px] text-yellow-600">
+                        <span
+                          className={`text-sm font-medium leading-[15px]`}
+                          style={{ color: `${bg_primary || "#111111"}` }}
+                        >
                           {flavor.name}
                         </span>
                         <div className="flex gap-x-1">
@@ -271,9 +261,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   ))}
                 </Carousel>
                 <a
-                  className="cursor-pointer bg-orange-200/40 leading-4 text-red-600 p-2 font-semibold text-center flex items-center justify-center rounded-md text-sm"
+                  className={`cursor-pointer leading-4 p-2 font-semibold text-center flex items-center justify-center rounded-md text-sm`}
                   onClick={() => {
-                    const priceSize = mocks.sizes.find(
+                    const priceSize = sizes.find(
                       (t) => t.name === sizeSelected.name
                     )?.price;
                     if (priceSize) {
@@ -295,6 +285,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       }, 300);
                     }
                   }}
+                  style={{
+                    color: `${bg_primary || "#111111"}`,
+                    background: `${bg_primary || "#111111"}20`,
+                  }}
                 >
                   Adicionar ao carrinho
                 </a>
@@ -308,33 +302,48 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 arrows={false}
                 itemClass="relative select-none cursor-pointer"
               >
-                {mocks.sizes.map((size) => (
+                {sizes.map((size) => (
                   <div
                     className="px-1 pb-1.5"
-                    key={size.name}
+                    key={size.id}
                     onClick={() => {
                       setSizeSelected({
                         name: size.name,
-                        qntFlavors: size.sabor,
+                        qntFlavors: size.flavors,
                       });
-                      const nextFlavors = flavorsSelected.slice(0, size.sabor);
+                      const nextFlavors = flavorsSelected.slice(
+                        0,
+                        size.flavors
+                      );
                       setFlavorsSelected(nextFlavors);
                       if (headerOpen) setHeaderOpen(false);
                     }}
                   >
-                    <div className="flex flex-col py-2 rounded-md items-center bg-orange-200/40 shadow-md">
-                      <strong className="text-center leading-4 text-red-700">
+                    <div
+                      className={`flex flex-col py-2 rounded-md items-center shadow-md`}
+                      style={{ background: `${bg_primary || "#111111"}10` }}
+                    >
+                      <strong
+                        className={`text-center leading-4`}
+                        style={{ color: `${bg_primary || "#111111"}` }}
+                      >
                         {size.name}
                       </strong>
-                      <strong className="text-sm text-center leading-4 text-zinc-500">
+                      <strong className="text-sm text-center leading-4 text-zinc-700">
                         {formatToBRL(size.price)}
                       </strong>
                       <span className="leading-4 text-sm text-center text-zinc-500">
-                        {size.sabor > 1 ? `${size.sabor} sabores` : "1 sabor"}
+                        {size.flavors > 1
+                          ? `${size.flavors} sabores`
+                          : "1 sabor"}
                       </span>
-                      <span className="leading-3 text-sm text-center text-zinc-500">
-                        {size.fatias > 1 ? `${size.fatias} fatias` : "1 fatia"}
-                      </span>
+                      {size.slices !== null && (
+                        <span className="leading-3 text-sm text-center text-zinc-500">
+                          {size.slices > 1
+                            ? `${size.slices} fatias`
+                            : "1 fatia"}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -357,17 +366,22 @@ export const MenuPage: React.FC = (): JSX.Element => {
       >
         <GridWithShadows
           listClassName="grid w-full min-[460px]:grid-cols-4 grid-cols-3 mt-1"
-          items={mocks.flavors}
+          items={listPizza}
           renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
               (f) => f.name === flavor.name
             );
+            const background = selected
+              ? `${bg_primary || "#111111"}10`
+              : undefined;
+            const bgPoint = `${bg_primary || "#111111"}70`;
+
             return (
-              <div key={flavor.name} className="p-0.5 w-full">
+              <div key={flavor.uuid} className="p-0.5 w-full">
                 <article
                   className={clsx(
                     "cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
-                    selected && "bg-orange-200/40"
+                    selected && "shadow"
                   )}
                   onClick={() => {
                     if (sizeSelected) {
@@ -393,7 +407,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                                 <ModalViewSabor
                                   close={close}
                                   name={flavor.name}
-                                  desc={flavor.desc}
+                                  desc={flavor.desc || undefined}
                                 />
                               ),
                             });
@@ -420,21 +434,20 @@ export const MenuPage: React.FC = (): JSX.Element => {
                         ),
                       });
                     }
-                    // if (selected) {
-                    // } else {
-                    // }
                   }}
+                  style={{ background }}
                 >
                   <span
                     className={clsx(
-                      "bg-yellow-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
                       selected ? "opacity-100 border-white" : "opacity-0"
                     )}
+                    style={{ background: bgPoint }}
                   />
                   <AspectRatio ratio={1 / 1} w={"100%"}>
                     <img
-                      src="/pizza-img.png"
-                      alt=""
+                      src={flavor.img}
+                      alt={flavor.name}
                       className="p-1 pointer-events-none"
                       draggable={false}
                     />
@@ -442,9 +455,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   <div className="-mt-3 h-[72px]">
                     <span
                       className={clsx(
-                        "line-clamp-2 text-sm font-semibold text-center",
-                        selected ? "text-yellow-700" : "text-yellow-600"
+                        "line-clamp-2 text-sm font-semibold text-center"
                       )}
+                      style={{
+                        color: selected
+                          ? `${bg_primary || "#111111"}`
+                          : undefined,
+                      }}
                     >
                       {flavor.name}
                     </span>
@@ -464,57 +481,77 @@ export const MenuPage: React.FC = (): JSX.Element => {
         />
         <GridWithShadows
           listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
-          items={mocks.drinks}
+          items={listDrink}
           renderItem={(drink) => {
-            const selected = cartItems.some((cItem) => cItem.key === drink.key);
+            const selected = cartItems.some(
+              (cItem) => cItem.key === drink.uuid
+            );
+            const background = selected
+              ? `${bg_primary || "#111111"}10`
+              : undefined;
+            const bgPoint = `${bg_primary || "#111111"}70`;
+
             return (
-              <div key={drink.key} className="p-0.5 w-full">
+              <div key={drink.uuid} className="p-0.5 w-full">
                 <article
                   className={clsx(
                     "cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
-                    selected && "bg-orange-200/40"
+                    selected && "shadow"
                   )}
                   onClick={() => {
                     if (selected) {
-                      removeCartItem(drink.key);
+                      removeCartItem(drink.uuid);
                     } else {
                       addCartItem({
-                        ...drink,
                         type: "drink",
                         qnt: 1,
                         img: "/refri-img.png",
+                        key: drink.uuid,
+                        name: drink.name,
+                        desc: drink.desc || undefined,
+                        priceAfter: drink.afterPrice!,
+                        priceBefore: drink.beforePrice || undefined,
                       });
                     }
                   }}
+                  style={{ background }}
                 >
                   <span
                     className={clsx(
-                      "bg-yellow-500 h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200",
+                      `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
                       selected ? "opacity-100 border-white" : "opacity-0"
                     )}
+                    style={{ background: bgPoint }}
                   />
                   <AspectRatio ratio={1 / 1} w={"100%"}>
                     <img
-                      src="/refri-img.png"
-                      alt=""
+                      src={drink.img}
+                      alt={drink.name}
                       className="p-2 pointer-events-none"
                       draggable={false}
                     />
                   </AspectRatio>
-                  <div className="w-full flex flex-col items-end -mt-5 pr-4 mb-1 h-[29px]">
-                    <span className="text-zinc-500 line-through text-xs">
-                      {formatToBRL(drink.priceBefore)}
-                    </span>
-                    <span className="font-semibold leading-3 text-sm text-red-700">
-                      {formatToBRL(drink.priceAfter)}
+                  <div className="w-full flex flex-col items-end -mt-3 pr-4 mb-0.5 h-[29px]">
+                    {drink.beforePrice && (
+                      <span className="text-zinc-500 line-through text-xs">
+                        {formatToBRL(drink.beforePrice)}
+                      </span>
+                    )}
+                    <span
+                      className={`font-semibold leading-3 text-sm`}
+                      style={{ color: `${bg_primary || "#111111"}80` }}
+                    >
+                      {formatToBRL(drink.afterPrice!)}
                     </span>
                   </div>
                   <div>
                     <span
-                      className={clsx(
-                        "line-clamp-2 font-medium text-center",
-                        selected ? "text-yellow-700" : "text-yellow-600"
-                      )}
+                      className={clsx("line-clamp-2 font-medium text-center")}
+                      style={{
+                        color: selected
+                          ? `${bg_primary || "#111111"}`
+                          : undefined,
+                      }}
                     >
                       {drink.name}
                     </span>
@@ -557,7 +594,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
       <div
         className={clsx(
-          "fixed text-zinc-700 text-center duration-300 left-1/2 -translate-x-1/2 w-full",
+          "fixed text-center duration-300 left-1/2 -translate-x-1/2 w-full",
           !currentTab && sizeSelected
             ? showPresence
               ? !!qntFlavorsMissing
@@ -571,9 +608,14 @@ export const MenuPage: React.FC = (): JSX.Element => {
         onClick={() => setSizeSelected(null)}
       >
         <div className="flex flex-col items-center -space-y-1 h-[49px]">
-          <div className="text-red-700 flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5">
+          <div
+            className={`flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5`}
+            style={{
+              color: `${bg_primary || "#111111"}`,
+            }}
+          >
             <span>Pizza {sizeSelected?.name}</span>
-            <a className="flex items-center text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
+            <a className="flex items-center text-blue-500 text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
               Alterar
               <MdOutlineEdit size={20} />
             </a>

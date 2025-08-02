@@ -5,10 +5,11 @@ import {
   DialogBody,
   DialogFooter,
 } from "@components/ui/dialog";
-import { JSX, useMemo, useState } from "react";
+import { JSX, useContext, useMemo, useState } from "react";
 import { Button } from "@chakra-ui/react";
 import clsx from "clsx";
 import { usePizzaStore } from "../../../store/useStore";
+import { DataMenuContext } from "@contexts/data-menu.context";
 
 interface IProps {
   name: string;
@@ -17,6 +18,7 @@ interface IProps {
 }
 
 export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
+  const { bg_primary } = useContext(DataMenuContext);
   const { sizeSelected, flavorsSelected, setFlavorsSelected, addFlavor } =
     usePizzaStore();
   const [selected, setSelected] = useState("");
@@ -29,7 +31,7 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
   return (
     <DialogContent backdrop w={"320px"}>
       <DialogHeader p={4} flexDirection={"column"} gap={0}>
-        <DialogTitle className="text-yellow-600">{props.name}</DialogTitle>
+        <DialogTitle className={`text-black/70`}>{props.name}</DialogTitle>
       </DialogHeader>
       <DialogBody px={4} className="flex flex-col gap-y-2 -my-4 -mt-6">
         {props.desc && <p className="text-zinc-600">Com: {props.desc}</p>}
@@ -57,7 +59,10 @@ export const ModalViewSabor: React.FC<IProps> = (props): JSX.Element => {
                       : "border-zinc-200"
                   )}
                 >
-                  <span className="text-sm font-medium text-yellow-600">
+                  <span
+                    className={`text-sm font-medium`}
+                    style={{ color: `${bg_primary || "#111111"}` }}
+                  >
                     {flavor.name}
                   </span>
                   <div className="flex gap-x-1">

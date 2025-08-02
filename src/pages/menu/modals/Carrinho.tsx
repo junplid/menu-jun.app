@@ -22,6 +22,7 @@ import {
 import { CartContext } from "@contexts/cart.context";
 import { mocks } from "../mock";
 import clsx from "clsx";
+import { DataMenuContext } from "@contexts/data-menu.context";
 
 interface IProps {
   close: () => void;
@@ -118,6 +119,7 @@ function FormAddress(props: {
 }
 
 function Body(props: IProps) {
+  const { bg_primary } = useContext(DataMenuContext);
   const { address, upsertAddress } = useAddressStore();
   const [isAddress, setIsAddress] = useState(false);
 
@@ -143,12 +145,7 @@ function Body(props: IProps) {
                   mocks.sizes.find((s) => s.name === item.size)?.sabor || null;
               }
               return (
-                <div
-                  className={clsx(
-                    "py-1"
-                    // !index && item.type === "pizza" && "first:pt-4"
-                  )}
-                >
+                <div className={clsx("py-1")}>
                   <article
                     key={item.key}
                     className="w-full grid p-2 pr-0 grid-cols-[1fr_60px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start"
@@ -158,7 +155,10 @@ function Body(props: IProps) {
                       {item.type === "pizza" && (
                         <div className="flex flex-col items-baseline">
                           <div className="relative">
-                            <span className="font-medium text-lg text-yellow-600">
+                            <span
+                              className={`font-medium text-lg`}
+                              style={{ color: `${bg_primary || "#111111"}` }}
+                            >
                               Pizza tamanho {item.size}
                             </span>
                             {flavorsLenght && (
@@ -182,7 +182,10 @@ function Body(props: IProps) {
                       )}
                       {item.type === "drink" && (
                         <div className="flex flex-col">
-                          <span className="font-medium text-lg text-yellow-600">
+                          <span
+                            className={`font-medium text-lg`}
+                            style={{ color: `${bg_primary || "#111111"}` }}
+                          >
                             {item.name}
                           </span>
                           <span className="block -mt-1.5 text-zinc-600">
@@ -231,7 +234,10 @@ function Body(props: IProps) {
                               {formatToBRL(item.priceBefore! * item.qnt)}
                             </span>
                           )}
-                          <span className="font-semibold text-[17px] text-red-600">
+                          <span
+                            className={`font-semibold text-[17px]`}
+                            style={{ color: `${bg_primary || "#111111"}` }}
+                          >
                             {formatToBRL(item.priceAfter * item.qnt)}
                           </span>
                         </div>
@@ -317,6 +323,7 @@ function Body(props: IProps) {
 }
 
 export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
+  const { bg_primary } = useContext(DataMenuContext);
   const { items } = useContext(CartContext);
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
@@ -352,7 +359,10 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
           )}
           <div className="flex items-center gap-x-2">
             <span>Valor a pagar:</span>
-            <span className="text-xl font-bold text-red-600">
+            <span
+              className={`text-xl font-bold`}
+              style={{ color: `${bg_primary || "#111111"}` }}
+            >
               {formatToBRL(totalValues.after)}
             </span>
           </div>

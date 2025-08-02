@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { LayoutPrivateContext } from "./layout-private.context";
@@ -6,8 +6,10 @@ import { Flipper, Flipped } from "react-flip-toolkit";
 import clsx from "clsx";
 import { IoSearch } from "react-icons/io5";
 import { Image } from "@chakra-ui/react";
+import { DataMenuContext } from "./data-menu.context";
 
 export function LayoutPrivateProvider(): JSX.Element {
+  const { bg_primary, logoImg } = useContext(DataMenuContext);
   const [headerOpen, setHeaderOpen] = useState(true);
 
   const dataValue = useMemo(
@@ -27,8 +29,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               className={clsx("py-1.5 duration-300 px-3")}
               style={{
                 height: headerOpen ? 155 : 61,
-                background:
-                  "linear-gradient(147deg,rgba(130, 3, 11, 1) 38%, rgba(219, 0, 7, 1) 91%)",
+                background: bg_primary || "#111111",
               }}
             >
               <div
@@ -42,7 +43,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <Flipped flipId="logo">
                   <div className="flex items-center gap-x-1 mx-auto">
                     <Image
-                      src="/logo.png"
+                      src={logoImg}
                       style={{
                         minWidth: headerOpen ? 85 : 46,
                         maxWidth: headerOpen ? 85 : 46,
@@ -63,7 +64,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 <Flipped flipId="search">
                   <label
                     className={clsx(
-                      "flex bg-white p-2.5 px-3 text-red-700 items-center gap-x-2.5 rounded-full"
+                      `flex bg-white p-2.5 px-3 text-[#11111] items-center gap-x-2.5 rounded-full`
                     )}
                   >
                     <IoSearch size={22} />
@@ -71,7 +72,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                       disabled
                       type="text"
                       placeholder="Buscar"
-                      className="outline-none w-full font-semibold text-[#b60707] placeholder:text-red-400"
+                      className="outline-none w-full font-semibold text-[#11111]"
                     />
                   </label>
                 </Flipped>
@@ -81,12 +82,15 @@ export function LayoutPrivateProvider(): JSX.Element {
         </header>
 
         <Outlet />
-        <footer className="w-full max-w-lg mx-auto px-3 z-50 text-xs text-center text-black/70">
+        <footer className="w-full max-w-lg mx-auto px-3 z-50 text-xs text-center text-black/50">
           © 2025 - Desenvolvido & mantido por{" "}
           <a
-            className="text-red-700 font-semibold"
+            className={`font-semibold`}
             href="https://www.instagram.com/junplid/"
             target="_blank"
+            style={{
+              color: `${bg_primary || "#111111"}`,
+            }}
           >
             Junplid
           </a>
