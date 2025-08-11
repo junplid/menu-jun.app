@@ -30,6 +30,7 @@ interface IData {
   status: boolean;
   sizes: {
     id: number;
+    uuid: string;
     name: string;
     price: number;
     flavors: number;

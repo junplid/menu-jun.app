@@ -1,23 +1,18 @@
 import { create } from "zustand";
 
-type Size = {
-  name: string;
-  qntFlavors: number;
-};
-
 type Flavor = {
-  name: string;
+  uuid: string;
   qnt: number;
 };
 
 interface PizzaState {
-  sizeSelected: Size | null;
-  setSizeSelected: (size: Size | null) => void;
+  sizeSelected: string | null;
+  setSizeSelected: (size: string | null) => void;
 
   flavorsSelected: Flavor[];
   setFlavorsSelected: (flavors: Flavor[]) => void;
   addFlavor: (flavor: Flavor) => void;
-  removeFlavor: (name: string) => void;
+  removeFlavor: (uuid: string) => void;
   reset: () => void;
 }
 
@@ -31,9 +26,9 @@ export const usePizzaStore = create<PizzaState>((set) => ({
     set((state) => ({
       flavorsSelected: [...state.flavorsSelected, flavor],
     })),
-  removeFlavor: (name: string) => {
+  removeFlavor: (uuid: string) => {
     set((state) => ({
-      flavorsSelected: state.flavorsSelected.filter((s) => s.name !== name),
+      flavorsSelected: state.flavorsSelected.filter((s) => s.uuid !== uuid),
     }));
   },
 

@@ -6,7 +6,14 @@ import {
   DialogFooter,
   DialogCloseTrigger,
 } from "@components/ui/dialog";
-import { JSX, useContext, useEffect, useMemo, useState } from "react";
+import {
+  JSX,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { AspectRatio, Button, Input, SegmentGroup } from "@chakra-ui/react";
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
@@ -20,25 +27,27 @@ import {
   FormSchema,
 } from "../../../hooks/addressStore";
 import { CartContext } from "@contexts/cart.context";
-import { mocks } from "../mock";
 import clsx from "clsx";
 import { DataMenuContext } from "@contexts/data-menu.context";
+import { createOrder } from "../../../services/api/MenuOnline";
+import { AxiosError } from "axios";
+import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
+import { toaster } from "@components/ui/toaster";
 
 interface IProps {
   close: () => void;
   onReturnEdit(props: {
-    qntFlavors: number;
-    size: string;
-    flavors: { qnt: number; name: string }[];
+    uuid: string;
+    flavors: { qnt: number; uuid: string }[];
   }): void;
 }
 
 const payment_methods = [
-  { label: "PIX", value: "pix" },
-  { label: "Dinheiro", value: "money" },
+  { label: "PIX", value: "PIX" },
+  { label: "Dinheiro", value: "Dinheiro" },
   {
     label: "Cartão",
-    value: "credit_card",
+    value: "Cartão",
   },
 ];
 
@@ -119,11 +128,17 @@ function FormAddress(props: {
 }
 
 function Body(props: IProps) {
-  const { bg_primary } = useContext(DataMenuContext);
+  const {
+    bg_primary,
+    sizes,
+    items: itemsData,
+    bg_secondary,
+  } = useContext(DataMenuContext);
   const { address, upsertAddress } = useAddressStore();
   const [isAddress, setIsAddress] = useState(false);
 
-  const { items, incrementQnt, removeItem } = useContext(CartContext);
+  const { items, incrementQnt, removeItem, payment_method, setPaymentMethod } =
+    useContext(CartContext);
 
   useEffect(() => {
     return () => {
@@ -139,11 +154,18 @@ function Body(props: IProps) {
             listClassName="grid w-full grid-cols-1 !relative justify-start"
             items={items}
             renderItem={(item) => {
-              let flavorsLenght: null | number = 0;
-              if (item.type === "pizza") {
-                flavorsLenght =
-                  mocks.sizes.find((s) => s.name === item.size)?.sabor || null;
+              const size = sizes.find((s) => s.uuid === item.uuid);
+              const price = { after: 0, before: 0 };
+
+              if (item.type === "drink") {
+                const get = itemsData.find((s) => s.uuid === item.uuid);
+                price.before = get?.beforePrice || 0;
+                price.after = get?.afterPrice || 0;
+              } else {
+                const get = sizes.find((s) => s.uuid === item.uuid);
+                price.after = get?.price || 0;
               }
+
               return (
                 <div className={clsx("py-1")}>
                   <article
@@ -159,23 +181,28 @@ function Body(props: IProps) {
                               className={`font-medium text-lg`}
                               style={{ color: `${bg_primary || "#111111"}` }}
                             >
-                              Pizza tamanho {item.size}
+                              Pizza tamanho {size?.name || ""}
                             </span>
-                            {flavorsLenght && (
+                            {!!size?.flavors && (
                               <span className="absolute -right-4 -top-3 font-semibold text-black/40">
-                                {flavorsLenght > 1
-                                  ? `Até ${flavorsLenght} sabores`
+                                {size.flavors > 1
+                                  ? `Até ${size.flavors} sabores`
                                   : "1 sabor"}
                               </span>
                             )}
                           </div>
                           <div className="flex flex-col -mt-1.5">
                             <ul className="list-disc ml-5 -space-y-1.5 text-zinc-600">
-                              {item.flavors.map((f) => (
-                                <li key={f.name}>
-                                  {f.qnt} {f.name}
-                                </li>
-                              ))}
+                              {item.flavors.map((f) => {
+                                const flavor = itemsData.find(
+                                  (d) => d.uuid === f.uuid
+                                );
+                                return (
+                                  <li key={f.uuid}>
+                                    {f.qnt} {flavor?.name}
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </div>
                         </div>
@@ -186,10 +213,10 @@ function Body(props: IProps) {
                             className={`font-medium text-lg`}
                             style={{ color: `${bg_primary || "#111111"}` }}
                           >
-                            {item.name}
+                            {itemsData.find((i) => i.uuid === item.uuid)?.name}
                           </span>
                           <span className="block -mt-1.5 text-zinc-600">
-                            {item.desc}
+                            {itemsData.find((i) => i.uuid === item.uuid)?.desc}
                           </span>
                         </div>
                       )}
@@ -216,8 +243,7 @@ function Body(props: IProps) {
                             onClick={async () => {
                               props.onReturnEdit({
                                 flavors: item.flavors,
-                                size: item.size,
-                                qntFlavors: flavorsLenght || 0,
+                                uuid: item.uuid,
                               });
                               await new Promise((s) => setTimeout(s, 120));
                               removeItem(item.key);
@@ -229,16 +255,16 @@ function Body(props: IProps) {
                           </a>
                         )}
                         <div className="flex flex-col justify-end -space-y-1.5 ml-0.5">
-                          {(item.priceBefore || 0) > 0 && (
+                          {(price.before || 0) > 0 && (
                             <span className="text-zinc-400 font-medium line-through text-sm">
-                              {formatToBRL(item.priceBefore! * item.qnt)}
+                              {formatToBRL(price.before! * item.qnt)}
                             </span>
                           )}
                           <span
                             className={`font-semibold text-[17px]`}
                             style={{ color: `${bg_primary || "#111111"}` }}
                           >
-                            {formatToBRL(item.priceAfter * item.qnt)}
+                            {formatToBRL(price.after * item.qnt)}
                           </span>
                         </div>
                       </div>
@@ -246,7 +272,9 @@ function Body(props: IProps) {
                     <AspectRatio ratio={1 / 1} w={"100%"}>
                       <img
                         src={
-                          item.type === "pizza" ? "/pizza-img.png" : item.img
+                          item.type === "pizza"
+                            ? "/pizza-img.png"
+                            : itemsData.find((i) => i.uuid === item.uuid)?.img
                         }
                         alt=""
                         className="p-1 pointer-events-none"
@@ -307,7 +335,8 @@ function Body(props: IProps) {
           <SegmentGroup.Root
             bg={"#f7f7f7"}
             className="w-full py-2 px-2"
-            defaultValue="pix"
+            value={payment_method}
+            onValueChange={(v) => setPaymentMethod(v.value || "PIX")}
           >
             <SegmentGroup.Indicator className="py-2" bg={"#d4d4d4"} />
             <SegmentGroup.Items className="w-full" items={payment_methods} />
@@ -323,19 +352,80 @@ function Body(props: IProps) {
 }
 
 export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
-  const { bg_primary } = useContext(DataMenuContext);
-  const { items } = useContext(CartContext);
+  const {
+    bg_primary,
+    items: itemsData,
+    sizes,
+    uuid,
+  } = useContext(DataMenuContext);
+  const { items, payment_method } = useContext(CartContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const { address } = useAddressStore();
+
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
     return items.reduce(
       (prev, curr) => {
-        prev.after += (curr.priceAfter || 0) * curr.qnt;
-        prev.before += (curr.priceBefore || 0) * curr.qnt;
+        if (curr.type === "pizza") {
+          const { price } = sizes.find((d) => d.uuid === curr.uuid) || {};
+          prev.after += price || 0;
+        } else {
+          const { afterPrice, beforePrice } =
+            itemsData.find((d) => d.uuid === curr.uuid) || {};
+          prev.after += afterPrice || 0;
+          prev.before += beforePrice || 0;
+        }
         return prev;
       },
       { after: 0, before: 0 }
     );
   }, [items]);
+
+  const create = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setIsError(false);
+      await createOrder({
+        uuid: uuid,
+        items: items.map((item) => {
+          if (item.type === "drink") {
+            return {
+              id: item.uuid,
+              type: item.type,
+              qnt: item.qnt,
+            };
+          } else {
+            return {
+              id: item.uuid,
+              type: item.type,
+              qnt: item.qnt,
+              flavors: item.flavors.map((f) => ({ qnt: f.qnt, id: f.uuid })),
+              obs: item.obs,
+            };
+          }
+        }),
+        delivery_address: address?.address,
+        delivery_cep: address?.cep,
+        delivery_complement: address?.complement,
+        who_receives: address?.persona,
+        payment_method,
+      });
+
+      // resetCart();
+      // fazer o redirect para a pagina do whatsapp com o codigo do pedido. no whatsapp terá uma ia pronta já sabendo do pedido do cliente;w
+      setIsLoading(false);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setIsError(true);
+        setIsLoading(false);
+        if (error.response?.status === 400) {
+          const dataError = error.response?.data as ErrorResponse_I;
+          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
+        }
+      }
+    }
+  }, [items, itemsData, address, payment_method]);
 
   return (
     <DialogContent backdrop w={"100%"} className="!h-[calc(100svh-100px)]">
@@ -372,6 +462,8 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
           color={"green"}
           bg={"#b3e793"}
           rounded={"full"}
+          loading={isLoading}
+          onClick={() => create()}
         >
           Fazer pedido
         </Button>

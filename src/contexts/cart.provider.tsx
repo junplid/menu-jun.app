@@ -4,6 +4,7 @@ import { CartContext, ItemCart } from "./cart.context";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<ItemCart[]>([]);
+  const [payment_method, setPaymentMethod] = useState<string>("PIX");
 
   const addItem = (item: ItemCart) => {
     const nextItem = { ...item };
@@ -32,8 +33,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const data_value = useMemo(() => {
-    return { items, removeItem, addItem, incrementQnt };
-  }, [items]);
+    return {
+      items,
+      removeItem,
+      addItem,
+      incrementQnt,
+      setPaymentMethod,
+      payment_method,
+    };
+  }, [items, payment_method]);
 
   return (
     <CartContext.Provider value={data_value}>{children}</CartContext.Provider>

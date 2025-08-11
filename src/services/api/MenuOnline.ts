@@ -1,14 +1,26 @@
 import { api } from "./index";
 
-export async function createBusiness(body: {
-  name: string;
-  description?: string;
+export async function createOrder({
+  uuid,
+  ...body
+}: {
+  uuid: string;
+  delivery_complement?: string;
+  delivery_cep?: string;
+  who_receives?: string;
+  delivery_address?: string;
+  payment_method?: string;
+  items: {
+    qnt: number;
+    obs?: string;
+    flavors?: { qnt: number; id: string }[];
+    type: "pizza" | "drink";
+    id: string;
+  }[];
 }): Promise<{
-  id: number;
-  createAt: Date;
-  updateAt: Date;
+  redirect: string;
 }> {
-  const { data } = await api.post("/private/businesses", body);
+  const { data } = await api.post(`/public/menu/${uuid}/order`, body);
   return data.business;
 }
 
@@ -24,6 +36,7 @@ export async function getMenuOnline(identifier: string): Promise<{
   status: boolean;
   sizes: {
     id: number;
+    uuid: string;
     name: string;
     price: number;
     flavors: number;

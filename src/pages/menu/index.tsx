@@ -123,8 +123,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
   const qntFlavorsMissing = useMemo(() => {
     const totalQnt = flavorsSelected.reduce((p, c) => p + c.qnt, 0);
-    return (sizeSelected?.qntFlavors || 0) - totalQnt;
-  }, [sizeSelected?.qntFlavors, flavorsSelected]);
+    const totalFlavorsSize =
+      sizes.find((s) => s.uuid === sizeSelected)?.flavors || 0;
+    return totalFlavorsSize - totalQnt;
+  }, [sizeSelected, flavorsSelected]);
 
   const listPizza = useMemo(() => {
     return items.filter((i) => i.category === "pizzas");
@@ -201,13 +203,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   itemClass="relative select-none cursor-pointer"
                 >
                   {flavorsSelected.map((flavor, index) => (
-                    <div className="first:pr-1 px-1 relative" key={flavor.name}>
+                    <div className="first:pr-1 px-1 relative" key={flavor.uuid}>
                       <div className="flex flex-col p-2 h-[82px] rounded-md bg-zinc-50 border border-zinc-100 justify-between">
                         <span
                           className={`text-sm font-medium leading-[15px]`}
                           style={{ color: `${bg_primary || "#111111"}` }}
                         >
-                          {flavor.name}
+                          {listPizza.find((p) => p.uuid === flavor.uuid)?.name}
                         </span>
                         <div className="flex gap-x-1">
                           <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
@@ -218,7 +220,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                               if (qntFlavorsMissing) {
                                 setFlavorsSelected(
                                   flavorsSelected.map((fl) => {
-                                    if (fl.name === flavor.name) fl.qnt += 1;
+                                    if (fl.uuid === flavor.uuid) fl.qnt += 1;
                                     return fl;
                                   })
                                 );
@@ -239,13 +241,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
                               if (total === 0) {
                                 setFlavorsSelected(
                                   flavorsSelected.filter(
-                                    (s) => s.name !== flavor.name
+                                    (s) => s.uuid !== flavor.uuid
                                   )
                                 );
                               } else {
                                 setFlavorsSelected(
                                   flavorsSelected.map((fl) => {
-                                    if (fl.name === flavor.name) fl.qnt = total;
+                                    if (fl.uuid === flavor.uuid) fl.qnt = total;
                                     return fl;
                                   })
                                 );
@@ -263,27 +265,20 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 <a
                   className={`cursor-pointer leading-4 p-2 font-semibold text-center flex items-center justify-center rounded-md text-sm`}
                   onClick={() => {
-                    const priceSize = sizes.find(
-                      (t) => t.name === sizeSelected.name
-                    )?.price;
-                    if (priceSize) {
-                      addCartItem({
-                        type: "pizza",
-                        size: sizeSelected.name,
-                        priceAfter: priceSize,
-                        priceBefore: 0,
-                        flavors: flavorsSelected,
-                        key: nanoid(),
-                        qnt: 1,
-                      });
+                    addCartItem({
+                      type: "pizza",
+                      flavors: flavorsSelected,
+                      uuid: sizeSelected,
+                      key: nanoid(),
+                      qnt: 1,
+                    });
+                    setTimeout(() => {
+                      setFlavorsSelected([]);
+                      setSizeSelected(null);
                       setTimeout(() => {
-                        setFlavorsSelected([]);
-                        setSizeSelected(null);
-                        setTimeout(() => {
-                          handleTab(1);
-                        }, 100);
-                      }, 300);
-                    }
+                        handleTab(1);
+                      }, 100);
+                    }, 300);
                   }}
                   style={{
                     color: `${bg_primary || "#111111"}`,
@@ -305,12 +300,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 {sizes.map((size) => (
                   <div
                     className="px-1 pb-1.5"
-                    key={size.id}
+                    key={size.uuid}
                     onClick={() => {
-                      setSizeSelected({
-                        name: size.name,
-                        qntFlavors: size.flavors,
-                      });
+                      setSizeSelected(size.uuid);
                       const nextFlavors = flavorsSelected.slice(
                         0,
                         size.flavors
@@ -369,7 +361,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           items={listPizza}
           renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
-              (f) => f.name === flavor.name
+              (f) => f.uuid === flavor.uuid
             );
             const background = selected
               ? `${bg_primary || "#111111"}10`
@@ -385,22 +377,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   )}
                   onClick={() => {
                     if (sizeSelected) {
-                      if (sizeSelected.qntFlavors > 1) {
+                      const sizeFlavors =
+                        sizes.find((s) => s.uuid === sizeSelected)?.flavors ||
+                        0;
+                      if (sizeFlavors > 1) {
                         if (qntFlavorsMissing) {
                           const exist = flavorsSelected.some(
-                            (s) => s.name === flavor.name
+                            (s) => s.uuid === flavor.uuid
                           );
                           if (exist) {
                             removeFlavor(flavor.name);
                           } else {
-                            addFlavor({ name: flavor.name, qnt: 1 });
+                            addFlavor({ uuid: flavor.uuid, qnt: 1 });
                           }
                         } else {
                           const exist = flavorsSelected.some(
-                            (s) => s.name === flavor.name
+                            (s) => s.uuid === flavor.uuid
                           );
                           if (exist) {
-                            removeFlavor(flavor.name);
+                            removeFlavor(flavor.uuid);
                           } else {
                             onOpen({
                               content: (
@@ -414,7 +409,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                           }
                         }
                       } else {
-                        setFlavorsSelected([{ name: flavor.name, qnt: 1 }]);
+                        setFlavorsSelected([{ uuid: flavor.uuid, qnt: 1 }]);
                       }
                     } else {
                       onOpen({
@@ -427,7 +422,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                               );
                               setFlavorsSelected(nextFlavors);
                               close();
-                              addFlavor({ name: flavor.name, qnt: 1 });
+                              addFlavor({ uuid: flavor.uuid, qnt: 1 });
                               if (headerOpen) setHeaderOpen(false);
                             }}
                           />
@@ -505,12 +500,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       addCartItem({
                         type: "drink",
                         qnt: 1,
-                        img: "/refri-img.png",
-                        key: drink.uuid,
-                        name: drink.name,
-                        desc: drink.desc || undefined,
-                        priceAfter: drink.afterPrice!,
-                        priceBefore: drink.beforePrice || undefined,
+                        uuid: drink.uuid,
+                        key: nanoid(),
                       });
                     }
                   }}
@@ -578,10 +569,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             content: (
               <ModalCarrinho
                 onReturnEdit={(pizza) => {
-                  setSizeSelected({
-                    name: pizza.size,
-                    qntFlavors: pizza.qntFlavors,
-                  });
+                  setSizeSelected(pizza.uuid);
                   setFlavorsSelected(pizza.flavors);
                   handleTab(0);
                 }}
@@ -614,7 +602,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
               color: `${bg_primary || "#111111"}`,
             }}
           >
-            <span>Pizza {sizeSelected?.name}</span>
+            <span>
+              Pizza {sizes.find((s) => s.uuid === sizeSelected)?.name}
+            </span>
             <a className="flex items-center text-blue-500 text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
               Alterar
               <MdOutlineEdit size={20} />

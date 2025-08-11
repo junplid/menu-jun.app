@@ -11,19 +11,27 @@ interface IProps {
 }
 
 function PreviewCartComponent_(props: IProps) {
-  const { bg_primary } = useContext(DataMenuContext);
+  const { bg_primary, items: dataItems, sizes } = useContext(DataMenuContext);
   const { items } = useContext(CartContext);
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
+
     return items.reduce(
       (prev, curr) => {
-        prev.after += curr.priceAfter || 0;
-        prev.before += curr.priceBefore || 0;
+        if (curr.type === "pizza") {
+          const { price } = sizes.find((d) => d.uuid === curr.uuid) || {};
+          prev.after += price || 0;
+        } else {
+          const { afterPrice, beforePrice } =
+            dataItems.find((d) => d.uuid === curr.uuid) || {};
+          prev.after += afterPrice || 0;
+          prev.before += beforePrice || 0;
+        }
         return prev;
       },
       { after: 0, before: 0 }
     );
-  }, [items]);
+  }, [items, sizes]);
 
   return (
     <Presence

@@ -2,30 +2,26 @@ import { createContext } from "react";
 
 export type ItemCart =
   | {
-      qnt: number;
       key: string;
       type: "pizza";
-      size: string;
-      flavors: { qnt: number; name: string }[];
+      uuid: string;
+      qnt: number;
+      flavors: { qnt: number; uuid: string }[];
       obs?: string;
-      priceBefore?: number;
-      priceAfter: number;
     }
   | {
-      qnt: number;
       key: string;
       type: "drink";
-      name: string;
-      desc?: string;
-      priceBefore?: number;
-      priceAfter: number;
-      img: string;
+      uuid: string;
+      qnt: number;
     };
 
 interface ICartContext {
   addItem: (item: ItemCart) => void;
   removeItem: (key: string) => void;
   items: ItemCart[];
+  payment_method: string;
+  setPaymentMethod: (v: string) => void;
   incrementQnt: (key: string, value: number) => void;
 }
 

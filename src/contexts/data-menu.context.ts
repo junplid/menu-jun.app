@@ -11,6 +11,7 @@ interface IDataMenuProps {
   titlePage: string | null;
   status: boolean;
   sizes: {
+    uuid: string;
     id: number;
     name: string;
     price: number;
