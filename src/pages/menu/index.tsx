@@ -1,8 +1,8 @@
-import { AspectRatio, Button, Collapsible, IconButton } from "@chakra-ui/react";
+import { AspectRatio, Button, IconButton } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
 import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
-import Carousel, { ResponsiveType } from "react-multi-carousel";
+import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
 import { useDialogModal } from "../../hooks/dialog.modal";
@@ -39,21 +39,6 @@ const responsive = {
   },
 };
 
-const responsiveTamanhos: ResponsiveType = {
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 4,
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 465 },
-    items: 4,
-  },
-  mobile: {
-    breakpoint: { max: 465, min: 0 },
-    partialVisibilityGutter: 15,
-    items: 3,
-  },
-};
 
 const categories = [
   { name: "Pizzas", img: "/img-icons/pizza-img-icon.png" },
@@ -122,7 +107,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
   return (
     <main
-      className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
+      className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_1fr] min-h-0"
       style={{
         paddingBottom: showPresence || !!sizeSelected ? "70px" : "10px",
       }}
@@ -174,60 +159,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
           );
         })}
       </div>
-
-      <Collapsible.Root
-        lazyMount={true}
-        unmountOnExit={true}
-        open={!!!currentTab && !sizeSelected}
-      >
-        <Collapsible.Content>
-          <div className="grid mt-2 px-2">
-            <Carousel
-              infinite={false}
-              responsive={responsiveTamanhos}
-              partialVisible
-              arrows={false}
-              itemClass="relative select-none cursor-pointer"
-            >
-              {sizes.map((size) => (
-                <div
-                  className="px-1 pb-1.5 duration-100 active:scale-95 transition-all"
-                  key={size.uuid}
-                  onClick={() => {
-                    setSizeSelected(size.uuid);
-                    const nextFlavors = flavorsSelected.slice(0, size.flavors);
-                    setFlavorsSelected(nextFlavors);
-                    if (headerOpen) setHeaderOpen(false);
-                  }}
-                >
-                  <div
-                    className={`flex flex-col py-2 rounded-md items-center shadow-md`}
-                    style={{ background: `${bg_primary || "#111111"}10` }}
-                  >
-                    <strong
-                      className={`text-center leading-4`}
-                      style={{ color: `${bg_primary || "#111111"}` }}
-                    >
-                      {size.name}
-                    </strong>
-                    <strong className="text-sm text-center leading-4 text-zinc-700">
-                      {formatToBRL(size.price)}
-                    </strong>
-                    <span className="leading-4 text-sm text-center text-zinc-500">
-                      {size.flavors > 1 ? `${size.flavors} sabores` : "1 sabor"}
-                    </span>
-                    {size.slices !== null && (
-                      <span className="leading-3 text-sm text-center text-zinc-500">
-                        {size.slices > 1 ? `${size.slices} fatias` : "1 fatia"}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </Carousel>
-          </div>
-        </Collapsible.Content>
-      </Collapsible.Root>
 
       <Carousel
         ref={ref}
