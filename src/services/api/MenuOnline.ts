@@ -4,6 +4,7 @@ export async function createOrder({
   uuid,
   ...body
 }: {
+  type_delivery: "enviar" | "retirar";
   uuid: string;
   delivery_complement?: string;
   delivery_cep?: string;

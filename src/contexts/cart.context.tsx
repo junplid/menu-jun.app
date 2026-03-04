@@ -23,6 +23,7 @@ interface ICartContext {
   payment_method: string;
   setPaymentMethod: (v: string) => void;
   incrementQnt: (key: string, value: number) => void;
+  changeObs: (key: string, value: string) => void;
 }
 
 export const CartContext = createContext({} as ICartContext);

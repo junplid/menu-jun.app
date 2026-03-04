@@ -32,7 +32,6 @@ export default tseslint.config(
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-extra-boolean-cast": "off",
-      "prefer-const": "off",
     },
-  }
+  },
 );

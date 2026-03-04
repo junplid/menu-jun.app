@@ -6,14 +6,7 @@ import {
   DialogFooter,
   DialogCloseTrigger,
 } from "@components/ui/dialog";
-import {
-  JSX,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { JSX, useContext, useEffect, useMemo, useState } from "react";
 import { AspectRatio, Button, Input, SegmentGroup } from "@chakra-ui/react";
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
@@ -33,6 +26,7 @@ import { createOrder } from "../../../services/api/MenuOnline";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
+import { BsShop } from "react-icons/bs";
 
 interface IProps {
   close: () => void;
@@ -40,6 +34,16 @@ interface IProps {
     uuid: string;
     flavors: { qnt: number; uuid: string }[];
   }): void;
+  upsertAddress: (data: Fields | "retirar") => void;
+  address:
+    | {
+        address: string;
+        cep: string;
+        persona: string;
+        complement?: string | undefined;
+      }
+    | "retirar"
+    | null;
 }
 
 const payment_methods = [
@@ -53,7 +57,7 @@ const payment_methods = [
 
 function FormAddress(props: {
   submit: () => void;
-  upsertAddress: (data: Fields) => void;
+  upsertAddress: (data: Fields | "retirar") => void;
   address: Fields | null;
 }) {
   const {
@@ -63,6 +67,7 @@ function FormAddress(props: {
     formState: { errors },
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
+    defaultValues: props.address || undefined,
   });
 
   const registerWithMask = useHookFormMask(register);
@@ -73,20 +78,17 @@ function FormAddress(props: {
     props.submit();
   };
 
-  useEffect(() => {
-    if (props.address) reset(props.address);
-    return () => {
-      reset({});
-    };
-  }, [props.address]);
-
   return (
     <form
       onSubmit={handleSubmit(handleAddress)}
       className="flex flex-col gap-y-1.5"
       style={{ marginTop: 10 }}
     >
-      <Field label="Endereço completo" invalid={!!errors.address}>
+      <Field
+        label="Endereço completo"
+        errorText={errors.address?.message}
+        invalid={!!errors.address}
+      >
         <Input
           {...register("address")}
           placeholder="Digite o endereço"
@@ -103,14 +105,34 @@ function FormAddress(props: {
             autoComplete="off"
           />
         </Field>
-        <Field label="Quem recebe?" invalid={!!errors.persona}>
+        <Field
+          label={
+            <span>
+              Quem vai recebe?{" "}
+              <span className="text-xs text-neutral-200">lé ele</span>
+            </span>
+          }
+          invalid={!!errors.persona}
+        >
           <Input
             {...register("persona")}
-            placeholder="Digite o nome"
+            placeholder="Digite do recebdor"
             size={"sm"}
             autoComplete="off"
           />
         </Field>
+      </div>
+      <div className="-mt-2.5">
+        {errors.cep?.message && (
+          <span className="block font-medium text-xs text-red-400">
+            {errors.cep?.message}
+          </span>
+        )}
+        {errors.persona?.message && (
+          <span className="font-medium text-xs block text-red-400">
+            {errors.persona?.message}
+          </span>
+        )}
       </div>
       <Field label="Complemento" invalid={!!errors.complement}>
         <Input
@@ -120,25 +142,45 @@ function FormAddress(props: {
           autoComplete="off"
         />
       </Field>
-      <Button type={"submit"} className="mt-4">
-        Salvar endereço
-      </Button>
+      <div className="grid grid-cols-2 gap-x-2 w-full mt-4">
+        <Button
+          onClick={() => {
+            props.upsertAddress("retirar");
+            reset();
+            props.submit();
+          }}
+          type={"button"}
+          variant={"outline"}
+          className="w-full duration-100 active:scale-95 transition-all"
+          size={"sm"}
+        >
+          Retirar na loja
+        </Button>
+        <Button
+          type={"submit"}
+          colorPalette={"blackAlpha"}
+          className="w-full duration-100 active:scale-95 transition-all"
+          size={"sm"}
+        >
+          Salvar endereço
+        </Button>
+      </div>
     </form>
   );
 }
 
 function Body(props: IProps) {
-  const {
-    bg_primary,
-    sizes,
-    items: itemsData,
-    bg_secondary,
-  } = useContext(DataMenuContext);
-  const { address, upsertAddress } = useAddressStore();
+  const { bg_primary, sizes, items: itemsData } = useContext(DataMenuContext);
   const [isAddress, setIsAddress] = useState(false);
 
-  const { items, incrementQnt, removeItem, payment_method, setPaymentMethod } =
-    useContext(CartContext);
+  const {
+    items,
+    incrementQnt,
+    removeItem,
+    changeObs,
+    payment_method,
+    setPaymentMethod,
+  } = useContext(CartContext);
 
   useEffect(() => {
     return () => {
@@ -151,7 +193,8 @@ function Body(props: IProps) {
       {!isAddress && (
         <div className="relative h-full">
           <GridWithShadows
-            listClassName="grid w-full grid-cols-1 !relative justify-start"
+            grid={false}
+            listClassName="flex flex-col w-full !relative justify-start"
             items={items}
             renderItem={(item) => {
               const size = sizes.find((s) => s.uuid === item.uuid);
@@ -167,12 +210,8 @@ function Body(props: IProps) {
               }
 
               return (
-                <div className={clsx("py-1")}>
-                  <article
-                    key={item.key}
-                    className="w-full grid p-2 pr-0 grid-cols-[1fr_60px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start"
-                    onClick={() => {}}
-                  >
+                <div key={item.key} className={clsx("py-1")}>
+                  <article className="w-full grid p-2 pr-0 grid-cols-[1fr_60px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start">
                     <div>
                       {item.type === "pizza" && (
                         <div className="flex flex-col items-baseline">
@@ -191,11 +230,11 @@ function Body(props: IProps) {
                               </span>
                             )}
                           </div>
-                          <div className="flex flex-col -mt-1.5">
+                          <div className="flex flex-col -mt-1.5 mb-1">
                             <ul className="list-disc ml-5 -space-y-1.5 text-zinc-600">
                               {item.flavors.map((f) => {
                                 const flavor = itemsData.find(
-                                  (d) => d.uuid === f.uuid
+                                  (d) => d.uuid === f.uuid,
                                 );
                                 return (
                                   <li key={f.uuid}>
@@ -205,6 +244,15 @@ function Body(props: IProps) {
                               })}
                             </ul>
                           </div>
+                          <Input
+                            value={item.obs}
+                            onChange={({ target }) =>
+                              changeObs(item.uuid, target.value)
+                            }
+                            placeholder="Observações.."
+                            size={"xs"}
+                            className={item.obs ? "bg-neutral-50" : ""}
+                          />
                         </div>
                       )}
                       {item.type === "drink" && (
@@ -227,14 +275,21 @@ function Body(props: IProps) {
                         <a
                           onClick={() => incrementQnt(item.key, +1)}
                           className={
-                            "bg-green-200 text-green-600 hover:bg-green-300 duration-200 cursor-pointer py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md"
+                            "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 hover:bg-green-300 cursor-pointer py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md"
                           }
                         >
                           +
                         </a>
                         <a
-                          onClick={() => incrementQnt(item.key, -1)}
-                          className="bg-red-200 hover:bg-red-300 cursor-pointer text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                          onClick={() => {
+                            incrementQnt(item.key, -1);
+                            if (items.length - 1 === 0) {
+                              setTimeout(() => {
+                                props.close();
+                              }, 240);
+                            }
+                          }}
+                          className="bg-red-200 duration-100 active:scale-95 transition-all hover:bg-red-300 cursor-pointer text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
                         >
                           -
                         </a>
@@ -249,7 +304,7 @@ function Body(props: IProps) {
                               removeItem(item.key);
                               props.close();
                             }}
-                            className="bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
+                            className="bg-blue-200 active:scale-95 transition-all hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 py-1 px-3 leading-0 flex items-center justify-center rounded-md"
                           >
                             Editar
                           </a>
@@ -289,30 +344,43 @@ function Body(props: IProps) {
         </div>
       )}
 
-      {address && !isAddress && (
+      {props.address && !isAddress && (
         <div className="flex items-center justify-between mb-1">
-          <div className="flex flex-col w-full">
-            <span className="font-semibold">Endereço de entrega</span>
-            <div className="flex flex-col">
-              <span>
-                {address.address} | {address.cep}
-              </span>
-              <span>
-                {address.complement} - Recebedor: {address.persona}
-              </span>
+          {props.address !== "retirar" && (
+            <div className="flex flex-col w-full">
+              <span className="font-semibold">Endereço de entrega</span>
+              <div className="flex flex-col">
+                <span>
+                  {props.address.address} | {props.address.cep}
+                </span>
+                <span>
+                  {props.address.complement} - Recebedor:{" "}
+                  {props.address.persona}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
+          {props.address === "retirar" && (
+            <div className="flex items-center gap-x-2">
+              <BsShop size={20} />
+              <div className="flex flex-col w-full">
+                <span className="font-semibold">Retirada na loja</span>
+                <span>Rua casemiro pena 28</span>
+              </div>
+            </div>
+          )}
           <a
-            className="p-2 px-3 bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-600 duration-200 rounded-md border border-blue-300"
+            className="p-2 px-3 bg-blue-200 duration-100 active:scale-95 transition-all hover:bg-blue-300 cursor-pointer text-blue-600 rounded-md border border-blue-300"
             onClick={() => setIsAddress(true)}
           >
             Editar endereço
           </a>
         </div>
       )}
-      {!address && !isAddress && (
+
+      {!props.address && !isAddress && (
         <a
-          className="p-2 px-3 border text-center border-zinc-200"
+          className="p-2 px-3 border text-center border-zinc-200 duration-100 active:scale-95 transition-all"
           onClick={() => setIsAddress(true)}
         >
           Adicionar endereço de entrega
@@ -320,8 +388,8 @@ function Body(props: IProps) {
       )}
       {isAddress && (
         <FormAddress
-          address={address}
-          upsertAddress={upsertAddress}
+          address={props.address !== "retirar" ? props.address : null}
+          upsertAddress={props.upsertAddress}
           submit={() => setIsAddress(false)}
         />
       )}
@@ -351,7 +419,9 @@ function Body(props: IProps) {
   );
 }
 
-export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
+export const ModalCarrinho: React.FC<
+  Omit<IProps, "upsertAddress" | "address">
+> = (props): JSX.Element => {
   const {
     bg_primary,
     items: itemsData,
@@ -360,8 +430,8 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
   } = useContext(DataMenuContext);
   const { items, payment_method } = useContext(CartContext);
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const { address } = useAddressStore();
+  const [_isError, setIsError] = useState(false);
+  const { address, upsertAddress } = useAddressStore();
 
   const totalValues = useMemo(() => {
     if (!items.length) return { after: 0, before: 0 };
@@ -378,14 +448,18 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
         }
         return prev;
       },
-      { after: 0, before: 0 }
+      { after: 0, before: 0 },
     );
   }, [items]);
 
-  const create = useCallback(async () => {
+  const create = async () => {
     try {
       setIsLoading(true);
       setIsError(false);
+      if (!address) {
+        setIsError(true);
+        return;
+      }
       await createOrder({
         uuid: uuid,
         items: items.map((item) => {
@@ -405,10 +479,17 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
             };
           }
         }),
-        delivery_address: address?.address,
-        delivery_cep: address?.cep,
-        delivery_complement: address?.complement,
-        who_receives: address?.persona,
+        ...(address === "retirar"
+          ? {
+              type_delivery: "retirar",
+            }
+          : {
+              type_delivery: "enviar",
+              delivery_address: address?.address,
+              delivery_cep: address?.cep,
+              delivery_complement: address?.complement,
+              who_receives: address?.persona,
+            }),
         payment_method,
       });
 
@@ -425,10 +506,10 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
         }
       }
     }
-  }, [items, itemsData, address, payment_method]);
+  };
 
   return (
-    <DialogContent backdrop w={"100%"} className="!h-[calc(100svh-100px)]">
+    <DialogContent backdrop w={"100%"} className="h-[calc(100svh-100px)]!">
       <DialogHeader
         zIndex={9}
         position={"relative"}
@@ -439,7 +520,7 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
         <DialogTitle className="text-black/70">Meu carrinho</DialogTitle>
         <DialogCloseTrigger color={"red"} />
       </DialogHeader>
-      <Body {...props} />
+      <Body {...props} upsertAddress={upsertAddress} address={address} />
       <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
         <div className="flex flex-col -space-y-1.5">
           {totalValues.before > 0 && (
@@ -464,6 +545,7 @@ export const ModalCarrinho: React.FC<IProps> = (props): JSX.Element => {
           rounded={"full"}
           loading={isLoading}
           onClick={() => create()}
+          className="duration-100 active:scale-95 transition-all"
         >
           Fazer pedido
         </Button>

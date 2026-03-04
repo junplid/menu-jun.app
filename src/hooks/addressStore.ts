@@ -1,18 +1,26 @@
 import { useState, useEffect, useCallback } from "react";
 import { z } from "zod";
 
-export const FormSchema = z.object({
-  address: z.string().min(1),
-  cep: z.string().length(9),
-  persona: z.string().min(1),
-  complement: z.string().optional(),
-});
+export const FormSchema = z
+  .object({
+    address: z.string().min(1, { message: "Quem recebe é obrigatório" }),
+    cep: z.string().length(9, { message: "CEP incompleto" }),
+    persona: z.string().min(1, { message: "Quem recebe é obrigatório" }),
+    complement: z.string().optional(),
+  })
+  .refine(
+    (state) => {
+      const cleaned = state.cep.replace(/_/g, "");
+      return cleaned.length === 9;
+    },
+    { message: "CEP incompleto", path: ["cep"] },
+  );
 export type Fields = z.infer<typeof FormSchema>;
 
 const STORAGE_KEY = "address_jun";
 
 export function useAddressStore() {
-  const [address, setAddress] = useState<Fields | null>(null);
+  const [address, setAddress] = useState<Fields | "retirar" | null>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -33,12 +41,15 @@ export function useAddressStore() {
     }
   }, [address]);
 
-  const upsertAddress = useCallback((data: Fields) => {
-    const parsed = FormSchema.safeParse(data);
-    if (!parsed.success) {
-      throw new Error(parsed.error.format()._errors.join("; "));
+  const upsertAddress = useCallback((data: Fields | "retirar") => {
+    if (data !== "retirar") {
+      const parsed = FormSchema.safeParse(data);
+      if (!parsed.success) {
+        throw new Error(parsed.error.format()._errors.join("; "));
+      }
+      setAddress(parsed.data);
     }
-    setAddress(parsed.data);
+    setAddress(data);
   }, []);
 
   const deleteAddress = useCallback(() => {

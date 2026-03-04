@@ -33,12 +33,9 @@ export const ModalSelecionarTamanho: React.FC<IProps> = ({
             {sizes.map((size) => (
               <div
                 key={size.id}
-                className={`shadow-md flex cursor-pointer duration-200 flex-col py-1 pb-2 rounded-md items-center`}
+                className={`shadow-md flex cursor-pointer flex-col py-1 pb-2 rounded-md items-center duration-100 active:scale-95 transition-all`}
                 onClick={() => {
-                  setSizeSelected({
-                    name: size.name,
-                    qntFlavors: size.flavors,
-                  });
+                  setSizeSelected(size.uuid);
                   close(size.flavors);
                 }}
                 style={{ background: `${bg_primary || "#111111"}10` }}

@@ -29,7 +29,7 @@ function PreviewCartComponent_(props: IProps) {
         }
         return prev;
       },
-      { after: 0, before: 0 }
+      { after: 0, before: 0 },
     );
   }, [items, sizes]);
 
@@ -48,7 +48,7 @@ function PreviewCartComponent_(props: IProps) {
       className="absolute w-full left-0 bottom-0 bg-white"
     >
       <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
-        <div className="flex flex-col -space-y-2 h-[53px]">
+        <div className="flex flex-col -space-y-2 h-13.25">
           {totalValues.before > 0 && (
             <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
               {formatToBRL(totalValues.before)}
@@ -64,7 +64,7 @@ function PreviewCartComponent_(props: IProps) {
         <div className="flex gap-x-2">
           <button
             onClick={props.onClick}
-            className={`duration-200 flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full p-2.5 px-3 font-semibold`}
+            className={`duration-100 active:scale-95 transition-all flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full p-2.5 px-3 font-semibold`}
             style={{
               borderColor: `${bg_primary || "#111111"}`,
               color: `${bg_primary || "#111111"}`,
@@ -81,5 +81,5 @@ function PreviewCartComponent_(props: IProps) {
 
 export const PreviewCartComponent = memo(
   PreviewCartComponent_,
-  (prev, next) => prev.showPresence === next.showPresence
+  (prev, next) => prev.showPresence === next.showPresence,
 );

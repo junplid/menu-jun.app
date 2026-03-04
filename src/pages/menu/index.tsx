@@ -1,4 +1,4 @@
-import { AspectRatio, Collapsible } from "@chakra-ui/react";
+import { AspectRatio, Button, Collapsible, IconButton } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
 import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -14,8 +14,11 @@ import { usePizzaStore } from "../../store/useStore";
 import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
 import { nanoid } from "nanoid";
-import { MdOutlineEdit } from "react-icons/md";
 import { DataMenuContext } from "@contexts/data-menu.context";
+import "react-spring-bottom-sheet/dist/style.css";
+import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
+import { MdDeleteOutline } from "react-icons/md";
+import { BsCartCheck } from "react-icons/bs";
 
 const responsive = {
   superLargeDesktop: {
@@ -52,27 +55,6 @@ const responsiveTamanhos: ResponsiveType = {
   },
 };
 
-const responsiveSabores: ResponsiveType = {
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 3,
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 464 },
-    items: 3,
-  },
-  mobile: {
-    breakpoint: { max: 600, min: 450 },
-    items: 2,
-    partialVisibilityGutter: 30,
-  },
-  xmobile: {
-    breakpoint: { max: 450, min: 0 },
-    items: 2,
-    partialVisibilityGutter: 10,
-  },
-};
-
 const categories = [
   { name: "Pizzas", img: "/img-icons/pizza-img-icon.png" },
   { name: "Bebidas", img: "/img-icons/drinks-img-icon.png" },
@@ -91,6 +73,8 @@ export const MenuPage: React.FC = (): JSX.Element => {
     onOpen,
   } = useDialogModal({ placement: "center" });
   const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
+  const isMoving = useRef(false);
+  const sheetRef = useRef<BottomSheetRef>(null);
 
   const {
     sizeSelected,
@@ -139,7 +123,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
   return (
     <main
       className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_auto_1fr] min-h-0"
-      style={{ paddingBottom: showPresence ? "57px" : "8px" }}
+      style={{
+        paddingBottom: showPresence || !!sizeSelected ? "70px" : "10px",
+      }}
     >
       <div
         className={
@@ -156,8 +142,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
               onClick={() => {
                 handleTab(index);
                 if (headerOpen) setHeaderOpen(false);
+                if (index) {
+                  sheetRef.current?.snapTo(95);
+                }
               }}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center duration-100 active:scale-95 transition-all"
             >
               <AspectRatio ratio={1} w={"100%"}>
                 <div
@@ -168,7 +157,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 >
                   <img
                     src={cat.img}
-                    className="max-h-[50px] min-h-[40px]"
+                    className="max-h-12.5 min-h-10"
                     alt={cat.name}
                   />
                 </div>
@@ -189,158 +178,53 @@ export const MenuPage: React.FC = (): JSX.Element => {
       <Collapsible.Root
         lazyMount={true}
         unmountOnExit={true}
-        open={!!!currentTab}
+        open={!!!currentTab && !sizeSelected}
       >
         <Collapsible.Content>
           <div className="grid mt-2 px-2">
-            {sizeSelected && !!flavorsSelected.length && (
-              <div className="grid grid-cols-[1fr_86px] rounded-sm gap-x-2">
-                <Carousel
-                  infinite={false}
-                  responsive={responsiveSabores}
-                  partialVisible
-                  arrows={false}
-                  itemClass="relative select-none cursor-pointer"
-                >
-                  {flavorsSelected.map((flavor, index) => (
-                    <div className="first:pr-1 px-1 relative" key={flavor.uuid}>
-                      <div className="flex flex-col p-2 h-[82px] rounded-md bg-zinc-50 border border-zinc-100 justify-between">
-                        <span
-                          className={`text-sm font-medium leading-[15px]`}
-                          style={{ color: `${bg_primary || "#111111"}` }}
-                        >
-                          {listPizza.find((p) => p.uuid === flavor.uuid)?.name}
-                        </span>
-                        <div className="flex gap-x-1">
-                          <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                            {flavor.qnt}
-                          </span>
-                          <a
-                            onClick={() => {
-                              if (qntFlavorsMissing) {
-                                setFlavorsSelected(
-                                  flavorsSelected.map((fl) => {
-                                    if (fl.uuid === flavor.uuid) fl.qnt += 1;
-                                    return fl;
-                                  })
-                                );
-                              }
-                            }}
-                            className={clsx(
-                              "bg-green-200 text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
-                              qntFlavorsMissing
-                                ? "hover:bg-green-300 duration-200 cursor-pointer"
-                                : "opacity-30 cursor-not-allowed"
-                            )}
-                          >
-                            +
-                          </a>
-                          <a
-                            onClick={() => {
-                              const total = flavorsSelected[index].qnt - 1;
-                              if (total === 0) {
-                                setFlavorsSelected(
-                                  flavorsSelected.filter(
-                                    (s) => s.uuid !== flavor.uuid
-                                  )
-                                );
-                              } else {
-                                setFlavorsSelected(
-                                  flavorsSelected.map((fl) => {
-                                    if (fl.uuid === flavor.uuid) fl.qnt = total;
-                                    return fl;
-                                  })
-                                );
-                              }
-                            }}
-                            className="bg-red-200 cursor-pointer hover:bg-red-300 text-red-600 duration-200 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-                          >
-                            -
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </Carousel>
-                <a
-                  className={`cursor-pointer leading-4 p-2 font-semibold text-center flex items-center justify-center rounded-md text-sm`}
+            <Carousel
+              infinite={false}
+              responsive={responsiveTamanhos}
+              partialVisible
+              arrows={false}
+              itemClass="relative select-none cursor-pointer"
+            >
+              {sizes.map((size) => (
+                <div
+                  className="px-1 pb-1.5 duration-100 active:scale-95 transition-all"
+                  key={size.uuid}
                   onClick={() => {
-                    addCartItem({
-                      type: "pizza",
-                      flavors: flavorsSelected,
-                      uuid: sizeSelected,
-                      key: nanoid(),
-                      qnt: 1,
-                    });
-                    setTimeout(() => {
-                      setFlavorsSelected([]);
-                      setSizeSelected(null);
-                      setTimeout(() => {
-                        handleTab(1);
-                      }, 100);
-                    }, 300);
-                  }}
-                  style={{
-                    color: `${bg_primary || "#111111"}`,
-                    background: `${bg_primary || "#111111"}20`,
+                    setSizeSelected(size.uuid);
+                    const nextFlavors = flavorsSelected.slice(0, size.flavors);
+                    setFlavorsSelected(nextFlavors);
+                    if (headerOpen) setHeaderOpen(false);
                   }}
                 >
-                  Adicionar ao carrinho
-                </a>
-              </div>
-            )}
-            {!sizeSelected && (
-              <Carousel
-                infinite={false}
-                responsive={responsiveTamanhos}
-                partialVisible
-                arrows={false}
-                itemClass="relative select-none cursor-pointer"
-              >
-                {sizes.map((size) => (
                   <div
-                    className="px-1 pb-1.5"
-                    key={size.uuid}
-                    onClick={() => {
-                      setSizeSelected(size.uuid);
-                      const nextFlavors = flavorsSelected.slice(
-                        0,
-                        size.flavors
-                      );
-                      setFlavorsSelected(nextFlavors);
-                      if (headerOpen) setHeaderOpen(false);
-                    }}
+                    className={`flex flex-col py-2 rounded-md items-center shadow-md`}
+                    style={{ background: `${bg_primary || "#111111"}10` }}
                   >
-                    <div
-                      className={`flex flex-col py-2 rounded-md items-center shadow-md`}
-                      style={{ background: `${bg_primary || "#111111"}10` }}
+                    <strong
+                      className={`text-center leading-4`}
+                      style={{ color: `${bg_primary || "#111111"}` }}
                     >
-                      <strong
-                        className={`text-center leading-4`}
-                        style={{ color: `${bg_primary || "#111111"}` }}
-                      >
-                        {size.name}
-                      </strong>
-                      <strong className="text-sm text-center leading-4 text-zinc-700">
-                        {formatToBRL(size.price)}
-                      </strong>
-                      <span className="leading-4 text-sm text-center text-zinc-500">
-                        {size.flavors > 1
-                          ? `${size.flavors} sabores`
-                          : "1 sabor"}
+                      {size.name}
+                    </strong>
+                    <strong className="text-sm text-center leading-4 text-zinc-700">
+                      {formatToBRL(size.price)}
+                    </strong>
+                    <span className="leading-4 text-sm text-center text-zinc-500">
+                      {size.flavors > 1 ? `${size.flavors} sabores` : "1 sabor"}
+                    </span>
+                    {size.slices !== null && (
+                      <span className="leading-3 text-sm text-center text-zinc-500">
+                        {size.slices > 1 ? `${size.slices} fatias` : "1 fatia"}
                       </span>
-                      {size.slices !== null && (
-                        <span className="leading-3 text-sm text-center text-zinc-500">
-                          {size.slices > 1
-                            ? `${size.slices} fatias`
-                            : "1 fatia"}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
-                ))}
-              </Carousel>
-            )}
+                </div>
+              ))}
+            </Carousel>
           </div>
         </Collapsible.Content>
       </Collapsible.Root>
@@ -350,18 +234,28 @@ export const MenuPage: React.FC = (): JSX.Element => {
         infinite={false}
         arrows={false}
         responsive={responsive}
-        beforeChange={(before) => setCurrentTab(before)}
         className={clsx(
           "duration-300 mt-2 border-t",
-          !currentTab ? "border-transparent" : "border-zinc-200"
+          !currentTab ? "border-transparent" : "border-zinc-200",
         )}
+        beforeChange={() => {
+          isMoving.current = true;
+        }}
+        afterChange={(_, { currentSlide }) => {
+          setCurrentTab(currentSlide);
+          if (headerOpen) setHeaderOpen(false);
+          sheetRef.current?.snapTo(95);
+          setTimeout(() => {
+            isMoving.current = false;
+          }, 20);
+        }}
       >
         <GridWithShadows
           listClassName="grid w-full min-[460px]:grid-cols-4 grid-cols-3 mt-1"
           items={listPizza}
           renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
-              (f) => f.uuid === flavor.uuid
+              (f) => f.uuid === flavor.uuid,
             );
             const background = selected
               ? `${bg_primary || "#111111"}10`
@@ -372,10 +266,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
               <div key={flavor.uuid} className="p-0.5 w-full">
                 <article
                   className={clsx(
-                    "cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
-                    selected && "shadow"
+                    "duration-100 active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
+                    selected && "shadow",
                   )}
                   onClick={() => {
+                    if (isMoving.current) return;
                     if (sizeSelected) {
                       const sizeFlavors =
                         sizes.find((s) => s.uuid === sizeSelected)?.flavors ||
@@ -383,7 +278,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       if (sizeFlavors > 1) {
                         if (qntFlavorsMissing) {
                           const exist = flavorsSelected.some(
-                            (s) => s.uuid === flavor.uuid
+                            (s) => s.uuid === flavor.uuid,
                           );
                           if (exist) {
                             removeFlavor(flavor.name);
@@ -392,7 +287,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                           }
                         } else {
                           const exist = flavorsSelected.some(
-                            (s) => s.uuid === flavor.uuid
+                            (s) => s.uuid === flavor.uuid,
                           );
                           if (exist) {
                             removeFlavor(flavor.uuid);
@@ -400,6 +295,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                             onOpen({
                               content: (
                                 <ModalViewSabor
+                                  uuid={flavor.uuid}
                                   close={close}
                                   name={flavor.name}
                                   desc={flavor.desc || undefined}
@@ -418,7 +314,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                             close={(sizeQnt) => {
                               const nextFlavors = flavorsSelected.slice(
                                 0,
-                                sizeQnt - 1
+                                sizeQnt - 1,
                               );
                               setFlavorsSelected(nextFlavors);
                               close();
@@ -435,7 +331,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   <span
                     className={clsx(
                       `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
-                      selected ? "opacity-100 border-white" : "opacity-0"
+                      selected ? "opacity-100 border-white" : "opacity-0",
                     )}
                     style={{ background: bgPoint }}
                   />
@@ -447,10 +343,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       draggable={false}
                     />
                   </AspectRatio>
-                  <div className="-mt-3 h-[72px]">
+                  <div className="-mt-3 h-18">
                     <span
                       className={clsx(
-                        "line-clamp-2 text-sm font-semibold text-center"
+                        "line-clamp-2 text-sm font-semibold text-center",
                       )}
                       style={{
                         color: selected
@@ -463,7 +359,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     <span
                       className={clsx(
                         "line-clamp-2 overflow-hidden text-xs text-center font-light",
-                        selected ? "text-zinc-700" : "text-zinc-600"
+                        selected ? "text-zinc-700" : "text-zinc-600",
                       )}
                     >
                       {flavor.desc}
@@ -479,7 +375,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
           items={listDrink}
           renderItem={(drink) => {
             const selected = cartItems.some(
-              (cItem) => cItem.key === drink.uuid
+              (cItem) => cItem.uuid === drink.uuid,
             );
             const background = selected
               ? `${bg_primary || "#111111"}10`
@@ -490,10 +386,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
               <div key={drink.uuid} className="p-0.5 w-full">
                 <article
                   className={clsx(
-                    "cursor-pointer rounded-xl duration-200 p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
-                    selected && "shadow"
+                    "duration-100 active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
+                    selected && "shadow",
                   )}
                   onClick={() => {
+                    if (isMoving.current) return;
                     if (selected) {
                       removeCartItem(drink.uuid);
                     } else {
@@ -510,7 +407,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   <span
                     className={clsx(
                       `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
-                      selected ? "opacity-100 border-white" : "opacity-0"
+                      selected ? "opacity-100 border-white" : "opacity-0",
                     )}
                     style={{ background: bgPoint }}
                   />
@@ -522,7 +419,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                       draggable={false}
                     />
                   </AspectRatio>
-                  <div className="w-full flex flex-col items-end -mt-3 pr-4 mb-0.5 h-[29px]">
+                  <div className="w-full flex flex-col items-end -mt-3 pr-4 mb-0.5 h-7.25">
                     {drink.beforePrice && (
                       <span className="text-zinc-500 line-through text-xs">
                         {formatToBRL(drink.beforePrice)}
@@ -549,7 +446,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     <span
                       className={clsx(
                         "line-clamp-2 overflow-hidden text-xs text-center font-light",
-                        selected ? "text-zinc-700" : "text-zinc-600"
+                        selected ? "text-zinc-700" : "text-zinc-600",
                       )}
                     >
                       {drink.desc}
@@ -580,7 +477,167 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       />
 
-      <div
+      <BottomSheet
+        open={!!sizeSelected && !!!currentTab}
+        snapPoints={({ maxHeight }) => [95, maxHeight * 0.7]}
+        ref={sheetRef}
+        blocking={false}
+        scrollLocking={false}
+        reserveScrollBarGap={false}
+        expandOnContentDrag
+      >
+        <div className="max-w-lg mx-auto w-full h-full px-3">
+          <div className="flex w-full relative items-start gap-x-2 justify-between">
+            <div
+              className={clsx(
+                "flex gap-x-2",
+                qntFlavorsMissing ? "items-start" : "items-center",
+              )}
+            >
+              <IconButton
+                size={"xs"}
+                colorPalette={"red"}
+                variant={"subtle"}
+                onClick={() => {
+                  setSizeSelected(null);
+                  setFlavorsSelected([]);
+                }}
+                className="duration-100 active:scale-95 transition-all"
+              >
+                <MdDeleteOutline />
+              </IconButton>
+              <span className="font-bold text-neutral-700 text-sm">
+                Pizza {sizes.find((s) => s.uuid === sizeSelected)?.name}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-x-2.5">
+              <Button
+                size={"xs"}
+                colorPalette={"green"}
+                variant={"subtle"}
+                onClick={() => {
+                  if (sizeSelected) {
+                    addCartItem({
+                      type: "pizza",
+                      flavors: flavorsSelected,
+                      uuid: sizeSelected,
+                      key: nanoid(),
+                      qnt: 1,
+                    });
+                    sheetRef.current?.snapTo(95);
+                    setTimeout(() => {
+                      setFlavorsSelected([]);
+                      setSizeSelected(null);
+                      setTimeout(() => {
+                        handleTab(1);
+                      }, 100);
+                    }, 300);
+                  }
+                }}
+                className="duration-100 active:scale-95 transition-all"
+                disabled={
+                  sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+                  qntFlavorsMissing
+                }
+              >
+                <BsCartCheck />
+                <span>Add ao carrinho</span>
+              </Button>
+            </div>
+            {!!qntFlavorsMissing && (
+              <span className="absolute bottom-0 left-10 block text-xs text-neutral-500">
+                Faltam{" "}
+                {qntFlavorsMissing > 1
+                  ? `${qntFlavorsMissing} sabores`
+                  : `${qntFlavorsMissing} sabor`}
+              </span>
+            )}
+          </div>
+          <div className="grid mt-2 px-2 gap-y-2">
+            {flavorsSelected.length ? (
+              flavorsSelected.map((flavor, index) => (
+                <div className="first:pr-1 px-1 relative" key={flavor.uuid}>
+                  <div className="flex p-2 gap-y-1.5 rounded-md bg-zinc-50 border border-zinc-100 justify-between">
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-sm font-medium leading-3.75`}
+                        style={{ color: `${bg_primary || "#111111"}` }}
+                      >
+                        {listPizza.find((p) => p.uuid === flavor.uuid)?.name}
+                      </span>
+                      <span className={`text-sm font-light text-neutral-500`}>
+                        {listPizza.find((p) => p.uuid === flavor.uuid)?.desc}
+                      </span>
+                    </div>
+                    <div className="flex gap-x-1">
+                      <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                        {flavor.qnt}
+                      </span>
+                      <a
+                        onClick={() => {
+                          if (qntFlavorsMissing) {
+                            setFlavorsSelected(
+                              flavorsSelected.map((fl) => {
+                                if (fl.uuid === flavor.uuid) fl.qnt += 1;
+                                return fl;
+                              }),
+                            );
+                          }
+                        }}
+                        className={clsx(
+                          "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
+                          qntFlavorsMissing
+                            ? "hover:bg-green-300 duration-200 cursor-pointer"
+                            : "opacity-30 cursor-not-allowed",
+                        )}
+                      >
+                        +
+                      </a>
+                      <a
+                        onClick={() => {
+                          const total = flavorsSelected[index].qnt - 1;
+                          if (total === 0) {
+                            setFlavorsSelected(
+                              flavorsSelected.filter(
+                                (s) => s.uuid !== flavor.uuid,
+                              ),
+                            );
+                          } else {
+                            setFlavorsSelected(
+                              flavorsSelected.map((fl) => {
+                                if (fl.uuid === flavor.uuid) fl.qnt = total;
+                                return fl;
+                              }),
+                            );
+                          }
+                        }}
+                        className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                      >
+                        -
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <span className="block w-full text-sm mt-1 text-center text-neutral-500">
+                Os sabores selecionados aparecerão aqui.
+              </span>
+            )}
+          </div>
+          {/* <button
+            onClick={() => {
+              // Full typing for the arguments available in snapTo, yay!!
+              sheetRef.current?.snapTo(({ maxHeight }) => maxHeight);
+            }}
+          >
+            Expand to full height
+          </button> */}
+        </div>
+      </BottomSheet>
+
+      {/* <div
         className={clsx(
           "fixed text-center duration-300 left-1/2 -translate-x-1/2 w-full",
           !currentTab && sizeSelected
@@ -619,7 +676,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
             </span>
           )}
         </div>
-      </div>
+      </div> */}
 
       {DialogModal}
     </main>

@@ -73,7 +73,7 @@ export function DataMenuProvider({
       try {
         setIsFetching(true);
         const result = await getMenuOnline(params.identifier!);
-        const src = api.getUri() + "/public/storage/";
+        const src = api.getUri() + "/public/images/";
         try {
           await preloadImage(src + result.logoImg);
           result.logoImg = src + result.logoImg;

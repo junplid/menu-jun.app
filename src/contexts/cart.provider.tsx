@@ -26,10 +26,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           prev.map((i) => {
             if (i.key === key) i.qnt = total;
             return i;
-          })
+          }),
         );
       }
     }
+  };
+
+  const changeObs = (key: string, value: string) => {
+    setItems((prev) =>
+      prev.map((i) => {
+        if (i.key === key && i.type === "pizza") i.obs = value;
+        return i;
+      }),
+    );
   };
 
   const data_value = useMemo(() => {
@@ -39,6 +48,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       addItem,
       incrementQnt,
       setPaymentMethod,
+      changeObs,
       payment_method,
     };
   }, [items, payment_method]);

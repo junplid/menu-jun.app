@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, HTMLAttributes, useMemo } from "react";
-import { VirtuosoGrid } from "react-virtuoso";
+import { Virtuoso, VirtuosoGrid } from "react-virtuoso";
 import { InView } from "react-intersection-observer";
 
 interface GridWithShadowsProps<T> {
@@ -7,6 +7,7 @@ interface GridWithShadowsProps<T> {
   renderItem: (item: T, index: number) => React.ReactNode;
   onScroll?(s: boolean): void;
   listClassName: string;
+  grid?: boolean;
 }
 
 const Scroller = forwardRef<
@@ -34,6 +35,7 @@ export default function GridWithShadows<T>({
   items,
   renderItem,
   listClassName,
+  grid = true,
   ...props
 }: GridWithShadowsProps<T>) {
   const [showTopShadow, setShowTopShadow] = useState(false);
@@ -65,30 +67,40 @@ export default function GridWithShadows<T>({
       ),
       Footer: FooterSentinel,
     }),
-    []
+    [],
   );
 
   return (
     <div className="h-full">
       <div
-        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[60px] w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-15 w-full`}
         style={{
           background: "linear-gradient(rgba(255, 255, 255, 1), transparent)",
           opacity: Number(showTopShadow),
           top: -2,
         }}
       />
-      <VirtuosoGrid
-        style={{ height: "100%" }}
-        totalCount={items.length}
-        // overscan={200}
-        listClassName={listClassName}
-        components={virtuosoComponents}
-        itemContent={(index) => renderItem(items[index], index)}
-      />
+      {grid ? (
+        <VirtuosoGrid
+          style={{ height: "100%" }}
+          totalCount={items.length}
+          // overscan={200}
+          listClassName={listClassName}
+          components={virtuosoComponents}
+          itemContent={(index) => renderItem(items[index], index)}
+        />
+      ) : (
+        <Virtuoso
+          style={{ height: "100%" }}
+          totalCount={items.length}
+          className={listClassName}
+          components={virtuosoComponents}
+          itemContent={(index) => renderItem(items[index], index)}
+        />
+      )}
 
       <div
-        className={`pointer-events-none absolute duration-300 left-0 z-30 h-[60px] w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-15 w-full`}
         style={{
           background: "linear-gradient(transparent, rgb(255, 255, 255))",
           opacity: Number(showBottomShadow),
