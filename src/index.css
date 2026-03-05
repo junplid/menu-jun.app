@@ -97,3 +97,8 @@ body {
 .react-multi-carousel-track {
   height: 100%;
 }
+
+[data-rsbs-content] {
+  overflow: initial !important;
+  position: relative !important;
+}

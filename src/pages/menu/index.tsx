@@ -39,7 +39,6 @@ const responsive = {
   },
 };
 
-
 const categories = [
   { name: "Pizzas", img: "/img-icons/pizza-img-icon.png" },
   { name: "Bebidas", img: "/img-icons/drinks-img-icon.png" },
@@ -114,11 +113,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
     >
       <div
         className={
-          "grid grid-cols-[repeat(5,1fr)_30px] min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-3 mt-2 px-3"
+          "grid grid-cols-[repeat(4,1fr)] bg-white py-2 border border-neutral-200 min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-1 mt-1 px-3"
         }
       >
         {categories.map((cat, index) => {
-          const background = `${bg_primary || "#111111"}${index === currentTab ? "90" : "10"}`;
+          const background = `${bg_primary || "#dddddd"}${index === currentTab ? "90" : "10"}`;
           const textOn = `${bg_primary || "#111111"}${index === currentTab ? "" : "60"}`;
 
           return (
@@ -131,30 +130,26 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   sheetRef.current?.snapTo(95);
                 }
               }}
-              className="flex flex-col items-center duration-100 active:scale-95 transition-all"
+              style={{ background }}
+              className="grid rounded-lg grid-cols-[45px_1fr] px-2 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
             >
               <AspectRatio ratio={1} w={"100%"}>
                 <div
-                  className={`p-1.5 rounded-xl w-full flex justify-center duration-300 items-center cursor-pointer`}
-                  style={{
-                    background,
-                  }}
+                  className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
                 >
                   <img
                     src={cat.img}
-                    className="max-h-12.5 min-h-10"
+                    className="w-full h-auto "
                     alt={cat.name}
                   />
                 </div>
               </AspectRatio>
-              {headerOpen && (
-                <span
-                  className={clsx("font-semibold duration-300 text-sm")}
-                  style={{ color: textOn }}
-                >
-                  {cat.name}
-                </span>
-              )}
+              <span
+                className={clsx("font-semibold duration-300 text-sm")}
+                style={{ color: textOn }}
+              >
+                {cat.name}
+              </span>
             </div>
           );
         })}
@@ -165,10 +160,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
         infinite={false}
         arrows={false}
         responsive={responsive}
-        className={clsx(
-          "duration-300 mt-2 border-t",
-          !currentTab ? "border-transparent" : "border-zinc-200",
-        )}
         beforeChange={() => {
           isMoving.current = true;
         }}
@@ -182,7 +173,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       >
         <GridWithShadows
-          listClassName="grid w-full min-[460px]:grid-cols-4 grid-cols-3 mt-1"
+          listClassName="grid w-full grid-cols-1"
           items={listPizza}
           renderItem={(flavor) => {
             const selected = !!flavorsSelected.find(
@@ -194,10 +185,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
             const bgPoint = `${bg_primary || "#111111"}70`;
 
             return (
-              <div key={flavor.uuid} className="p-0.5 w-full">
+              <div key={flavor.uuid} className="p-1 w-full px-2.5">
                 <article
                   className={clsx(
-                    "duration-100 active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
+                    "duration-100 bg-white active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
                     selected && "shadow",
                   )}
                   onClick={() => {
@@ -266,18 +257,18 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     )}
                     style={{ background: bgPoint }}
                   />
-                  <AspectRatio ratio={1 / 1} w={"100%"}>
+                  <AspectRatio ratio={1} w={"100px"}>
                     <img
                       src={flavor.img}
                       alt={flavor.name}
-                      className="p-1 pointer-events-none"
+                      className="p-1 pointer-events-none w-full h-auto"
                       draggable={false}
                     />
                   </AspectRatio>
-                  <div className="-mt-3 h-18">
+                  <div className="h-18">
                     <span
                       className={clsx(
-                        "line-clamp-2 text-sm font-semibold text-center",
+                        "line-clamp-1 w-full text-lg font-semibold",
                       )}
                       style={{
                         color: selected
@@ -285,11 +276,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
                           : undefined,
                       }}
                     >
-                      {flavor.name}
+                      Pizza familia
                     </span>
                     <span
                       className={clsx(
-                        "line-clamp-2 overflow-hidden text-xs text-center font-light",
+                        "line-clamp-2 overflow-hidden text-sm font-light",
                         selected ? "text-zinc-700" : "text-zinc-600",
                       )}
                     >
@@ -410,21 +401,18 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
       <BottomSheet
         open={!!sizeSelected && !!!currentTab}
-        snapPoints={({ maxHeight }) => [95, maxHeight * 0.7]}
+        snapPoints={({ maxHeight }) => [maxHeight * 0.887]}
         ref={sheetRef}
-        blocking={false}
         scrollLocking={false}
         reserveScrollBarGap={false}
         expandOnContentDrag
-      >
-        <div className="max-w-lg mx-auto w-full h-full px-3">
-          <div className="flex w-full relative items-start gap-x-2 justify-between">
-            <div
-              className={clsx(
-                "flex gap-x-2",
-                qntFlavorsMissing ? "items-start" : "items-center",
-              )}
-            >
+        onDismiss={() => {
+          setSizeSelected(null);
+          setFlavorsSelected([]);
+        }}
+        header={
+          <div className="flex sticky max-w-lg mx-auto top-0 w-full items-start gap-x-2 justify-between">
+            <div className={clsx("flex gap-x-2 items-center")}>
               <IconButton
                 size={"xs"}
                 colorPalette={"red"}
@@ -441,130 +429,151 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 Pizza {sizes.find((s) => s.uuid === sizeSelected)?.name}
               </span>
             </div>
-
-            <div className="flex items-center gap-x-2.5">
-              <Button
-                size={"xs"}
-                colorPalette={"green"}
-                variant={"subtle"}
-                onClick={() => {
-                  if (sizeSelected) {
-                    addCartItem({
-                      type: "pizza",
-                      flavors: flavorsSelected,
-                      uuid: sizeSelected,
-                      key: nanoid(),
-                      qnt: 1,
-                    });
-                    sheetRef.current?.snapTo(95);
-                    setTimeout(() => {
-                      setFlavorsSelected([]);
-                      setSizeSelected(null);
-                      setTimeout(() => {
-                        handleTab(1);
-                      }, 100);
-                    }, 300);
-                  }
-                }}
-                className="duration-100 active:scale-95 transition-all"
-                disabled={
-                  sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+          </div>
+        }
+        footer={
+          <div className="flex max-w-lg mx-auto px-3 justify-between bg-white items-center">
+            <div className="flex gap-x-1">
+              <a
+                className={clsx(
+                  "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
                   qntFlavorsMissing
-                }
+                    ? "hover:bg-green-300 duration-200 cursor-pointer"
+                    : "opacity-30 cursor-not-allowed",
+                )}
               >
-                <BsCartCheck />
-                <span>Add ao carrinho</span>
-              </Button>
+                +
+              </a>
+              <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                11
+              </span>
+              <a
+                onClick={() => {
+                  // const total = flavorsSelected[index].qnt - 1;
+                  // if (total === 0) {
+                  //   setFlavorsSelected(
+                  //     flavorsSelected.filter((s) => s.uuid !== flavor.uuid),
+                  //   );
+                  // } else {
+                  //   setFlavorsSelected(
+                  //     flavorsSelected.map((fl) => {
+                  //       if (fl.uuid === flavor.uuid) fl.qnt = total;
+                  //       return fl;
+                  //     }),
+                  //   );
+                  // }
+                }}
+                className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+              >
+                -
+              </a>
             </div>
-            {!!qntFlavorsMissing && (
-              <span className="absolute bottom-0 left-10 block text-xs text-neutral-500">
-                Faltam{" "}
-                {qntFlavorsMissing > 1
-                  ? `${qntFlavorsMissing} sabores`
-                  : `${qntFlavorsMissing} sabor`}
-              </span>
-            )}
+            <Button
+              size={"sm"}
+              colorPalette={"green"}
+              variant={"subtle"}
+              onClick={() => {
+                if (sizeSelected) {
+                  addCartItem({
+                    type: "pizza",
+                    flavors: flavorsSelected,
+                    uuid: sizeSelected,
+                    key: nanoid(),
+                    qnt: 1,
+                  });
+                  sheetRef.current?.snapTo(95);
+                  setTimeout(() => {
+                    setFlavorsSelected([]);
+                    setSizeSelected(null);
+                    setTimeout(() => {
+                      handleTab(1);
+                    }, 100);
+                  }, 300);
+                }
+              }}
+              className="duration-100 active:scale-95 transition-all"
+              disabled={
+                sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+                qntFlavorsMissing
+              }
+            >
+              <BsCartCheck />
+              <span>Adicionar R$ 77,80</span>
+            </Button>
           </div>
-          <div className="grid mt-2 px-2 gap-y-2">
-            {flavorsSelected.length ? (
-              flavorsSelected.map((flavor, index) => (
-                <div className="first:pr-1 px-1 relative" key={flavor.uuid}>
-                  <div className="flex p-2 gap-y-1.5 rounded-md bg-zinc-50 border border-zinc-100 justify-between">
-                    <div className="flex flex-col">
-                      <span
-                        className={`text-sm font-medium leading-3.75`}
-                        style={{ color: `${bg_primary || "#111111"}` }}
-                      >
-                        {listPizza.find((p) => p.uuid === flavor.uuid)?.name}
-                      </span>
-                      <span className={`text-sm font-light text-neutral-500`}>
-                        {listPizza.find((p) => p.uuid === flavor.uuid)?.desc}
-                      </span>
-                    </div>
-                    <div className="flex gap-x-1">
-                      <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                        {flavor.qnt}
-                      </span>
-                      <a
-                        onClick={() => {
-                          if (qntFlavorsMissing) {
-                            setFlavorsSelected(
-                              flavorsSelected.map((fl) => {
-                                if (fl.uuid === flavor.uuid) fl.qnt += 1;
-                                return fl;
-                              }),
-                            );
-                          }
-                        }}
-                        className={clsx(
-                          "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
-                          qntFlavorsMissing
-                            ? "hover:bg-green-300 duration-200 cursor-pointer"
-                            : "opacity-30 cursor-not-allowed",
-                        )}
-                      >
-                        +
-                      </a>
-                      <a
-                        onClick={() => {
-                          const total = flavorsSelected[index].qnt - 1;
-                          if (total === 0) {
-                            setFlavorsSelected(
-                              flavorsSelected.filter(
-                                (s) => s.uuid !== flavor.uuid,
-                              ),
-                            );
-                          } else {
-                            setFlavorsSelected(
-                              flavorsSelected.map((fl) => {
-                                if (fl.uuid === flavor.uuid) fl.qnt = total;
-                                return fl;
-                              }),
-                            );
-                          }
-                        }}
-                        className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-                      >
-                        -
-                      </a>
-                    </div>
-                  </div>
+        }
+      >
+        <div className="max-w-lg mx-auto scroll-auto gap-y-2">
+          <div className="sticky px-3 py-2 top-0 z-20 bg-neutral-100 border-y border-neutral-200">
+            <span className="font-semibold text-sm text-neutral-700">
+              Que tal uma Borda Rechada?
+            </span>
+            <div className="flex mt-0.5 justify-between text-xs items-center">
+              <span className="text-neutral-500">Escolha 1 opção</span>
+              <div className="flex gap-x-1">
+                <span className="text-neutral-100 px-1 py-0.5 text-xs rounded-sm bg-neutral-700">
+                  0/1
+                </span>
+                <span className="text-neutral-100 font-medium px-1 py-0.5 rounded-sm bg-neutral-700">
+                  OBRIGATÓRIO
+                </span>
+              </div>
+            </div>
+          </div>
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div key={i} className="relative flex-1 px-3">
+              <div className="flex p-2 gap-y-1.5 rounded-md bg-zinc-50 border border-zinc-100 justify-between">
+                <div className="flex flex-col">
+                  <span
+                    className={`text-sm font-medium leading-3.75`}
+                    style={{ color: `${bg_primary || "#111111"}` }}
+                  >
+                    {/* {listPizza.find((p) => p.uuid === flavor.uuid)?.name} */}
+                    nome do sabor
+                  </span>
+                  <span className={`text-sm font-light text-neutral-500`}>
+                    {/* {listPizza.find((p) => p.uuid === flavor.uuid)?.desc} */}
+                    descrição
+                  </span>
                 </div>
-              ))
-            ) : (
-              <span className="block w-full text-sm mt-1 text-center text-neutral-500">
-                Os sabores selecionados aparecerão aqui.
-              </span>
-            )}
-          </div>
-          {/* <button
-            onClick={() => {
-              // Full typing for the arguments available in snapTo, yay!!
-              sheetRef.current?.snapTo(({ maxHeight }) => maxHeight);
-            }}
-          >
-            Expand to full height
-          </button> */}
+                <div className="flex gap-x-1">
+                  <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
+                    11
+                  </span>
+                  <a
+                    className={clsx(
+                      "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
+                      qntFlavorsMissing
+                        ? "hover:bg-green-300 duration-200 cursor-pointer"
+                        : "opacity-30 cursor-not-allowed",
+                    )}
+                  >
+                    +
+                  </a>
+                  <a
+                    onClick={() => {
+                      // const total = flavorsSelected[index].qnt - 1;
+                      // if (total === 0) {
+                      //   setFlavorsSelected(
+                      //     flavorsSelected.filter((s) => s.uuid !== flavor.uuid),
+                      //   );
+                      // } else {
+                      //   setFlavorsSelected(
+                      //     flavorsSelected.map((fl) => {
+                      //       if (fl.uuid === flavor.uuid) fl.qnt = total;
+                      //       return fl;
+                      //     }),
+                      //   );
+                      // }
+                    }}
+                    className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
+                  >
+                    -
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </BottomSheet>
 

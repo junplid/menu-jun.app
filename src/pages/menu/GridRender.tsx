@@ -73,9 +73,9 @@ export default function GridWithShadows<T>({
   return (
     <div className="h-full">
       <div
-        className={`pointer-events-none absolute duration-300 left-0 z-30 h-15 w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-10 w-full`}
         style={{
-          background: "linear-gradient(rgba(255, 255, 255, 1), transparent)",
+          background: "linear-gradient(#f5f5f5, transparent)",
           opacity: Number(showTopShadow),
           top: -2,
         }}
@@ -100,9 +100,9 @@ export default function GridWithShadows<T>({
       )}
 
       <div
-        className={`pointer-events-none absolute duration-300 left-0 z-30 h-15 w-full`}
+        className={`pointer-events-none absolute duration-300 left-0 z-30 h-10 w-full`}
         style={{
-          background: "linear-gradient(transparent, rgb(255, 255, 255))",
+          background: "linear-gradient(transparent, #f5f5f5)",
           opacity: Number(showBottomShadow),
           bottom: -2,
         }}

@@ -1,9 +1,9 @@
-import { Presence } from "@chakra-ui/react";
+import { Circle, Float, Presence } from "@chakra-ui/react";
 import { CartContext } from "@contexts/cart.context";
 import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
 import { memo, useContext, useMemo } from "react";
-import { PiShoppingCartBold } from "react-icons/pi";
+import { HiOutlineShoppingBag } from "react-icons/hi";
 
 interface IProps {
   onClick(): void;
@@ -47,8 +47,28 @@ function PreviewCartComponent_(props: IProps) {
       style={{ boxShadow: "0 -12px 14px #bebebe2d" }}
       className="absolute w-full left-0 bottom-0 bg-white"
     >
-      <div className="max-w-lg flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2">
-        <div className="flex flex-col -space-y-2 h-13.25">
+      <div
+        onClick={props.onClick}
+        className="max-w-lg active:scale-95 border-t border-neutral-200 transition-all flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2"
+      >
+        <div className="relative">
+          <Float placement={"bottom-end"}>
+            <Circle
+              size="5"
+              fontSize={"12px"}
+              fontWeight={"medium"}
+              bg="black"
+              color="white"
+            >
+              {items.length}
+            </Circle>
+          </Float>
+          <HiOutlineShoppingBag size={30} />
+        </div>
+
+        <span className="ml-3 font-medium">Ver sacola</span>
+
+        <div className="flex flex-col items-end -space-y-2 h-13.25">
           {totalValues.before > 0 && (
             <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
               {formatToBRL(totalValues.before)}
@@ -60,19 +80,6 @@ function PreviewCartComponent_(props: IProps) {
           >
             {formatToBRL(totalValues.after)}
           </span>
-        </div>
-        <div className="flex gap-x-2">
-          <button
-            onClick={props.onClick}
-            className={`duration-100 active:scale-95 transition-all flex gap-x-1 items-center text-sm cursor-pointer border-2 rounded-full p-2.5 px-3 font-semibold`}
-            style={{
-              borderColor: `${bg_primary || "#111111"}`,
-              color: `${bg_primary || "#111111"}`,
-            }}
-          >
-            <PiShoppingCartBold size={20} />
-            Ver meu carrinho
-          </button>
         </div>
       </div>
     </Presence>
