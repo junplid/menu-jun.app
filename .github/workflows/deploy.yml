@@ -19,7 +19,7 @@ jobs:
 
       # 3. Instalar e buildar
       - run: |
-          npm i --frozen-lockfile
+          npm i --frozen-lockfile --force
           npm run build
 
       - name: Garantir permissões
