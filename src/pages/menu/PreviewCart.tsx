@@ -1,6 +1,5 @@
 import { Circle, Float, Presence } from "@chakra-ui/react";
 import { CartContext } from "@contexts/cart.context";
-import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
 import { memo, useContext, useMemo } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
@@ -11,27 +10,16 @@ interface IProps {
 }
 
 function PreviewCartComponent_(props: IProps) {
-  const { bg_primary, items: dataItems, sizes } = useContext(DataMenuContext);
   const { items } = useContext(CartContext);
-  const totalValues = useMemo(() => {
-    if (!items.length) return { after: 0, before: 0 };
 
-    return items.reduce(
-      (prev, curr) => {
-        if (curr.type === "pizza") {
-          const { price } = sizes.find((d) => d.uuid === curr.uuid) || {};
-          prev.after += price || 0;
-        } else {
-          const { afterPrice, beforePrice } =
-            dataItems.find((d) => d.uuid === curr.uuid) || {};
-          prev.after += afterPrice || 0;
-          prev.before += beforePrice || 0;
-        }
-        return prev;
-      },
-      { after: 0, before: 0 },
-    );
-  }, [items, sizes]);
+  const totalValues = useMemo(() => {
+    if (!items.length) return 0;
+
+    return items.reduce((prev, curr) => {
+      prev += curr.total * curr.qnt;
+      return prev;
+    }, 0);
+  }, [items]);
 
   return (
     <Presence
@@ -49,36 +37,35 @@ function PreviewCartComponent_(props: IProps) {
     >
       <div
         onClick={props.onClick}
-        className="max-w-lg active:scale-95 border-t border-neutral-200 transition-all flex mx-auto justify-between items-center w-full gap-x-1 pt-2 p-6 px-2"
+        className="text-neutral-500 max-w-lg border-t border-neutral-200 flex mx-auto justify-between items-center w-full gap-x-1 pt-3 p-6 px-4"
       >
         <div className="relative">
-          <Float placement={"bottom-end"}>
+          <Float offset={1} placement={"bottom-end"}>
             <Circle
               size="5"
-              fontSize={"12px"}
-              fontWeight={"medium"}
-              bg="black"
-              color="white"
+              fontSize={"11px"}
+              fontWeight={"black"}
+              bg="white"
+              color="black"
+              border={"1px solid #acacac"}
             >
-              {items.length}
+              {items.reduce((prev, curr) => {
+                prev = prev + curr.qnt;
+                return prev;
+              }, 0)}
             </Circle>
           </Float>
           <HiOutlineShoppingBag size={30} />
         </div>
 
-        <span className="ml-3 font-medium">Ver sacola</span>
+        <span className="ml-3 text-lg text-black font-light">Ver sacola</span>
 
-        <div className="flex flex-col items-end -space-y-2 h-13.25">
-          {totalValues.before > 0 && (
-            <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
-              {formatToBRL(totalValues.before)}
-            </span>
-          )}
+        <div className="flex flex-col items-end -space-y-2">
           <span
             className={`text-xl sm:text-2xl font-bold`}
-            style={{ color: `${bg_primary || "#111111"}` }}
+            // style={{ color: `${bg_primary || "#111111"}` }}
           >
-            {formatToBRL(totalValues.after)}
+            {formatToBRL(totalValues)}
           </span>
         </div>
       </div>

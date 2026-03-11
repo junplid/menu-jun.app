@@ -1,24 +1,20 @@
-import { AspectRatio, Button, IconButton } from "@chakra-ui/react";
+import { AspectRatio, Presence } from "@chakra-ui/react";
 import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
-import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { JSX, RefObject, useContext, useEffect, useRef, useState } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
-import { useDialogModal } from "../../hooks/dialog.modal";
-import { ModalViewSabor } from "./modals/viewSabor";
-import { ModalSelecionarTamanho } from "./modals/SelecionarTamanho";
-import { formatToBRL } from "brazilian-values";
-import { ModalCarrinho } from "./modals/Carrinho";
-import { usePizzaStore } from "../../store/useStore";
+import { DataMenuContext } from "@contexts/data-menu.context";
+
+import { SectionsItems } from "./SectionsItem";
 import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
-import { nanoid } from "nanoid";
-import { DataMenuContext } from "@contexts/data-menu.context";
-import "react-spring-bottom-sheet/dist/style.css";
-import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
-import { MdDeleteOutline } from "react-icons/md";
-import { BsCartCheck } from "react-icons/bs";
+import { ModalCarrinho } from "./modals/Carrinho";
+import { formatToBRL } from "brazilian-values";
+import { useSearchParams } from "react-router-dom";
+import { TbShoppingBagPlus } from "react-icons/tb";
+import { v4 } from "uuid"
 
 const responsive = {
   superLargeDesktop: {
@@ -39,49 +35,34 @@ const responsive = {
   },
 };
 
-const categories = [
-  { name: "Pizzas", img: "/img-icons/pizza-img-icon.png" },
-  { name: "Bebidas", img: "/img-icons/drinks-img-icon.png" },
-];
-
 export const MenuPage: React.FC = (): JSX.Element => {
-  const { sizes, items, bg_primary } = useContext(DataMenuContext);
+  const { categories, items, bg_primary } = useContext(DataMenuContext);
   const {
     items: cartItems,
-    addItem: addCartItem,
-    removeItem: removeCartItem,
   } = useContext(CartContext);
-  const {
-    dialog: DialogModal,
-    close,
-    onOpen,
-  } = useDialogModal({ placement: "center" });
+
   const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
   const isMoving = useRef(false);
-  const sheetRef = useRef<BottomSheetRef>(null);
-
-  const {
-    sizeSelected,
-    setSizeSelected,
-    flavorsSelected,
-    setFlavorsSelected,
-    addFlavor,
-    removeFlavor,
-  } = usePizzaStore();
+  const ref = useRef<Carousel>(null);
+  const refDefaultStateSection = useRef<{
+    sections: Record<string, Record<string, number>>;
+    length: number;
+    key: string;
+  }>(null);
 
   const [currentTab, setCurrentTab] = useState(0);
-  const ref = useRef<Carousel>(null);
+  const [showPresence, setShowPresence] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   function handleTab(i: number) {
     ref.current?.goToSlide(i);
   }
 
-  const [showPresence, setShowPresence] = useState(false);
   useEffect(() => {
     let id: NodeJS.Timeout;
-
     if (cartItems.length) {
-      id = setTimeout(() => setShowPresence(true), 500);
+      id = setTimeout(() => setShowPresence(true), 300);
     } else {
       setShowPresence(false);
     }
@@ -89,26 +70,11 @@ export const MenuPage: React.FC = (): JSX.Element => {
     return () => clearTimeout(id);
   }, [cartItems.length]);
 
-  const qntFlavorsMissing = useMemo(() => {
-    const totalQnt = flavorsSelected.reduce((p, c) => p + c.qnt, 0);
-    const totalFlavorsSize =
-      sizes.find((s) => s.uuid === sizeSelected)?.flavors || 0;
-    return totalFlavorsSize - totalQnt;
-  }, [sizeSelected, flavorsSelected]);
-
-  const listPizza = useMemo(() => {
-    return items.filter((i) => i.category === "pizzas");
-  }, []);
-
-  const listDrink = useMemo(() => {
-    return items.filter((i) => i.category === "drinks");
-  }, []);
-
   return (
     <main
-      className="w-full duration-300 max-w-lg mx-auto relative pb-2 grid grid-rows-[auto_1fr] min-h-0"
+      className="w-full relative duration-300 max-w-lg mx-auto pb-2 grid grid-rows-[auto_1fr] min-h-0"
       style={{
-        paddingBottom: showPresence || !!sizeSelected ? "70px" : "10px",
+        paddingBottom: showPresence ? "70px" : "10px",
       }}
     >
       <div
@@ -122,13 +88,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
           return (
             <div
-              key={cat.name}
+              key={cat.uuid}
               onClick={() => {
                 handleTab(index);
                 if (headerOpen) setHeaderOpen(false);
-                if (index) {
-                  sheetRef.current?.snapTo(95);
-                }
               }}
               style={{ background }}
               className="grid rounded-lg grid-cols-[45px_1fr] px-2 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
@@ -138,7 +101,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                   className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
                 >
                   <img
-                    src={cat.img}
+                    src={cat.image45x45png}
                     className="w-full h-auto "
                     alt={cat.name}
                   />
@@ -160,465 +123,193 @@ export const MenuPage: React.FC = (): JSX.Element => {
         infinite={false}
         arrows={false}
         responsive={responsive}
+        minimumTouchDrag={3}
         beforeChange={() => {
           isMoving.current = true;
         }}
         afterChange={(_, { currentSlide }) => {
           setCurrentTab(currentSlide);
           if (headerOpen) setHeaderOpen(false);
-          sheetRef.current?.snapTo(95);
           setTimeout(() => {
             isMoving.current = false;
           }, 20);
         }}
       >
-        <GridWithShadows
-          listClassName="grid w-full grid-cols-1"
-          items={listPizza}
-          renderItem={(flavor) => {
-            const selected = !!flavorsSelected.find(
-              (f) => f.uuid === flavor.uuid,
-            );
-            const background = selected
-              ? `${bg_primary || "#111111"}10`
-              : undefined;
-            const bgPoint = `${bg_primary || "#111111"}70`;
+        {categories.map((cat) => {
+          const itemsOfCat = items.filter((ii) =>
+            ii.categories.some((itemcat) => itemcat.uuid === cat.uuid),
+          );
 
-            return (
-              <div key={flavor.uuid} className="p-1 w-full px-2.5">
-                <article
-                  className={clsx(
-                    "duration-100 bg-white active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
-                    selected && "shadow",
-                  )}
-                  onClick={() => {
-                    if (isMoving.current) return;
-                    if (sizeSelected) {
-                      const sizeFlavors =
-                        sizes.find((s) => s.uuid === sizeSelected)?.flavors ||
-                        0;
-                      if (sizeFlavors > 1) {
-                        if (qntFlavorsMissing) {
-                          const exist = flavorsSelected.some(
-                            (s) => s.uuid === flavor.uuid,
-                          );
-                          if (exist) {
-                            removeFlavor(flavor.name);
-                          } else {
-                            addFlavor({ uuid: flavor.uuid, qnt: 1 });
-                          }
-                        } else {
-                          const exist = flavorsSelected.some(
-                            (s) => s.uuid === flavor.uuid,
-                          );
-                          if (exist) {
-                            removeFlavor(flavor.uuid);
-                          } else {
-                            onOpen({
-                              content: (
-                                <ModalViewSabor
-                                  uuid={flavor.uuid}
-                                  close={close}
-                                  name={flavor.name}
-                                  desc={flavor.desc || undefined}
-                                />
-                              ),
-                            });
-                          }
-                        }
-                      } else {
-                        setFlavorsSelected([{ uuid: flavor.uuid, qnt: 1 }]);
-                      }
-                    } else {
-                      onOpen({
-                        content: (
-                          <ModalSelecionarTamanho
-                            close={(sizeQnt) => {
-                              const nextFlavors = flavorsSelected.slice(
-                                0,
-                                sizeQnt - 1,
-                              );
-                              setFlavorsSelected(nextFlavors);
-                              close();
-                              addFlavor({ uuid: flavor.uuid, qnt: 1 });
-                              if (headerOpen) setHeaderOpen(false);
-                            }}
-                          />
-                        ),
-                      });
-                    }
-                  }}
-                  style={{ background }}
-                >
-                  <span
-                    className={clsx(
-                      `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
-                      selected ? "opacity-100 border-white" : "opacity-0",
-                    )}
-                    style={{ background: bgPoint }}
-                  />
-                  <AspectRatio ratio={1} w={"100px"}>
-                    <img
-                      src={flavor.img}
-                      alt={flavor.name}
-                      className="p-1 pointer-events-none w-full h-auto"
-                      draggable={false}
-                    />
-                  </AspectRatio>
-                  <div className="h-18">
-                    <span
-                      className={clsx(
-                        "line-clamp-1 w-full text-lg font-semibold",
-                      )}
-                      style={{
-                        color: selected
-                          ? `${bg_primary || "#111111"}`
-                          : undefined,
-                      }}
-                    >
-                      Pizza familia
-                    </span>
-                    <span
-                      className={clsx(
-                        "line-clamp-2 overflow-hidden text-sm font-light",
-                        selected ? "text-zinc-700" : "text-zinc-600",
-                      )}
-                    >
-                      {flavor.desc}
-                    </span>
-                  </div>
-                </article>
-              </div>
-            );
-          }}
-        />
-        <GridWithShadows
-          listClassName="grid w-full sm:grid-cols-4 grid-cols-3"
-          items={listDrink}
-          renderItem={(drink) => {
-            const selected = cartItems.some(
-              (cItem) => cItem.uuid === drink.uuid,
-            );
-            const background = selected
-              ? `${bg_primary || "#111111"}10`
-              : undefined;
-            const bgPoint = `${bg_primary || "#111111"}70`;
+          return (
+            <GridWithShadows
+              listClassName="grid w-full grid-cols-1"
+              items={itemsOfCat}
+              grid={false}
+              renderItem={(item) => {
+                const background = false
+                  ? `${bg_primary || "#111111"}10`
+                  : undefined;
+                // const bgPoint = `${bg_primary || "#111111"}70`;
 
-            return (
-              <div key={drink.uuid} className="p-0.5 w-full">
-                <article
-                  className={clsx(
-                    "duration-100 active:scale-95 transition-all cursor-pointer rounded-xl p-0.5 pb-2 h-full flex flex-col select-none items-center w-full relative",
-                    selected && "shadow",
-                  )}
-                  onClick={() => {
-                    if (isMoving.current) return;
-                    if (selected) {
-                      removeCartItem(drink.uuid);
-                    } else {
-                      addCartItem({
-                        type: "drink",
-                        qnt: 1,
-                        uuid: drink.uuid,
-                        key: nanoid(),
-                      });
-                    }
-                  }}
-                  style={{ background }}
-                >
-                  <span
-                    className={clsx(
-                      `h-5 z-10 w-5 rounded-full border-2 absolute top-1.5 left-1.5 duration-200`,
-                      selected ? "opacity-100 border-white" : "opacity-0",
-                    )}
-                    style={{ background: bgPoint }}
-                  />
-                  <AspectRatio ratio={1 / 1} w={"100%"}>
-                    <img
-                      src={drink.img}
-                      alt={drink.name}
-                      className="p-2 pointer-events-none"
-                      draggable={false}
-                    />
-                  </AspectRatio>
-                  <div className="w-full flex flex-col items-end -mt-3 pr-4 mb-0.5 h-7.25">
-                    {drink.beforePrice && (
-                      <span className="text-zinc-500 line-through text-xs">
-                        {formatToBRL(drink.beforePrice)}
-                      </span>
-                    )}
-                    <span
-                      className={`font-semibold leading-3 text-sm`}
-                      style={{ color: `${bg_primary || "#111111"}80` }}
-                    >
-                      {formatToBRL(drink.afterPrice!)}
-                    </span>
+                return (
+                  <div key={item.uuid} className="p-1 w-full px-2.5">
+                    <Item background={background} isMoving={isMoving} item={item} />
                   </div>
-                  <div>
-                    <span
-                      className={clsx("line-clamp-2 font-medium text-center")}
-                      style={{
-                        color: selected
-                          ? `${bg_primary || "#111111"}`
-                          : undefined,
-                      }}
-                    >
-                      {drink.name}
-                    </span>
-                    <span
-                      className={clsx(
-                        "line-clamp-2 overflow-hidden text-xs text-center font-light",
-                        selected ? "text-zinc-700" : "text-zinc-600",
-                      )}
-                    >
-                      {drink.desc}
-                    </span>
-                  </div>
-                </article>
-              </div>
-            );
-          }}
-        />
+                );
+              }}
+            />
+          );
+        })}
       </Carousel>
+
+      <ModalCarrinho
+        onReturnEdit={(item) => {
+          refDefaultStateSection.current = item.ref;
+          const next = new URLSearchParams(searchParams);
+          next.delete("c");
+          next.set("s", item.uuid);
+          setTimeout(() => {
+            setSearchParams(next);
+          }, 10);
+        }}
+      />
 
       <PreviewCartComponent
         showPresence={showPresence}
         onClick={() => {
-          onOpen({
-            content: (
-              <ModalCarrinho
-                onReturnEdit={(pizza) => {
-                  setSizeSelected(pizza.uuid);
-                  setFlavorsSelected(pizza.flavors);
-                  handleTab(0);
-                }}
-                close={close}
-              />
-            ),
-          });
+          const next = new URLSearchParams(searchParams);
+          next.set("c", "true");
+          setSearchParams(next);
         }}
       />
 
-      <BottomSheet
-        open={!!sizeSelected && !!!currentTab}
-        snapPoints={({ maxHeight }) => [maxHeight * 0.887]}
-        ref={sheetRef}
-        scrollLocking={false}
-        reserveScrollBarGap={false}
-        expandOnContentDrag
-        onDismiss={() => {
-          setSizeSelected(null);
-          setFlavorsSelected([]);
-        }}
-        header={
-          <div className="flex sticky max-w-lg mx-auto top-0 w-full items-start gap-x-2 justify-between">
-            <div className={clsx("flex gap-x-2 items-center")}>
-              <IconButton
-                size={"xs"}
-                colorPalette={"red"}
-                variant={"subtle"}
-                onClick={() => {
-                  setSizeSelected(null);
-                  setFlavorsSelected([]);
-                }}
-                className="duration-100 active:scale-95 transition-all"
-              >
-                <MdDeleteOutline />
-              </IconButton>
-              <span className="font-bold text-neutral-700 text-sm">
-                Pizza {sizes.find((s) => s.uuid === sizeSelected)?.name}
-              </span>
-            </div>
-          </div>
-        }
-        footer={
-          <div className="flex max-w-lg mx-auto px-3 justify-between bg-white items-center">
-            <div className="flex gap-x-1">
-              <a
-                className={clsx(
-                  "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
-                  qntFlavorsMissing
-                    ? "hover:bg-green-300 duration-200 cursor-pointer"
-                    : "opacity-30 cursor-not-allowed",
-                )}
-              >
-                +
-              </a>
-              <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                11
-              </span>
-              <a
-                onClick={() => {
-                  // const total = flavorsSelected[index].qnt - 1;
-                  // if (total === 0) {
-                  //   setFlavorsSelected(
-                  //     flavorsSelected.filter((s) => s.uuid !== flavor.uuid),
-                  //   );
-                  // } else {
-                  //   setFlavorsSelected(
-                  //     flavorsSelected.map((fl) => {
-                  //       if (fl.uuid === flavor.uuid) fl.qnt = total;
-                  //       return fl;
-                  //     }),
-                  //   );
-                  // }
-                }}
-                className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-              >
-                -
-              </a>
-            </div>
-            <Button
-              size={"sm"}
-              colorPalette={"green"}
-              variant={"subtle"}
-              onClick={() => {
-                if (sizeSelected) {
-                  addCartItem({
-                    type: "pizza",
-                    flavors: flavorsSelected,
-                    uuid: sizeSelected,
-                    key: nanoid(),
-                    qnt: 1,
-                  });
-                  sheetRef.current?.snapTo(95);
-                  setTimeout(() => {
-                    setFlavorsSelected([]);
-                    setSizeSelected(null);
-                    setTimeout(() => {
-                      handleTab(1);
-                    }, 100);
-                  }, 300);
-                }
-              }}
-              className="duration-100 active:scale-95 transition-all"
-              disabled={
-                sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
-                qntFlavorsMissing
-              }
-            >
-              <BsCartCheck />
-              <span>Adicionar R$ 77,80</span>
-            </Button>
-          </div>
-        }
-      >
-        <div className="max-w-lg mx-auto scroll-auto gap-y-2">
-          <div className="sticky px-3 py-2 top-0 z-20 bg-neutral-100 border-y border-neutral-200">
-            <span className="font-semibold text-sm text-neutral-700">
-              Que tal uma Borda Rechada?
-            </span>
-            <div className="flex mt-0.5 justify-between text-xs items-center">
-              <span className="text-neutral-500">Escolha 1 opção</span>
-              <div className="flex gap-x-1">
-                <span className="text-neutral-100 px-1 py-0.5 text-xs rounded-sm bg-neutral-700">
-                  0/1
-                </span>
-                <span className="text-neutral-100 font-medium px-1 py-0.5 rounded-sm bg-neutral-700">
-                  OBRIGATÓRIO
-                </span>
-              </div>
-            </div>
-          </div>
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div key={i} className="relative flex-1 px-3">
-              <div className="flex p-2 gap-y-1.5 rounded-md bg-zinc-50 border border-zinc-100 justify-between">
-                <div className="flex flex-col">
-                  <span
-                    className={`text-sm font-medium leading-3.75`}
-                    style={{ color: `${bg_primary || "#111111"}` }}
-                  >
-                    {/* {listPizza.find((p) => p.uuid === flavor.uuid)?.name} */}
-                    nome do sabor
-                  </span>
-                  <span className={`text-sm font-light text-neutral-500`}>
-                    {/* {listPizza.find((p) => p.uuid === flavor.uuid)?.desc} */}
-                    descrição
-                  </span>
-                </div>
-                <div className="flex gap-x-1">
-                  <span className="bg-white border-zinc-100 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                    11
-                  </span>
-                  <a
-                    className={clsx(
-                      "bg-green-200 duration-100 active:scale-95 transition-all text-green-600 py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md",
-                      qntFlavorsMissing
-                        ? "hover:bg-green-300 duration-200 cursor-pointer"
-                        : "opacity-30 cursor-not-allowed",
-                    )}
-                  >
-                    +
-                  </a>
-                  <a
-                    onClick={() => {
-                      // const total = flavorsSelected[index].qnt - 1;
-                      // if (total === 0) {
-                      //   setFlavorsSelected(
-                      //     flavorsSelected.filter((s) => s.uuid !== flavor.uuid),
-                      //   );
-                      // } else {
-                      //   setFlavorsSelected(
-                      //     flavorsSelected.map((fl) => {
-                      //       if (fl.uuid === flavor.uuid) fl.qnt = total;
-                      //       return fl;
-                      //     }),
-                      //   );
-                      // }
-                    }}
-                    className="bg-red-200 duration-100 active:scale-95 transition-all cursor-pointer hover:bg-red-300 text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-                  >
-                    -
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </BottomSheet>
-
-      {/* <div
-        className={clsx(
-          "fixed text-center duration-300 left-1/2 -translate-x-1/2 w-full",
-          !currentTab && sizeSelected
-            ? showPresence
-              ? !!qntFlavorsMissing
-                ? "bottom-22"
-                : "bottom-[68px]"
-              : !!qntFlavorsMissing
-                ? "bottom-8"
-                : "bottom-2"
-            : "-bottom-12 opacity-0"
-        )}
-        onClick={() => setSizeSelected(null)}
-      >
-        <div className="flex flex-col items-center -space-y-1 h-[49px]">
-          <div
-            className={`flex items-center font-semibold gap-x-1 bg-white/30 backdrop-blur-xs px-2 pt-0.5`}
-            style={{
-              color: `${bg_primary || "#111111"}`,
-            }}
-          >
-            <span>
-              Pizza {sizes.find((s) => s.uuid === sizeSelected)?.name}
-            </span>
-            <a className="flex items-center text-blue-500 text-sm ml-1 gap-x-1 font-bold cursor-pointer hover:orange-blue-800 duration-200">
-              Alterar
-              <MdOutlineEdit size={20} />
-            </a>
-          </div>
-          {!!qntFlavorsMissing && (
-            <span className="block bg-white/30 text-sm text-zinc-500 backdrop-blur-xs px-2 pb-0.5">
-              {qntFlavorsMissing > 1
-                ? `Faltam ${qntFlavorsMissing} sabores`
-                : "Falta 1 sabor"}
-              *
-            </span>
-          )}
-        </div>
-      </div> */}
-
-      {DialogModal}
+      <SectionsItems defaultStateSection={refDefaultStateSection} />
     </main>
   );
 };
+
+interface Props {
+  isMoving: RefObject<boolean>
+  item: any;
+  background?: string;
+}
+
+function Item({ isMoving, item, background }: Props) {
+  const { bg_primary } = useContext(DataMenuContext);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    items: cartItems,
+    addItem: addCartItem,
+    incrementQnt: incrementQntItemCart,
+  } = useContext(CartContext);
+
+  const [keyPresence, setKeyPresence] = useState("");
+
+  useEffect(() => {
+    const kk = setTimeout(() => {
+      setKeyPresence("");
+    }, 1100);
+
+    return () => {
+      clearTimeout(kk);
+    }
+  }, [keyPresence]);
+
+  return (
+    <article
+      className={clsx(
+        "bg-white cursor-pointer rounded-xl p-1 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
+        // selected && "shadow",
+      )}
+      onClick={() => {
+        if (isMoving.current) return;
+        if (!!item.sections.length) {
+          const next = new URLSearchParams(searchParams);
+          next.set("s", item.uuid);
+          setSearchParams(next);
+        } else {
+          setKeyPresence(v4());
+          if (
+            cartItems.some(
+              (itemCart) => itemCart.uuid === item.uuid,
+            )
+          ) {
+            incrementQntItemCart(item.uuid, 1);
+          } else {
+            addCartItem({
+              qnt: 1,
+              total: item.afterPrice!,
+              uuid: item.uuid,
+            });
+          }
+        }
+      }}
+      style={{ background }}
+    >
+      <div className="relative">
+        <AspectRatio ratio={1} w={"100px"}>
+          <img
+            src={item.img}
+            alt={item.name}
+            className="p-1 pointer-events-none rounded-xl overflow-hidden w-full h-auto"
+            draggable={false}
+          />
+        </AspectRatio>
+        <Presence
+          animationName={{
+            _open: "slide-from-top, fade-in",
+            _closed: "slide-to-bottom, fade-out",
+          }}
+          animationDuration="moderate"
+          present={!!keyPresence}
+          className="absolute left-1 border-2 border-green-600 top-1 text-green-600 rounded-lg bg-green-100 p-0.5"
+        >
+          <TbShoppingBagPlus size={22} />
+        </Presence>
+      </div>
+      <div className="pl-1 flex flex-col gap-y-2 py-1.5 h-full justify-between">
+        <div className="flex flex-col gap-y-1">
+          <span
+            className={clsx(
+              "line-clamp-1 w-full text-lg leading-5 font-semibold",
+            )}
+            style={{
+              color: false
+                ? `${bg_primary || "#111111"}`
+                : undefined,
+            }}
+          >
+            {item.name}
+          </span>
+          <span
+            className={clsx(
+              "line-clamp-2 overflow-hidden text-sm leading-4 font-light",
+              // selected ? "text-zinc-700" : "text-zinc-600",
+            )}
+          >
+            {item.desc}
+          </span>
+        </div>
+        <div className="mb-1">
+          <div className="w-full flex flex-col items-start">
+            {item.beforePrice && (
+              <span className="text-zinc-500 line-through text-xs">
+                {formatToBRL(item.beforePrice)}
+              </span>
+            )}
+            {item.afterPrice && (
+              <span
+                className={`font-semibold leading-3 text-sm`}
+                style={{
+                  color: `${bg_primary || "#0c0c0c"}e6`,
+                }}
+              >
+                {formatToBRL(item.afterPrice)}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}

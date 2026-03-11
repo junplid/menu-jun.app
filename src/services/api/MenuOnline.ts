@@ -1,3 +1,4 @@
+import { TypePaymentMethods } from "@contexts/data-menu.context";
 import { api } from "./index";
 
 export async function createOrder({
@@ -14,44 +15,69 @@ export async function createOrder({
   items: {
     qnt: number;
     obs?: string;
-    flavors?: { qnt: number; id: string }[];
-    type: "pizza" | "drink";
-    id: string;
+    uuid: string;
+    sections?: Record<string, Record<string, number>>;
   }[];
 }): Promise<{
-  redirect: string;
+  redirectTo: string;
 }> {
   const { data } = await api.post(`/public/menu/${uuid}/order`, body);
-  return data.business;
+  return { redirectTo: data.redirectTo };
 }
 
 export async function getMenuOnline(identifier: string): Promise<{
+  status: boolean;
   uuid: string;
   logoImg: string;
   bg_primary: string | null;
   bg_secondary: string | null;
   bg_tertiary: string | null;
-  label1: string | null;
-  label: string | null;
+  bg_capa: string | null;
   titlePage: string | null;
-  status: boolean;
-  sizes: {
+  info: {
+    address: string | null;
+    state_uf: string | null;
+    phone_contact: string | null;
+    whatsapp_contact: string | null;
+    city: string | null;
+    links: string[];
+    payment_methods: TypePaymentMethods[];
+  } | null;
+  helperTextOpening: string;
+  operatingDays: { day: string; time: string }[];
+  categories: {
     id: number;
     uuid: string;
     name: string;
-    price: number;
-    flavors: number;
-    slices: number | null;
+    image45x45png: string;
   }[];
   items: {
+    afterPrice?: number;
+    beforePrice?: number;
+    sections: {
+      subItems: {
+        after_additional_price?: number;
+        before_additional_price?: number;
+        uuid: string;
+        desc: string | null;
+        name: string;
+        image55x55png: string | null;
+        maxLength: number;
+      }[];
+      id: number;
+      uuid: string;
+      title: string | null;
+      helpText: string | null;
+      required: boolean;
+      minOptions: number;
+      maxOptions: number | null;
+    }[];
     uuid: string;
     desc: string | null;
+    categories: { id: number; uuid: string }[];
     name: string;
-    category: "pizzas" | "drinks";
     img: string;
     qnt: number;
-    beforePrice: number | null;
-    afterPrice: number | null;
   }[];
 }> {
   const { data } = await api.get(`/public/menu/${identifier}`);

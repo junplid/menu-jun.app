@@ -18,13 +18,13 @@ export const useDialogModal = ({
 }: IDialogModal) => {
   const [dialog, setDialog] = useState<{
     content: ReactNode;
-    size?: "sm" | "md" | "lg" | "xl";
+    size?: "sm" | "md" | "lg" | "xl" | "xs" | "cover" | "full";
   } | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
   const onOpen = (props: {
     content: ReactNode;
-    size?: "sm" | "md" | "lg" | "xl";
+    size?: "sm" | "md" | "lg" | "xl" | "xs" | "cover" | "full";
   }) => {
     setDialog(props);
     setOpen(true);

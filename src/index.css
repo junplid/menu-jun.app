@@ -102,3 +102,76 @@ body {
   overflow: initial !important;
   position: relative !important;
 }
+
+@keyframes error-pulse {
+  0% {
+    background-color: #ac1818;
+  }
+  50% {
+    background-color: #ef4444;
+  }
+  100% {
+    background-color: #ac1818;
+  }
+}
+
+@keyframes error-shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  10% {
+    transform: translateX(-3px);
+  }
+  20% {
+    transform: translateX(3px);
+  }
+
+  30% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+
+  50% {
+    transform: translateX(-2px);
+  }
+  60% {
+    transform: translateX(2px);
+  }
+
+  70% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+
+  90% {
+    transform: translateX(-4px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-error-shake {
+  animation: error-shake 0.35s ease-in-out;
+}
+
+.animate-error-pulse {
+  animation: error-pulse 1.4s ease-in-out 3;
+}
+
+.animate-error {
+  animation:
+    error-pulse 0.8s ease-in-out 5,
+    error-shake 0.8s ease-in-out;
+}
+
+[data-rsbs-overlay],
+[data-rsbs-root] {
+  box-shadow: none !important;
+}
