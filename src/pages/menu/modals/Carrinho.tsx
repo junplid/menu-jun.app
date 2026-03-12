@@ -5,7 +5,14 @@ import {
   DialogRoot,
 } from "@components/ui/dialog";
 import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AspectRatio, Button, Input, SegmentGroup } from "@chakra-ui/react";
+import {
+  AspectRatio,
+  Button,
+  Input,
+  Presence,
+  SegmentGroup,
+  Spinner,
+} from "@chakra-ui/react";
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
 import { Field } from "@components/ui/field";
@@ -26,8 +33,9 @@ import { toaster } from "@components/ui/toaster";
 import { BsShop } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { createOrder } from "../../../services/api/MenuOnline";
-import { PiMapPin } from "react-icons/pi";
+import { PiChecksBold, PiMapPin } from "react-icons/pi";
 import { useSearchParams } from "react-router-dom";
+import { IoLogoWhatsapp } from "react-icons/io";
 
 interface IProps {
   onReturnEdit(props: {
@@ -40,14 +48,14 @@ interface IProps {
   }): void;
   upsertAddress: (data: Fields | "retirar") => void;
   address:
-  | {
-    address: string;
-    cep: string;
-    persona: string;
-    complement?: string | undefined;
-  }
-  | "retirar"
-  | null;
+    | {
+        address: string;
+        cep: string;
+        persona: string;
+        complement?: string | undefined;
+      }
+    | "retirar"
+    | null;
 }
 
 const PAYMENT_OPTIONS = {
@@ -185,7 +193,7 @@ function FormAddress(props: {
   );
 }
 
-function Body(props: IProps & { isErrorAddress: boolean; }) {
+function Body(props: IProps & { isErrorAddress: boolean }) {
   const { bg_primary, items: itemsData, info } = useContext(DataMenuContext);
   const refIsRenderBody = useRef(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -291,7 +299,7 @@ function Body(props: IProps & { isErrorAddress: boolean; }) {
                                                   {subItem.after_additional_price &&
                                                     `+${formatToBRL(
                                                       subItem.after_additional_price *
-                                                      value,
+                                                        value,
                                                     )}`}
                                                 </span>
                                               </span>
@@ -442,7 +450,12 @@ function Body(props: IProps & { isErrorAddress: boolean; }) {
 
       {!props.address && !isAddress && (
         <a
-          className={clsx("p-3.5 px-3 border text-center ", props.isErrorAddress ? "animate-error border-red-200 text-white" : "bg-white border-zinc-200")}
+          className={clsx(
+            "p-3.5 px-3 border text-center ",
+            props.isErrorAddress
+              ? "animate-error border-red-200 text-white"
+              : "bg-white border-zinc-200",
+          )}
           onClick={() => {
             const next = new URLSearchParams(searchParams);
             next.set("adr", "true");
@@ -450,7 +463,12 @@ function Body(props: IProps & { isErrorAddress: boolean; }) {
           }}
         >
           Definir endereço ou Retirada{" "}
-          <span className={clsx("text-red-400 font-semibold text-lg leading-0", props.isErrorAddress ? "text-white" : "text-red-400")}>
+          <span
+            className={clsx(
+              "text-red-400 font-semibold text-lg leading-0",
+              props.isErrorAddress ? "text-white" : "text-red-400",
+            )}
+          >
             *
           </span>
         </a>
@@ -493,11 +511,13 @@ export const ModalCarrinho: React.FC<
   Omit<IProps, "upsertAddress" | "address">
 > = (props): JSX.Element => {
   const { bg_primary, uuid, info, status } = useContext(DataMenuContext);
-  const { items, payment_method } = useContext(CartContext);
+  const { items, payment_method, resetCart } = useContext(CartContext);
   const [isLoading, setIsLoading] = useState(false);
   const [_isError, setIsError] = useState(false);
   const [isErrorAddress, setIsErrorAddress] = useState(false);
   const { address, upsertAddress } = useAddressStore();
+
+  const [redirectTo, setRedirectTo] = useState("");
 
   const [searchParams, _setSearchParams] = useSearchParams();
   const isOpen = searchParams.get("c");
@@ -530,7 +550,6 @@ export const ModalCarrinho: React.FC<
 
   const create = async () => {
     try {
-      setIsLoading(true);
       setIsError(false);
       if (!address) {
         setIsErrorAddress(true);
@@ -540,7 +559,8 @@ export const ModalCarrinho: React.FC<
         }, 1100);
         return;
       }
-      const { redirectTo } = await createOrder({
+      setIsLoading(true);
+      const data = await createOrder({
         uuid: uuid,
         items: items.map((item) => ({
           uuid: item.uuid,
@@ -551,21 +571,21 @@ export const ModalCarrinho: React.FC<
         ...(address === "retirar"
           ? { type_delivery: "retirar" }
           : {
-            type_delivery: "enviar",
-            delivery_address: address?.address,
-            delivery_cep: address?.cep,
-            delivery_complement: address?.complement,
-            who_receives: address?.persona,
-          }),
+              type_delivery: "enviar",
+              delivery_address: address?.address,
+              delivery_cep: address?.cep,
+              delivery_complement: address?.complement,
+              who_receives: address?.persona,
+            }),
         payment_method,
       });
 
       //  resetCart();
-      setIsLoading(false);
-      window.open(redirectTo, "_blank");
+      // setIsLoading(false);
+      setRedirectTo(data.redirectTo);
+      // window.open(redirectTo, "_blank");
       // fazer o redirect para a pagina do whatsapp com o codigo do pedido. no whatsapp terá uma ia pronta já sabendo do pedido do cliente;w
     } catch (error) {
-      console.log(error);
       if (error instanceof AxiosError) {
         setIsError(true);
         setIsLoading(false);
@@ -582,7 +602,7 @@ export const ModalCarrinho: React.FC<
       defaultOpen={false}
       open={!!isOpen}
       onOpenChange={(change) => {
-        if (!change.open) window.history.back()
+        if (!change.open) window.history.back();
       }}
       placement={"center"}
       motionPreset={"slide-in-top"}
@@ -628,8 +648,107 @@ export const ModalCarrinho: React.FC<
         </DialogTitle>
         <DialogCloseTrigger />
       </DialogHeader> */}
-        <Body {...props} isErrorAddress={isErrorAddress} upsertAddress={upsertAddress} address={address} />
-        {!isAddress && (
+        {isLoading && (
+          <div className="flex relative flex-col w-full h-full items-center justify-center">
+            <Presence
+              animationName={{
+                _open: "slide-from-bottom, fade-in",
+                _closed: "slide-to-top, fade-out",
+              }}
+              animationDuration="moderate"
+              present={!redirectTo}
+              className="top-1/5 absolute flex items-center justify-center"
+            >
+              <div className="flex flex-col gap-y-0.5 items-center">
+                <span className="font-light text-lg text-neutral-500">
+                  Criando pedido
+                </span>
+                <Spinner size={"md"} />
+              </div>
+            </Presence>
+
+            <Presence
+              animationName={{
+                _open: "slide-from-bottom, fade-in",
+                _closed: "slide-to-top, fade-out",
+              }}
+              animationDuration="moderate"
+              present={!!redirectTo}
+              lazyMount
+              className="flex flex-col w-full items-center justify-center"
+            >
+              <div className="flex flex-col gap-y-0.5 items-center mb-3">
+                <span className="font-semibold text-lg uppercase text-green-600">
+                  Pedido criado.
+                </span>
+                <p className="text-neutral-500 text-center">
+                  Para confirmar, envie o código do pedido para o nosso
+                  WhatsApp.
+                </p>
+              </div>
+              <Presence
+                animationName={{
+                  _open: "slide-from-bottom, fade-in",
+                  _closed: "slide-to-top, fade-out",
+                }}
+                animationDuration="moderate"
+                present
+                className="flex items-center w-full justify-center"
+              >
+                <div
+                  className="w-full max-w-2xs p-4 bg-[#e5ddd5] rounded-lg"
+                  style={{ boxShadow: "inset 0px 0px 8px 1px #d7cbbed3" }}
+                >
+                  <div className="flex justify-end">
+                    <div className="relative bg-[#d9fdd3] text-gray-900 px-4 py-2 pb-1 rounded-lg rounded-tr-none max-w-[82%] shadow-sm">
+                      <p className="text-sm">
+                        {
+                          decodeURIComponent(redirectTo).match(
+                            /text=(.*)$/,
+                          )?.[1]
+                        }
+                      </p>
+
+                      <div className="text-xs text-gray-500 text-right mt-1 translate-x-2 flex items-center justify-end gap-1">
+                        <span>12:41</span>
+                        <PiChecksBold size={16} className="text-blue-500" />
+                      </div>
+
+                      {/* pontinha do balão */}
+                      <span className="absolute -right-1.5 top-0 w-0 h-0 border-b-10 border-l-[6px] border-t-transparent border-b-transparent border-l-[#d9fdd3]" />
+                    </div>
+                  </div>
+                </div>
+              </Presence>
+              <Button
+                color={"#3f8118"}
+                bg={"#cdf0b7"}
+                onClick={() => {
+                  window.open(redirectTo, "_blank");
+                  resetCart();
+                  setIsLoading(false);
+                  setRedirectTo("");
+                  window.history.back();
+                }}
+                size={"lg"}
+                fontWeight={"light"}
+                className="mt-4 outline-none!"
+              >
+                <IoLogoWhatsapp />
+                Enviar mensagem
+              </Button>
+            </Presence>
+          </div>
+        )}
+        {!isLoading && (
+          <Body
+            {...props}
+            isErrorAddress={isErrorAddress}
+            upsertAddress={upsertAddress}
+            address={address}
+          />
+        )}
+        {!isAddress && !isLoading && (
           <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
             <div className="flex flex-col -space-y-0.5">
               {/* {totalValues.before > 0 && (
@@ -659,7 +778,7 @@ export const ModalCarrinho: React.FC<
                 color={"#3f8118"}
                 bg={"#cdf0b7"}
                 loading={isLoading}
-                disabled={!status}
+                // disabled={!status || !items.length}
                 onClick={() => create()}
                 size={"lg"}
                 fontWeight={"light"}

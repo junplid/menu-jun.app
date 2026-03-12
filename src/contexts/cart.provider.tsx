@@ -57,6 +57,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const resetCart = () => {
+    setItems([]);
+  };
+
   const data_value = useMemo(() => {
     return {
       items,
@@ -66,6 +70,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setPaymentMethod,
       changeObs,
       replaceItem,
+      resetCart,
       payment_method,
     };
   }, [items, payment_method]);

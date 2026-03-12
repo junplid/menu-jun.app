@@ -15,6 +15,7 @@ interface IDataMenuProps {
   bg_tertiary: string | null;
   titlePage: string | null;
   bg_capa: string | null;
+  isChatbot: boolean;
   info: {
     address?: string | null;
     state_uf?: string | null;

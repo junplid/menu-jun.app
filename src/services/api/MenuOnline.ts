@@ -34,6 +34,7 @@ export async function getMenuOnline(identifier: string): Promise<{
   bg_tertiary: string | null;
   bg_capa: string | null;
   titlePage: string | null;
+  isChatbot: boolean;
   info: {
     address: string | null;
     state_uf: string | null;
@@ -81,5 +82,9 @@ export async function getMenuOnline(identifier: string): Promise<{
   }[];
 }> {
   const { data } = await api.get(`/public/menu/${identifier}`);
+  if (data.csrfToken) {
+    api.defaults.headers.common["X-XSRF-TOKEN"] = data.csrfToken;
+  }
+
   return data.menu;
 }

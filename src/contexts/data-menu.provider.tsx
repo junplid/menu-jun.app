@@ -27,6 +27,7 @@ interface IData {
   bg_tertiary: string | null;
   titlePage: string | null;
   bg_capa: string | null;
+  isChatbot: boolean;
   info: {
     address: string | null;
     state_uf: string | null;
@@ -92,6 +93,7 @@ export function DataMenuProvider({
       try {
         setIsFetching(true);
         const result = await getMenuOnline(params.identifier!);
+
         if (result.titlePage) {
           if (!documentDefined) return;
           if (document.title !== result.titlePage)
@@ -147,6 +149,7 @@ export function DataMenuProvider({
         setIsFetching(false);
       } catch (error) {
         setIsError(true);
+        setIsFetching(false);
         if (error instanceof AxiosError) {
           if (error.response?.status === 400) {
             const dataError = error.response?.data as ErrorResponse_I;

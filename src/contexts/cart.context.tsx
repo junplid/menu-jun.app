@@ -21,6 +21,7 @@ interface ICartContext {
     itemKey: string,
     { qnt, ...item }: Omit<ItemCart, "obs" | "key" | "uuid">,
   ) => void;
+  resetCart(): void;
 }
 
 export const CartContext = createContext({} as ICartContext);
