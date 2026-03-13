@@ -48,14 +48,14 @@ interface IProps {
   }): void;
   upsertAddress: (data: Fields | "retirar") => void;
   address:
-    | {
-        address: string;
-        cep: string;
-        persona: string;
-        complement?: string | undefined;
-      }
-    | "retirar"
-    | null;
+  | {
+    address: string;
+    cep: string;
+    persona: string;
+    complement?: string | undefined;
+  }
+  | "retirar"
+  | null;
 }
 
 const PAYMENT_OPTIONS = {
@@ -299,7 +299,7 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                                                   {subItem.after_additional_price &&
                                                     `+${formatToBRL(
                                                       subItem.after_additional_price *
-                                                        value,
+                                                      value,
                                                     )}`}
                                                 </span>
                                               </span>
@@ -571,12 +571,12 @@ export const ModalCarrinho: React.FC<
         ...(address === "retirar"
           ? { type_delivery: "retirar" }
           : {
-              type_delivery: "enviar",
-              delivery_address: address?.address,
-              delivery_cep: address?.cep,
-              delivery_complement: address?.complement,
-              who_receives: address?.persona,
-            }),
+            type_delivery: "enviar",
+            delivery_address: address?.address,
+            delivery_cep: address?.cep,
+            delivery_complement: address?.complement,
+            who_receives: address?.persona,
+          }),
         payment_method,
       });
 
@@ -778,7 +778,7 @@ export const ModalCarrinho: React.FC<
                 color={"#3f8118"}
                 bg={"#cdf0b7"}
                 loading={isLoading}
-                // disabled={!status || !items.length}
+                disabled={!status || !items.length}
                 onClick={() => create()}
                 size={"lg"}
                 fontWeight={"light"}

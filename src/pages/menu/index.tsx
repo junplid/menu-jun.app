@@ -218,11 +218,12 @@ function Item({ isMoving, item, background }: Props) {
   return (
     <article
       className={clsx(
-        "bg-white cursor-pointer rounded-xl p-1 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
-        // selected && "shadow",
+        "bg-white rounded-xl p-1 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
+        !item.qnt ? "cursor-not-allowed" : "cursor-pointer",
       )}
       onClick={() => {
         if (isMoving.current) return;
+        if (!item.qnt) return;
         if (!!item.sections.length) {
           const next = new URLSearchParams(searchParams);
           next.set("s", item.uuid);
@@ -246,8 +247,14 @@ function Item({ isMoving, item, background }: Props) {
       }}
       style={{ background }}
     >
-      <div className="relative">
-        <AspectRatio ratio={1} w={"100px"}>
+      <div className={clsx("relative")}>
+        {!item.qnt && (
+          <div className="bg-neutral-600 rotate-12 absolute z-20 px-1 py-0.5 left-1/2 -translate-x-1/2 top-1/5 translate-y-1/2">
+            <span className="text-white font-semibold border-y-2 text-sm">ESGOTADO</span>
+
+          </div>
+        )}
+        <AspectRatio ratio={1} w={"100px"} className={clsx(!item.qnt ? "opacity-35" : "",)}>
           <img
             src={item.img}
             alt={item.name}
