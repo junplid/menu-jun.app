@@ -769,7 +769,7 @@ export const ModalCarrinho: React.FC<
                   className={`text-lg font-bold`}
                   style={{ color: `${bg_primary || "#111111"}` }}
                 >
-                  {formatToBRL(totalValues + (info?.delivery_fee || 0))}
+                  {formatToBRL(totalValues + (address !== null && address !== "retirar" ? info?.delivery_fee || 0 : 0))}
                 </span>
               </div>
             </div>
