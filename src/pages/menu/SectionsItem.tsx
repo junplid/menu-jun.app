@@ -128,10 +128,6 @@ export function SectionsItems({ defaultStateSection }: Props) {
       return res(undefined);
     });
 
-  const closeSheet = useCallback(() => {
-    window.history.back();
-  }, [setSearchParams, searchParams]);
-
   return (
     <BottomSheet
       open={!!isOpen}
@@ -141,7 +137,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
       blocking={false}
       expandOnContentDrag
       onDismiss={() => {
-        closeSheet();
+        window.history.back()
         setTimeout(() => {
           setLength(1);
           setIsEdit(false);
@@ -157,7 +153,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                 colorPalette={"red"}
                 variant={"subtle"}
                 onClick={() => {
-                  closeSheet();
+                  window.history.back()
                 }}
                 className="duration-100 active:scale-95 transition-all"
               >
@@ -221,10 +217,10 @@ export function SectionsItems({ defaultStateSection }: Props) {
                     .catch(() => undefined);
                 }
               }}
-              // disabled={
-              //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
-              //   qntFlavorsMissing
-              // }
+            // disabled={
+            //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+            //   qntFlavorsMissing
+            // }
             >
               <HiOutlineShoppingBag size={20} />
               <span>
@@ -233,7 +229,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                   ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                     0) +
                     totalSection) *
-                    length,
+                  length,
                 )}
               </span>
             </Button>
@@ -276,10 +272,10 @@ export function SectionsItems({ defaultStateSection }: Props) {
                     .catch(() => undefined);
                 }}
                 className="duration-100 active:scale-95 transition-all"
-                // disabled={
-                //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
-                //   qntFlavorsMissing
-                // }
+              // disabled={
+              //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+              //   qntFlavorsMissing
+              // }
               >
                 <span>
                   Salvar{" "}
@@ -287,7 +283,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                     ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                       0) +
                       totalSection) *
-                      length,
+                    length,
                   )}
                 </span>
               </Button>
@@ -326,55 +322,55 @@ export function SectionsItems({ defaultStateSection }: Props) {
                 {(section.helpText ||
                   section.minOptions ||
                   section.maxOptions) && (
-                  <div className="flex justify-between items-start">
-                    <p className="line-clamp-2 text-neutral-500 font-light text-start">
-                      {section.helpText}
-                    </p>
-                    {(section.minOptions || section.maxOptions) && (
-                      <div className="flex gap-x-1 items-center">
-                        <span
-                          className={clsx(
-                            `px-1 py-0.5 text-xs rounded-sm font-medium`,
-                            false
-                              ? "bg-green-400 text-green-800"
-                              : "bg-neutral-700 text-neutral-100",
+                    <div className="flex justify-between items-start">
+                      <p className="line-clamp-2 text-neutral-500 font-light text-start">
+                        {section.helpText}
+                      </p>
+                      {(section.minOptions || section.maxOptions) && (
+                        <div className="flex gap-x-1 items-center">
+                          <span
+                            className={clsx(
+                              `px-1 py-0.5 text-xs rounded-sm font-medium`,
+                              false
+                                ? "bg-green-400 text-green-800"
+                                : "bg-neutral-700 text-neutral-100",
+                            )}
+                          >
+                            {total}/{section.minOptions || section.maxOptions}
+                          </span>
+                          {section.minOptions > 0 ? (
+                            <div className="flex">
+                              {total < (section.minOptions || Infinity) && (
+                                <span
+                                  className={clsx(
+                                    "text-neutral-100 text-xs font-medium px-1 py-0.5 rounded-sm",
+                                    sectionError === section.uuid
+                                      ? "animate-error"
+                                      : "bg-neutral-700",
+                                  )}
+                                >
+                                  OBRIGATÓRIO
+                                </span>
+                              )}
+                              {total >= (section.minOptions || Infinity) && (
+                                <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
+                                  <AiFillCheckCircle size={16} />
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div>
+                              {total === (section.maxOptions || Infinity) && (
+                                <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
+                                  <AiFillCheckCircle size={16} />
+                                </span>
+                              )}
+                            </div>
                           )}
-                        >
-                          {total}/{section.minOptions || section.maxOptions}
-                        </span>
-                        {section.minOptions > 0 ? (
-                          <div className="flex">
-                            {total < (section.minOptions || Infinity) && (
-                              <span
-                                className={clsx(
-                                  "text-neutral-100 text-xs font-medium px-1 py-0.5 rounded-sm",
-                                  sectionError === section.uuid
-                                    ? "animate-error"
-                                    : "bg-neutral-700",
-                                )}
-                              >
-                                OBRIGATÓRIO
-                              </span>
-                            )}
-                            {total >= (section.minOptions || Infinity) && (
-                              <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
-                                <AiFillCheckCircle size={16} />
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <div>
-                            {total === (section.maxOptions || Infinity) && (
-                              <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
-                                <AiFillCheckCircle size={16} />
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+                        </div>
+                      )}
+                    </div>
+                  )}
               </div>
               <div className="space-y-2 my-2">
                 {section.subItems.map((sub) => {
@@ -386,8 +382,8 @@ export function SectionsItems({ defaultStateSection }: Props) {
                         "select-none w-full relative flex-1 px-2",
                         (section.maxOptions === null ||
                           section.maxOptions >= 1) &&
-                          sub.maxLength === 1 &&
-                          "",
+                        sub.maxLength === 1 &&
+                        "",
                       )}
                       onClick={() => {
                         setStateSection((state) => {
@@ -533,81 +529,81 @@ export function SectionsItems({ defaultStateSection }: Props) {
                           </div>
                           {(section.maxOptions === null ||
                             (section.maxOptions > 1 && sub.maxLength > 1)) && (
-                            <div className="flex gap-x-1">
-                              <a
-                                className={clsx(
-                                  "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
-                                  (sub.maxLength || section.maxOptions) ===
-                                    value || total === section.maxOptions
-                                    ? "opacity-40 cursor-not-allowed"
-                                    : "hover:bg-green-300 duration-200 cursor-pointer",
-                                )}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setStateSection((state) => {
-                                    const newState = { ...(state ?? {}) };
-                                    const v =
-                                      stateSection?.[section.uuid]?.[
+                              <div className="flex gap-x-1">
+                                <a
+                                  className={clsx(
+                                    "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
+                                    (sub.maxLength || section.maxOptions) ===
+                                      value || total === section.maxOptions
+                                      ? "opacity-40 cursor-not-allowed"
+                                      : "hover:bg-green-300 duration-200 cursor-pointer",
+                                  )}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setStateSection((state) => {
+                                      const newState = { ...(state ?? {}) };
+                                      const v =
+                                        stateSection?.[section.uuid]?.[
                                         sub.uuid
-                                      ] || 0;
+                                        ] || 0;
 
-                                    if (!newState[section.uuid]) {
-                                      newState[section.uuid] = {};
-                                    }
-                                    if (
-                                      total < (section.maxOptions || Infinity)
-                                    ) {
-                                      const next = Math.min(
-                                        v + 1,
-                                        sub.maxLength,
-                                        section.maxOptions || Infinity,
-                                      );
-                                      newState[section.uuid][sub.uuid] = next;
-                                    }
-                                    return newState;
-                                  });
-                                }}
-                              >
-                                +
-                              </a>
-                              <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
-                                {value}
-                              </span>
-                              <a
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setStateSection((state) => {
-                                    let newState = { ...(state ?? {}) };
-                                    const v =
-                                      stateSection?.[section.uuid]?.[
+                                      if (!newState[section.uuid]) {
+                                        newState[section.uuid] = {};
+                                      }
+                                      if (
+                                        total < (section.maxOptions || Infinity)
+                                      ) {
+                                        const next = Math.min(
+                                          v + 1,
+                                          sub.maxLength,
+                                          section.maxOptions || Infinity,
+                                        );
+                                        newState[section.uuid][sub.uuid] = next;
+                                      }
+                                      return newState;
+                                    });
+                                  }}
+                                >
+                                  +
+                                </a>
+                                <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
+                                  {value}
+                                </span>
+                                <a
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setStateSection((state) => {
+                                      let newState = { ...(state ?? {}) };
+                                      const v =
+                                        stateSection?.[section.uuid]?.[
                                         sub.uuid
-                                      ] || 0;
+                                        ] || 0;
 
-                                    if (!newState[section.uuid]) {
-                                      newState[section.uuid] = {};
-                                    }
-                                    const next = Math.max(v - 1, 0);
-                                    if (!next) {
-                                      const { [section.uuid]: _, ...rest } =
-                                        newState;
-                                      newState = rest;
-                                    } else {
-                                      newState[section.uuid][sub.uuid] = next;
-                                    }
-                                    return newState;
-                                  });
-                                }}
-                                className={clsx(
-                                  "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
-                                  value == 0
-                                    ? "opacity-40 cursor-not-allowed"
-                                    : "hover:bg-red-300 cursor-pointer",
-                                )}
-                              >
-                                -
-                              </a>
-                            </div>
-                          )}
+                                      if (!newState[section.uuid]) {
+                                        newState[section.uuid] = {};
+                                      }
+                                      const next = Math.max(v - 1, 0);
+                                      if (!next) {
+                                        const { [section.uuid]: _, ...rest } =
+                                          newState;
+                                        newState = rest;
+                                      } else {
+                                        newState[section.uuid][sub.uuid] = next;
+                                      }
+                                      return newState;
+                                    });
+                                  }}
+                                  className={clsx(
+                                    "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
+                                    value == 0
+                                      ? "opacity-40 cursor-not-allowed"
+                                      : "hover:bg-red-300 cursor-pointer",
+                                  )}
+                                >
+                                  -
+                                </a>
+                              </div>
+                            )}
                           {(section.maxOptions === null ||
                             section.maxOptions > 1) &&
                             sub.maxLength === 1 && (
@@ -624,16 +620,16 @@ export function SectionsItems({ defaultStateSection }: Props) {
                             )}
                           {(section.maxOptions === null ||
                             section.maxOptions === 1) && (
-                            <RadioGroup.Root
-                              value={value ? "check" : null}
-                              colorPalette={"green"}
-                            >
-                              <RadioGroup.Item value={"check"}>
-                                <RadioGroup.ItemHiddenInput />
-                                <RadioGroup.ItemIndicator />
-                              </RadioGroup.Item>
-                            </RadioGroup.Root>
-                          )}
+                              <RadioGroup.Root
+                                value={value ? "check" : null}
+                                colorPalette={"green"}
+                              >
+                                <RadioGroup.Item value={"check"}>
+                                  <RadioGroup.ItemHiddenInput />
+                                  <RadioGroup.ItemIndicator />
+                                </RadioGroup.Item>
+                              </RadioGroup.Root>
+                            )}
                         </div>
                       </div>
                     </div>
