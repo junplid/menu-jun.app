@@ -4,7 +4,9 @@ import { nanoid } from "nanoid";
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [items, setItems] = useState<ItemCart[]>([]);
-  const [payment_method, setPaymentMethod] = useState<string>("PIX");
+  const [payment_method, setPaymentMethod] = useState<string>("");
+  const [payment_change_to, setPaymentChangeTo] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const addItem = ({ qnt = 1, ...item }: Omit<ItemCart, "key" | "obs">) => {
     setItems([...items, { ...item, key: nanoid(), obs: "", qnt }]);
@@ -71,9 +73,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       changeObs,
       replaceItem,
       resetCart,
+      setPaymentChangeTo,
+      setError,
+      payment_change_to,
       payment_method,
+      error,
     };
-  }, [items, payment_method]);
+  }, [items, payment_method, payment_change_to, error]);
 
   return (
     <CartContext.Provider value={data_value}>{children}</CartContext.Provider>

@@ -15,6 +15,10 @@ interface ICartContext {
   items: ItemCart[];
   payment_method: string;
   setPaymentMethod: (v: string) => void;
+  payment_change_to: string | null;
+  setPaymentChangeTo: (v: string | null) => void;
+  error: string | null;
+  setError: (v: string | null) => void;
   incrementQnt: (key: string, value: number) => void;
   changeObs: (key: string, value: string) => void;
   replaceItem: (

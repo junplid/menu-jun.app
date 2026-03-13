@@ -8,6 +8,8 @@ import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   AspectRatio,
   Button,
+  Checkbox,
+  Collapsible,
   Input,
   Presence,
   SegmentGroup,
@@ -16,7 +18,7 @@ import {
 import { formatToBRL } from "brazilian-values";
 import GridWithShadows from "../GridRender";
 import { Field } from "@components/ui/field";
-import { useHookFormMask } from "use-mask-input";
+import { useHookFormMask, withMask } from "use-mask-input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -30,7 +32,7 @@ import { DataMenuContext } from "@contexts/data-menu.context";
 import { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { BsShop } from "react-icons/bs";
+import { BsDoorClosed, BsShop } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { createOrder } from "../../../services/api/MenuOnline";
 import { PiChecksBold, PiMapPin } from "react-icons/pi";
@@ -199,7 +201,7 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const isAddress = searchParams.get("adr");
 
-  const { items, incrementQnt, changeObs, payment_method, setPaymentMethod } =
+  const { items, incrementQnt, changeObs, payment_method, payment_change_to, setPaymentChangeTo, setPaymentMethod, error } =
     useContext(CartContext);
 
   useEffect(() => {
@@ -215,6 +217,7 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
     .map((m) => PAYMENT_OPTIONS[m])
     .filter(Boolean)
     .filter((v, i, arr) => arr.findIndex((s) => s.value === v.value) === i);
+
 
   return (
     <DialogBody px={2} className="flex flex-col gap-y-2 -my-4 mt-0 h-full">
@@ -483,12 +486,9 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
         />
       )}
 
+
       {!isAddress && (
         <div className="font-medium -mt-1">
-          {/* <span className="block text-end pr-[60px] text-sm font-semibold">
-            Cartão
-          </span> */}
-
           <SegmentGroup.Root
             bg={"#fdfdfd"}
             className="w-full py-2 px-2 font-light"
@@ -501,6 +501,40 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
               items={payment_methods_items}
             />
           </SegmentGroup.Root>
+          <Collapsible.Root
+            open={payment_method === "Dinheiro"}
+          >
+            <Collapsible.Content>
+              <div className="flex flex-col -space-y-1 pt-1.5">
+                <div className="flex items-center gap-x-2">
+                  <span className={clsx(error === "dinheiro"
+                    ? "animate-error text-red-600 bg-red-100! px-2 transition-all"
+                    : "",)}>Troco pra quanto{error === "dinheiro" ? " ???" : "?"}</span>
+                  <Checkbox.Root
+                    size={"sm"}
+                    colorPalette={"teal"}
+                    variant={"solid"}
+                    checked={payment_change_to === "Não"}
+                    onCheckedChange={() => {
+                      setPaymentChangeTo(payment_change_to === "Não" ? null : "Não")
+                    }}
+                  >
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label className="font-light!">Não precisa.</Checkbox.Label>
+                  </Checkbox.Root>
+                </div>
+                <Input
+                  value={payment_change_to || ""}
+                  onChange={({ target }) => setPaymentChangeTo(target.value)}
+                  disabled={payment_change_to === "Não"}
+                  size={"xs"}
+                  className={"bg-white! mt-1.5"}
+                  ref={withMask("brl-currency")}
+                />
+              </div>
+            </Collapsible.Content>
+          </Collapsible.Root>
         </div>
       )}
     </DialogBody>
@@ -511,7 +545,7 @@ export const ModalCarrinho: React.FC<
   Omit<IProps, "upsertAddress" | "address">
 > = (props): JSX.Element => {
   const { bg_primary, uuid, info, status } = useContext(DataMenuContext);
-  const { items, payment_method, resetCart } = useContext(CartContext);
+  const { items, payment_method, resetCart, setError, payment_change_to } = useContext(CartContext);
   const [isLoading, setIsLoading] = useState(false);
   const [_isError, setIsError] = useState(false);
   const [isErrorAddress, setIsErrorAddress] = useState(false);
@@ -559,6 +593,14 @@ export const ModalCarrinho: React.FC<
         }, 1100);
         return;
       }
+      if (payment_method === "Dinheiro" && !payment_change_to) {
+        setError("dinheiro");
+        setTimeout(() => {
+          setError(null);
+        }, 1100);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       const data = await createOrder({
         uuid: uuid,
@@ -568,6 +610,7 @@ export const ModalCarrinho: React.FC<
           obs: item.obs,
           sections: item.sections,
         })),
+        payment_change_to,
         ...(address === "retirar"
           ? { type_delivery: "retirar" }
           : {
@@ -786,9 +829,12 @@ export const ModalCarrinho: React.FC<
                 FAZER PEDIDO
               </Button>
               {!status && (
-                <span className="text-red-500 text-[11px] font-semibold z-10 bg-red-200 leading-2 p-1 rounded-sm">
-                  Fechado
-                </span>
+                <div className="flex items-center gap-x-0.5 bg-red-200 text-red-500 p-1 px-2 z-10">
+                  <BsDoorClosed />
+                  <span className="text-[11px] font-semibold leading-2 rounded-sm">
+                    Fechado agora
+                  </span>
+                </div>
               )}
             </div>
           </DialogFooter>
