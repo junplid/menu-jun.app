@@ -58,12 +58,12 @@ function PreviewCartComponent_(props: IProps) {
           <HiOutlineShoppingBag size={30} />
         </div>
 
-        <span className="ml-3 text-lg text-black font-light">Ver sacola</span>
+        <span className="ml-3 text-lg text-black font-light">Ver pedido</span>
 
         <div className="flex flex-col items-end -space-y-2">
           <span
             className={`text-xl sm:text-2xl font-bold`}
-            // style={{ color: `${bg_primary || "#111111"}` }}
+          // style={{ color: `${bg_primary || "#111111"}` }}
           >
             {formatToBRL(totalValues)}
           </span>

@@ -50,6 +50,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
     key: string;
   }>(null);
 
+  const categoriesContainerRef = useRef<HTMLDivElement | null>(null);
+  const categoriesRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
   const [currentTab, setCurrentTab] = useState(0);
   const [showPresence, setShowPresence] = useState(false);
 
@@ -57,6 +60,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
   function handleTab(i: number) {
     ref.current?.goToSlide(i);
+
+    const el = categoriesRefs.current[i];
+    el?.scrollIntoView({ behavior: "smooth", inline: "center" });
   }
 
   useEffect(() => {
@@ -79,8 +85,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
     >
       <div
         className={
-          "grid grid-cols-[repeat(4,1fr)] bg-white py-2 border border-neutral-200 min-[480px]:grid-cols-[repeat(5,1fr)_50px] items-center gap-x-1 mt-1 px-3"
+          "flex bg-white py-2 border border-neutral-200 overflow-x-scroll items-center gap-x-1 mt-1 px-3"
         }
+        ref={categoriesContainerRef}
       >
         {categories.map((cat, index) => {
           const background = `${bg_primary || "#dddddd"}${index === currentTab ? "90" : "10"}`;
@@ -95,6 +102,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
               }}
               style={{ background }}
               className="grid rounded-lg grid-cols-[45px_1fr] px-2 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
+              ref={(el) => {
+                categoriesRefs.current[index] = el;
+              }}
             >
               <AspectRatio ratio={1} w={"100%"}>
                 <div
@@ -108,7 +118,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 </div>
               </AspectRatio>
               <span
-                className={clsx("font-semibold duration-300 text-sm")}
+                className={clsx("font-semibold duration-300 text-sm text-nowrap")}
                 style={{ color: textOn }}
               >
                 {cat.name}
@@ -129,6 +139,19 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
         afterChange={(_, { currentSlide }) => {
           setCurrentTab(currentSlide);
+          const el = categoriesRefs.current[currentSlide];
+          const container = categoriesContainerRef.current;
+
+          if (el && container) {
+            const left =
+              el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
+
+            container.scrollTo({
+              left,
+              behavior: "smooth",
+            });
+          }
+
           if (headerOpen) setHeaderOpen(false);
           setTimeout(() => {
             isMoving.current = false;
