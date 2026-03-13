@@ -1,6 +1,5 @@
 import {
   RefObject,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -28,7 +27,7 @@ interface Props {
 }
 
 export function SectionsItems({ defaultStateSection }: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("s");
 
   const { items } = useContext(DataMenuContext);
