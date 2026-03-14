@@ -233,7 +233,7 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
 
               return (
                 <div key={item.key} className={clsx("py-1")}>
-                  <article className="w-full gap-x-2 text-base grid rounded-md p-3 border border-neutral-400 bg-white grid-cols-[1fr_50px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start">
+                  <article className="w-full gap-x-2 text-base grid rounded-md p-3 border border-neutral-200 bg-white grid-cols-[1fr_50px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start">
                     <div>
                       <div className="flex flex-col mb-2 items-baseline">
                         <div className="flex flex-col -space-y-0.5">

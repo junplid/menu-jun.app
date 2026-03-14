@@ -1,6 +1,8 @@
-import { Circle, Float, Presence } from "@chakra-ui/react";
+import { Circle, Presence } from "@chakra-ui/react";
 import { CartContext } from "@contexts/cart.context";
+import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
+import opacity from "hex-color-opacity";
 import { memo, useContext, useMemo } from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 
@@ -10,6 +12,7 @@ interface IProps {
 }
 
 function PreviewCartComponent_(props: IProps) {
+  const { bg_capa } = useContext(DataMenuContext);
   const { items } = useContext(CartContext);
 
   const totalValues = useMemo(() => {
@@ -37,33 +40,33 @@ function PreviewCartComponent_(props: IProps) {
     >
       <div
         onClick={props.onClick}
-        className="text-neutral-500 max-w-lg border-t border-neutral-200 flex mx-auto justify-between items-center w-full gap-x-1 pt-3 p-6 px-4"
+        className="max-w-lg border-t border-neutral-200 flex mx-auto justify-between items-center w-full gap-x-1 pt-3 p-6 px-4"
       >
-        <div className="relative">
-          <Float offset={1} placement={"bottom-end"}>
-            <Circle
-              size="5"
-              fontSize={"11px"}
-              fontWeight={"black"}
-              bg="white"
-              color="black"
-              border={"1px solid #acacac"}
-            >
-              {items.reduce((prev, curr) => {
-                prev = prev + curr.qnt;
-                return prev;
-              }, 0)}
-            </Circle>
-          </Float>
-          <HiOutlineShoppingBag size={30} />
+        <div className="flex items-center">
+          <HiOutlineShoppingBag color={opacity(bg_capa || "#111111", 0.9)} size={30} />
+          <Circle
+            size="5"
+            fontSize={"11px"}
+            fontWeight={"black"}
+            bg={bg_capa || "#fff"}
+            color={"#ffff"}
+            borderWidth={"1px"}
+            borderStyle={"solid"}
+            borderColor={opacity(bg_capa || "#111111", 0.4)}
+          >
+            {items.reduce((prev, curr) => {
+              prev = prev + curr.qnt;
+              return prev;
+            }, 0)}
+          </Circle>
         </div>
 
-        <span className="ml-3 text-lg text-black font-light">Ver pedido</span>
+        <span className="ml-3 text-lg font-light" style={{ color: bg_capa || "#111111" }}>Ver pedido</span>
 
         <div className="flex flex-col items-end -space-y-2">
           <span
             className={`text-xl sm:text-2xl font-bold`}
-          // style={{ color: `${bg_primary || "#111111"}` }}
+            style={{ color: bg_capa || "#111111" }}
           >
             {formatToBRL(totalValues)}
           </span>

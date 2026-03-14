@@ -8,8 +8,8 @@ import {
 } from "react";
 import "react-spring-bottom-sheet/dist/style.css";
 import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
-import { MdDeleteOutline } from "react-icons/md";
-import { Button, Checkbox, IconButton, RadioGroup } from "@chakra-ui/react";
+import { MdDeleteOutline, MdOutlineCheckBoxOutlineBlank, MdRadioButtonChecked, MdRadioButtonUnchecked } from "react-icons/md";
+import { Button, IconButton } from "@chakra-ui/react";
 import clsx from "clsx";
 import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
@@ -17,6 +17,8 @@ import { AiFillCheckCircle } from "react-icons/ai";
 import { CartContext } from "@contexts/cart.context";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { useSearchParams } from "react-router-dom";
+import opacity from "hex-color-opacity";
+import { IoMdCheckbox } from "react-icons/io";
 
 interface Props {
   defaultStateSection?: RefObject<{
@@ -30,7 +32,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("s");
 
-  const { items } = useContext(DataMenuContext);
+  const { items, bg_capa } = useContext(DataMenuContext);
   const sheetRef = useRef<BottomSheetRef>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [isEdit, setIsEdit] = useState(false);
@@ -374,6 +376,20 @@ export function SectionsItems({ defaultStateSection }: Props) {
               <div className="space-y-2 my-2">
                 {section.subItems.map((sub) => {
                   const value = stateSection?.[section.uuid]?.[sub.uuid] || 0;
+                  let background = "";
+                  let border = "";
+                  let color = "";
+
+                  if (bg_capa) {
+                    background = opacity(!!value ? bg_capa : "#f4f4f5", !!value ? 0.2 : 1)
+                    border = opacity(bg_capa, !!value ? 0.3 : 0);
+                    color = !!value ? bg_capa : "#525252"
+                  } else {
+                    background = opacity(!!value ? "#dcfce7" : "#f4f4f5", !!value ? 0.6 : 1);
+                    border = opacity("#00c951", !!value ? 1 : 0);
+                    color = !!value ? "#008236" : "#525252"
+                  }
+
                   return (
                     <div
                       key={sub.uuid}
@@ -462,10 +478,9 @@ export function SectionsItems({ defaultStateSection }: Props) {
                       <div
                         className={clsx(
                           "flex flex-col p-3 gap-y-1.5 rounded-md border-2 justify-between",
-                          !!value
-                            ? "bg-green-100/60 border-2 border-green-500"
-                            : "bg-zinc-100 border-transparent",
                         )}
+                        style={{ background, borderColor: border }}
+
                       >
                         <div className="flex px-1 w-full items-center justify-between">
                           <div
@@ -484,13 +499,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                               />
                             )}
                             <div className="flex flex-col -space-y-2">
-                              <span
-                                className={clsx(
-                                  !!value
-                                    ? "text-green-700"
-                                    : "text-neutral-600",
-                                )}
-                              >
+                              <span style={{ color }}>
                                 {sub.name}
                               </span>
                               {sub.desc && (
@@ -501,25 +510,21 @@ export function SectionsItems({ defaultStateSection }: Props) {
                                       : "text-neutral-500",
                                     "font-light",
                                   )}
+                                  style={{ color: opacity(color, 0.6) }}
                                 >
                                   {sub.desc}
                                 </span>
                               )}
-                              <div className="flex mt-1 items-center gap-x-3">
+                              <div className="flex mt-1 items-center gap-x-2">
                                 {sub.after_additional_price && (
                                   <span
-                                    className={clsx(
-                                      !!value
-                                        ? "text-green-700"
-                                        : "text-neutral-500",
-                                      "font-medium",
-                                    )}
-                                  >
+                                    className={"font-medium"}
+                                    style={{ color }}                                  >
                                     {formatToBRL(sub.after_additional_price)}
                                   </span>
                                 )}
                                 {sub.before_additional_price && (
-                                  <span className="text-neutral-600 line-through text-sm font-light">
+                                  <span className="text-neutral-600 line-through text-xs font-light">
                                     {formatToBRL(sub.before_additional_price)}
                                   </span>
                                 )}
@@ -606,28 +611,31 @@ export function SectionsItems({ defaultStateSection }: Props) {
                           {(section.maxOptions === null ||
                             section.maxOptions > 1) &&
                             sub.maxLength === 1 && (
-                              <Checkbox.Root
-                                colorPalette={"green"}
-                                variant={"solid"}
-                                checked={
-                                  !!stateSection?.[section.uuid]?.[sub.uuid]
-                                }
+                              <button
+                                type="button"
+                                style={{ color: color }}
+                                className="flex items-center justify-center"
                               >
-                                <Checkbox.HiddenInput />
-                                <Checkbox.Control />
-                              </Checkbox.Root>
+                                {value ? (
+                                  <IoMdCheckbox size={22} />
+                                ) : (
+                                  <MdOutlineCheckBoxOutlineBlank size={22} />
+                                )}
+                              </button>
                             )}
                           {(section.maxOptions === null ||
                             section.maxOptions === 1) && (
-                              <RadioGroup.Root
-                                value={value ? "check" : null}
-                                colorPalette={"green"}
+                              <button
+                                type="button"
+                                style={{ color: color }}
+                                className="flex items-center justify-center"
                               >
-                                <RadioGroup.Item value={"check"}>
-                                  <RadioGroup.ItemHiddenInput />
-                                  <RadioGroup.ItemIndicator />
-                                </RadioGroup.Item>
-                              </RadioGroup.Root>
+                                {value ? (
+                                  <MdRadioButtonChecked size={22} />
+                                ) : (
+                                  <MdRadioButtonUnchecked size={22} />
+                                )}
+                              </button>
                             )}
                         </div>
                       </div>

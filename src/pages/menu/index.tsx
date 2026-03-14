@@ -15,6 +15,7 @@ import { formatToBRL } from "brazilian-values";
 import { useSearchParams } from "react-router-dom";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { v4 } from "uuid"
+import opacity from "hex-color-opacity";
 
 const responsive = {
   superLargeDesktop: {
@@ -36,7 +37,7 @@ const responsive = {
 };
 
 export const MenuPage: React.FC = (): JSX.Element => {
-  const { categories, items, bg_primary } = useContext(DataMenuContext);
+  const { categories, items, bg_primary, bg_capa } = useContext(DataMenuContext);
   const {
     items: cartItems,
   } = useContext(CartContext);
@@ -85,13 +86,22 @@ export const MenuPage: React.FC = (): JSX.Element => {
     >
       <div
         className={
-          "flex bg-white py-2 border border-neutral-200 overflow-x-scroll items-center gap-x-1 mt-1 px-3"
+          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll items-center gap-x-1 mt-1 px-3"
         }
         ref={categoriesContainerRef}
       >
         {categories.map((cat, index) => {
-          const background = `${bg_primary || "#dddddd"}${index === currentTab ? "90" : "10"}`;
-          const textOn = `${bg_primary || "#111111"}${index === currentTab ? "" : "60"}`;
+          let background = opacity("#dddddd", index === currentTab ? 0.30 : 0.10);
+          let border = opacity("#dddddd", index === currentTab ? 0.50 : 0);
+          let textOn = opacity("#111111", 0.70);
+
+          if (bg_capa) {
+            background = opacity(bg_capa, index === currentTab ? 0.10 : 0)
+            border = opacity(bg_capa, index === currentTab ? 0.14 : 0);
+            if (index === currentTab) {
+              textOn = opacity(bg_capa, 1)
+            }
+          }
 
           return (
             <div
@@ -100,15 +110,15 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 handleTab(index);
                 if (headerOpen) setHeaderOpen(false);
               }}
-              style={{ background }}
-              className="grid rounded-lg grid-cols-[45px_1fr] px-2 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
+              style={{ background, borderWidth: "1px", borderColor: border }}
+              className="grid border rounded-md grid-cols-[45px_1fr] px-3 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
               ref={(el) => {
                 categoriesRefs.current[index] = el;
               }}
             >
               <AspectRatio ratio={1} w={"100%"}>
                 <div
-                  className={`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`}
+                  className={clsx(`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`)}
                 >
                   <img
                     src={cat.image45x45png}
@@ -118,7 +128,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 </div>
               </AspectRatio>
               <span
-                className={clsx("font-semibold duration-300 text-sm text-nowrap")}
+                className={clsx("duration-300 text-sm text-nowrap transition-all font-bold")}
                 style={{ color: textOn }}
               >
                 {cat.name}

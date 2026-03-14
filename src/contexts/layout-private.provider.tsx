@@ -11,6 +11,7 @@ import { RiWhatsappLine } from "react-icons/ri";
 import { LuPhone, LuBanknote, LuCreditCard, LuWallet } from "react-icons/lu";
 import moment from "moment-timezone";
 import { SiPix } from "react-icons/si";
+import opacity from "hex-color-opacity"
 
 const weekDays = [
   "Domingo",
@@ -79,7 +80,9 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className="min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_20px] bg-neutral-100">
+      <div className={"min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_20px]"} style={{
+        background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
+      }}>
         <header className="">
           <div
             className={clsx(
@@ -159,9 +162,9 @@ export function LayoutPrivateProvider(): JSX.Element {
         <ModalInfo />
 
         <Outlet />
-        <footer className="w-full max-w-lg mx-auto px-3 text-xs text-center text-black/50">
-          © 2025 - Desenvolvido por Rian
-        </footer>
+        {/* <footer className="w-full max-w-lg mx-auto px-3 text-xs text-center text-black/50">
+          © 2026 - Developed by Junplid
+        </footer> */}
       </div>
     </LayoutPrivateContext.Provider>
   );
@@ -322,9 +325,9 @@ function ModalInfo() {
           )}
 
           <div className="flex flex-col flex-1 justify-end px-2 text-xs text-center text-neutral-500 mt-7 font-light">
-            <span>
-              Desenvolvido por <span className="font-normal">Rian Carlos</span>.
-            </span>
+            {/* <span>
+              © 2026 - Developed by <a className="font-normal">Rian Carlos</a>.
+            </span> */}
             <span>
               © Todos os direitos do software reservados. Marcas, imagens e
               conteúdos exibidos pertencem aos seus respectivos proprietários.
