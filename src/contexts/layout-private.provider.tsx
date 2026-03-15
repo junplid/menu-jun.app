@@ -11,7 +11,6 @@ import { RiWhatsappLine } from "react-icons/ri";
 import { LuPhone, LuBanknote, LuCreditCard, LuWallet } from "react-icons/lu";
 import moment from "moment-timezone";
 import { SiPix } from "react-icons/si";
-import opacity from "hex-color-opacity"
 
 const weekDays = [
   "Domingo",
@@ -80,9 +79,12 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div className={"min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_20px]"} style={{
-        background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
-      }}>
+      <div
+        className={"min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_2px]"}
+        style={{
+          // background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
+        }}
+      >
         <header className="">
           <div
             className={clsx(
@@ -97,7 +99,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           <div className="px-3">
             <div
               className={clsx(
-                "duration-100 border mb-1 active:scale-95 shadow-sm mx-auto transition-all w-full max-w-lg px-3 rounded-2xl pb-2 border-neutral-200",
+                "duration-100 border mb-1 active:scale-95 mx-auto transition-all w-full max-w-lg px-3 rounded-2xl pb-2 border-neutral-100",
                 headerOpenDelay ? "-mt-14" : "-mt-12",
               )}
               style={{ background: bg_primary || "#fff" }}
@@ -127,11 +129,11 @@ export function LayoutPrivateProvider(): JSX.Element {
                       headerOpenDelay ? "pt-1" : "",
                     )}
                   >
-                    <span className="text-neutral-900 font-extrabold text-lg sm:text-2xl">
+                    <span className="text-neutral-900 font-normal text-xl sm:text-2xl">
                       {titlePage}
                     </span>
                     {(info?.state_uf || info?.city) && (
-                      <span className="text-neutral-600 flex gap-x-2 items-center text-sm sm:text-lg">
+                      <span className="text-neutral-400 flex gap-x-2 items-center text-sm sm:text-lg">
                         <PiMapPinFill />
                         {info.city} {info.city && info.state_uf ? " - " : " "}
                         {info?.state_uf} • Mais informações
@@ -139,7 +141,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     )}
                     {status ? (
                       <span className="text-green-600 font-extrabold flex items-center text-sm sm:text-lg">
-                        Aberto até às 23h00
+                        Aberto
                       </span>
                     ) : (
                       <div className="flex gap-x-1 items-center">
@@ -147,7 +149,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                           Fechado
                         </span>
                         {helperTextOpening && (
-                          <span className="text-neutral-700 flex text-sm">
+                          <span className="text-neutral-500 flex text-sm">
                             {helperTextOpening}
                           </span>
                         )}
@@ -251,7 +253,7 @@ function ModalInfo() {
                 "flex flex-col -mt-1 items-center -space-y-0.5 transition-all pt-1",
               )}
             >
-              <span className="text-neutral-900 font-extrabold text-lg sm:text-2xl">
+              <span className="text-neutral-900 font-normal text-lg sm:text-2xl">
                 {titlePage}
               </span>
               {status ? (

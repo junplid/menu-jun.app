@@ -230,7 +230,6 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
             renderItem={(item) => {
               const product = itemsData.find((s) => s.uuid === item.uuid);
               if (!product) return null;
-
               return (
                 <div key={item.key} className={clsx("py-1")}>
                   <article className="w-full gap-x-2 text-base grid rounded-md p-3 border border-neutral-200 bg-white grid-cols-[1fr_50px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start">
@@ -294,13 +293,12 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                                                 key={subUuid}
                                                 className="text-neutral-400 gap-x-2 flex font-light items-center"
                                               >
-                                                {subItem.name}{" "}
                                                 {value > 1
-                                                  ? `(${value})`
-                                                  : null}{" "}
+                                                  ? `${value}x`
+                                                  : null}{" "}{subItem.name}{" "}
                                                 <span className="text-[13px] text-neutral-500">
                                                   {subItem.after_additional_price &&
-                                                    `+${formatToBRL(
+                                                    `= ${formatToBRL(
                                                       subItem.after_additional_price *
                                                       value,
                                                     )}`}
@@ -365,23 +363,21 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                             <MdModeEdit />
                           </a>
                         )}
-                        {(product.afterPrice || product.beforePrice) && (
-                          <div className="flex flex-col justify-end -space-y-1.5 ml-1">
-                            {/* {product.beforePrice && (
+
+                        <div className="flex flex-col justify-end -space-y-1.5 ml-1">
+                          {/* {product.beforePrice && (
                               <span className="text-zinc-400 font-medium line-through text-sm">
                                 {formatToBRL(product.beforePrice! * item.qnt)}
                               </span>
                             )} */}
-                            {product.afterPrice && (
-                              <span
-                                className={`font-semibold text-[17px]`}
-                                style={{ color: `${bg_primary || "#111111"}` }}
-                              >
-                                {formatToBRL(item.total * item.qnt)}
-                              </span>
-                            )}
-                          </div>
-                        )}
+
+                          <span
+                            className={`font-semibold text-[17px]`}
+                            style={{ color: `${bg_primary || "#111111"}` }}
+                          >
+                            {formatToBRL(item.total * item.qnt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <AspectRatio ratio={1 / 1} w={"100%"}>
@@ -416,8 +412,7 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                   <span className="text-lg">Endereço de entrega</span>
                 </div>
                 <span className="text-base font-light leading-5.5 text-neutral-500">
-                  {props.address.complement} - Recebedor:{" "}
-                  {props.address.persona}
+                  {props.address.address}({props.address.cep}) {props.address.complement ? `- ${props.address.complement}` : null}[{props.address.persona}]
                 </span>
               </div>
               <a className="text-blue-300 tracking-wide underline underline-offset-2">
@@ -501,6 +496,9 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
               items={payment_methods_items}
             />
           </SegmentGroup.Root>
+          <div className="flex justify-center">
+            <span className={clsx(error === "forma-de-pagamento" ? "animate-error px-2 text-red-600 bg-red-100! transition-all" : "text-neutral-500", "text-center block font-normal")}>Forma de pagamento</span>
+          </div>
           <Collapsible.Root
             open={payment_method === "Dinheiro"}
           >
@@ -591,6 +589,14 @@ export const ModalCarrinho: React.FC<
           setIsErrorAddress(false);
           setIsLoading(false);
         }, 1100);
+        return;
+      }
+      if (!payment_method) {
+        setError("forma-de-pagamento");
+        setTimeout(() => {
+          setError(null);
+        }, 1100);
+        setIsLoading(false);
         return;
       }
       if (payment_method === "Dinheiro" && !payment_change_to) {
@@ -803,7 +809,7 @@ export const ModalCarrinho: React.FC<
                 address !== null &&
                 address !== "retirar" && (
                   <span className="text-sm text-neutral-500">
-                    Taxa de entrega: {formatToBRL(10)}
+                    Taxa de entrega: {formatToBRL(info?.delivery_fee)}
                   </span>
                 )}
               <div className="flex items-center gap-x-1">
@@ -821,7 +827,7 @@ export const ModalCarrinho: React.FC<
                 color={"#3f8118"}
                 bg={"#cdf0b7"}
                 loading={isLoading}
-                disabled={!status || !items.length}
+                // disabled={!status || !items.length}
                 onClick={() => create()}
                 size={"lg"}
                 fontWeight={"light"}

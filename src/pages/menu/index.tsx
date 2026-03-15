@@ -37,7 +37,7 @@ const responsive = {
 };
 
 export const MenuPage: React.FC = (): JSX.Element => {
-  const { categories, items, bg_primary, bg_capa } = useContext(DataMenuContext);
+  const { categories, items, bg_capa } = useContext(DataMenuContext);
   const {
     items: cartItems,
   } = useContext(CartContext);
@@ -81,12 +81,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
     <main
       className="w-full relative duration-300 max-w-lg mx-auto pb-2 grid grid-rows-[auto_1fr] min-h-0"
       style={{
-        paddingBottom: showPresence ? "70px" : "10px",
+        paddingBottom: showPresence ? "70px" : "0px",
       }}
     >
       <div
         className={
-          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll items-center gap-x-1 mt-1 px-3"
+          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll hide-scrollbar items-center gap-x-1 mt-1 px-3"
         }
         ref={categoriesContainerRef}
       >
@@ -178,15 +178,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
               listClassName="grid w-full grid-cols-1"
               items={itemsOfCat}
               grid={false}
-              renderItem={(item) => {
-                const background = false
-                  ? `${bg_primary || "#111111"}10`
-                  : undefined;
-                // const bgPoint = `${bg_primary || "#111111"}70`;
-
+              renderItem={(item, index) => {
                 return (
-                  <div key={item.uuid} className="p-1 w-full px-2.5">
-                    <Item background={background} isMoving={isMoving} item={item} />
+                  <div key={item.uuid} className={clsx("p-1 w-full border-b border-neutral-100 px-2.5", itemsOfCat.length - 1 === index && "border-b-0")}>
+                    <Item isMoving={isMoving} item={item} />
                   </div>
                 );
               }}
@@ -224,11 +219,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
 interface Props {
   isMoving: RefObject<boolean>
   item: any;
-  background?: string;
 }
 
-function Item({ isMoving, item, background }: Props) {
-  const { bg_primary } = useContext(DataMenuContext);
+function Item({ isMoving, item }: Props) {
+  const { bg_primary, bg_capa } = useContext(DataMenuContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     items: cartItems,
@@ -248,10 +242,15 @@ function Item({ isMoving, item, background }: Props) {
     }
   }, [keyPresence]);
 
+  const discount =
+    item.beforePrice && item.afterPrice
+      ? Math.round(((item.beforePrice - item.afterPrice) / item.beforePrice) * 100)
+      : null;
+
   return (
     <article
       className={clsx(
-        "bg-white rounded-xl p-1 h-full grid grid-cols-[100px_1fr] select-none items-center w-full relative",
+        "rounded-xl p-1 h-full grid grid-cols-[1fr_100px] select-none items-center w-full relative",
         !item.qnt ? "cursor-not-allowed" : "cursor-pointer",
       )}
       onClick={() => {
@@ -278,13 +277,60 @@ function Item({ isMoving, item, background }: Props) {
           }
         }
       }}
-      style={{ background }}
+      style={{ background: "#fff" }}
     >
+      <div className="pl-1 flex flex-col gap-y-2 py-1.5 h-full justify-between">
+        <div className="flex flex-col gap-y-1">
+          <span
+            className={clsx(
+              "line-clamp-2 w-full text-lg leading-5 font-normal",
+            )}
+            style={{
+              color: false
+                ? `${bg_primary || "#111111"}`
+                : undefined,
+            }}
+          >
+            {item.name}
+          </span>
+          <span
+            className={clsx(
+              "line-clamp-2 overflow-hidden text-sm leading-4 font-light text-neutral-500",
+              // selected ? "text-zinc-700" : "text-zinc-600",
+            )}
+          >
+            {item.desc}
+          </span>
+        </div>
+        <div className="mb-1">
+          <div className="w-full flex gap-x-1.5 items-center">
+            {item.afterPrice && (
+              <span
+                className={`font-normal leading-3`}
+                style={{
+                  color: `${bg_primary || "#0c0c0c"}e6`,
+                }}
+              >
+                {formatToBRL(item.afterPrice)}
+              </span>
+            )}
+            {item.beforePrice && (
+              <span className="text-neutral-300 font-medium line-through text-sm">
+                {formatToBRL(item.beforePrice)}
+              </span>
+            )}
+            {discount && (
+              <span className="bg-green-600 text-white text-xs font-medium px-1.5 py-0 rounded-full">
+                -{discount}%
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
       <div className={clsx("relative")}>
         {!item.qnt && (
           <div className="bg-neutral-600 rotate-12 absolute z-20 px-1 py-0.5 left-1/2 -translate-x-1/2 top-1/5 translate-y-1/2">
             <span className="text-white font-semibold border-y-2 text-sm">ESGOTADO</span>
-
           </div>
         )}
         <AspectRatio ratio={1} w={"100px"} className={clsx(!item.qnt ? "opacity-35" : "",)}>
@@ -302,53 +348,15 @@ function Item({ isMoving, item, background }: Props) {
           }}
           animationDuration="moderate"
           present={!!keyPresence}
-          className="absolute left-1 border-2 border-green-600 top-1 text-green-600 rounded-lg bg-green-100 p-0.5"
+          className="absolute left-1 border-2 top-1 rounded-lg p-0.5"
+          style={{
+            background: "#fff",
+            color: bg_capa || "oklch(62.7% 0.194 149.214)",
+            borderColor: bg_capa || "oklch(62.7% 0.194 149.214)"
+          }}
         >
           <TbShoppingBagPlus size={22} />
         </Presence>
-      </div>
-      <div className="pl-1 flex flex-col gap-y-2 py-1.5 h-full justify-between">
-        <div className="flex flex-col gap-y-1">
-          <span
-            className={clsx(
-              "line-clamp-1 w-full text-lg leading-5 font-semibold",
-            )}
-            style={{
-              color: false
-                ? `${bg_primary || "#111111"}`
-                : undefined,
-            }}
-          >
-            {item.name}
-          </span>
-          <span
-            className={clsx(
-              "line-clamp-2 overflow-hidden text-sm leading-4 font-light",
-              // selected ? "text-zinc-700" : "text-zinc-600",
-            )}
-          >
-            {item.desc}
-          </span>
-        </div>
-        <div className="mb-1">
-          <div className="w-full flex flex-col items-start">
-            {item.beforePrice && (
-              <span className="text-zinc-500 line-through text-xs">
-                {formatToBRL(item.beforePrice)}
-              </span>
-            )}
-            {item.afterPrice && (
-              <span
-                className={`font-semibold leading-3 text-sm`}
-                style={{
-                  color: `${bg_primary || "#0c0c0c"}e6`,
-                }}
-              >
-                {formatToBRL(item.afterPrice)}
-              </span>
-            )}
-          </div>
-        </div>
       </div>
     </article>
   )

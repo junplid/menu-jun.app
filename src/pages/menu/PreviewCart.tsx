@@ -40,7 +40,7 @@ function PreviewCartComponent_(props: IProps) {
     >
       <div
         onClick={props.onClick}
-        className="max-w-lg border-t border-neutral-200 flex mx-auto justify-between items-center w-full gap-x-1 pt-3 p-6 px-4"
+        className="max-w-lg border-t border-neutral-200 flex mx-auto justify-between items-center w-full gap-x-1 pt-3 pb-8 px-4"
       >
         <div className="flex items-center">
           <HiOutlineShoppingBag color={opacity(bg_capa || "#111111", 0.9)} size={30} />

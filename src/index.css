@@ -44,9 +44,13 @@ body {
   background-color: #202122;
 }
 
-.scroll-hidden::-webkit-scrollbar {
-  width: 0px;
-  background-color: transparent;
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE e Edge antigo */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scroll-hidden::-webkit-scrollbar { 
+  display: none;
 }
 
 .ps-submenu-expand-icon span {

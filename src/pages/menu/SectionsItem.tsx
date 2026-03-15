@@ -15,7 +15,6 @@ import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
 import { AiFillCheckCircle } from "react-icons/ai";
 import { CartContext } from "@contexts/cart.context";
-import { HiOutlineShoppingBag } from "react-icons/hi";
 import { useSearchParams } from "react-router-dom";
 import opacity from "hex-color-opacity";
 import { IoMdCheckbox } from "react-icons/io";
@@ -54,6 +53,8 @@ export function SectionsItems({ defaultStateSection }: Props) {
       setLength(defaultStateSection?.current?.length || 1);
     } else {
       setIsEdit(false);
+      setLength(1);
+      setStateSection(null);
       if (defaultStateSection?.current) {
         defaultStateSection.current = null;
       }
@@ -137,14 +138,6 @@ export function SectionsItems({ defaultStateSection }: Props) {
       scrollLocking={false}
       blocking={false}
       expandOnContentDrag
-      onDismiss={() => {
-        window.history.back()
-        setTimeout(() => {
-          setLength(1);
-          setIsEdit(false);
-          setStateSection(null);
-        }, 20);
-      }}
       header={
         <div className="flex sticky max-w-lg mx-auto top-0 w-full items-start gap-x-2 justify-between">
           <div className={clsx("flex gap-x-2 items-center")}>
@@ -223,9 +216,8 @@ export function SectionsItems({ defaultStateSection }: Props) {
             //   qntFlavorsMissing
             // }
             >
-              <HiOutlineShoppingBag size={20} />
               <span>
-                Add{" "}
+                Adicionar{" "}
                 {formatToBRL(
                   ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                     0) +
@@ -313,7 +305,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
             >
               <div
                 className={clsx(
-                  "sticky px-3 top-0 z-20 gap-x-2 bg-white border-neutral-200",
+                  "sticky px-3 top-0 z-20 border-b gap-x-2 bg-white border-neutral-100",
                   !section.helpText ? "items-center flex py-4" : "py-2",
                 )}
               >
