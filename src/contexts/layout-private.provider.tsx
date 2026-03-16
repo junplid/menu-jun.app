@@ -3,7 +3,7 @@ import { Outlet, useSearchParams } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { LayoutPrivateContext } from "./layout-private.context";
 import clsx from "clsx";
-import { Image } from "@chakra-ui/react";
+import { Collapsible, Image } from "@chakra-ui/react";
 import { DataMenuContext, TypePaymentMethods } from "./data-menu.context";
 import { PiMapPinFill } from "react-icons/pi";
 import { DialogBody, DialogContent, DialogRoot } from "@components/ui/dialog";
@@ -114,9 +114,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                   <Image
                     src={logoImg}
                     style={{
-                      minWidth: headerOpenDelay ? 85 : 55,
-                      maxWidth: headerOpenDelay ? 85 : 55,
-                      height: headerOpenDelay ? 85 : 55,
+                      minWidth: headerOpenDelay ? 85 : 75,
+                      maxWidth: headerOpenDelay ? 85 : 75,
+                      height: headerOpenDelay ? 85 : 75,
                     }}
                     className={clsx(
                       "border-4 border-white duration-500 shadow-sm transition-all rounded-full bg-red-700",
@@ -125,26 +125,33 @@ export function LayoutPrivateProvider(): JSX.Element {
                   />
                   <div
                     className={clsx(
-                      "flex flex-col -mt-1 items-center -space-y-0.5 transition-all",
+                      "flex flex-col -mt-1 items-center transition-all",
                       headerOpenDelay ? "pt-1" : "",
                     )}
                   >
-                    <span className="text-neutral-900 font-normal text-xl sm:text-2xl">
-                      {titlePage}
-                    </span>
-                    {(info?.state_uf || info?.city) && (
-                      <span className="text-neutral-400 flex gap-x-2 items-center text-sm sm:text-lg">
-                        <PiMapPinFill />
-                        {info.city} {info.city && info.state_uf ? " - " : " "}
-                        {info?.state_uf} • Mais informações
-                      </span>
-                    )}
+                    <Collapsible.Root
+                      open={headerOpenDelay}
+                    >
+                      <Collapsible.Content className="items-center flex flex-col">
+                        <span className="text-neutral-900 font-normal text-xl sm:text-2xl">
+                          {titlePage}
+                        </span>
+                        {(info?.state_uf || info?.city) && (
+                          <span className="text-neutral-400 flex gap-x-2 items-center text-sm sm:text-lg">
+                            <PiMapPinFill />
+                            {info.city} {info.city && info.state_uf ? " - " : " "}
+                            {info?.state_uf} • Mais informações
+                          </span>
+                        )}
+                      </Collapsible.Content>
+                    </Collapsible.Root>
+
                     {status ? (
-                      <span className="text-green-600 font-extrabold flex items-center text-sm sm:text-lg">
+                      <span className={clsx("text-green-600 font-extrabold flex items-center text-sm sm:text-lg", headerOpenDelay ? "pt-0" : "pt-1")}>
                         Aberto
                       </span>
                     ) : (
-                      <div className="flex gap-x-1 items-center">
+                      <div className={clsx("flex gap-x-1 mt-1 items-center", headerOpenDelay ? "pt-0" : "pt-1")}>
                         <span className="text-red-600 font-extrabold flex text-sm sm:text-lg">
                           Fechado
                         </span>

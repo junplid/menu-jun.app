@@ -798,8 +798,8 @@ export const ModalCarrinho: React.FC<
           />
         )}
         {!isAddress && !isLoading && (
-          <DialogFooter justifyContent={"space-between"} p={4} pt={0.5} gap={2}>
-            <div className="flex flex-col -space-y-0.5">
+          <DialogFooter className="flex max-[385px]:flex-col gap-1" justifyContent={"space-between"} p={4} pt={0.5}>
+            <div className="flex flex-col -space-y-0.5 w-full">
               {/* {totalValues.before > 0 && (
               <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
                 {formatToBRL(totalValues.before)}
@@ -808,12 +808,17 @@ export const ModalCarrinho: React.FC<
               {!!info?.delivery_fee &&
                 address !== null &&
                 address !== "retirar" && (
-                  <span className="text-sm text-neutral-500">
-                    Taxa de entrega: {formatToBRL(info?.delivery_fee)}
-                  </span>
+                  <div className="flex items-center gap-x-1 max-[385px]:justify-between w-full">
+                    <span className="text-sm text-neutral-500">
+                      Taxa de entrega:
+                    </span>
+                    <span className="text-sm text-neutral-500">
+                      {formatToBRL(info?.delivery_fee)}
+                    </span>
+                  </div>
                 )}
-              <div className="flex items-center gap-x-1">
-                <span className="text-neutral-600">Valor total</span>
+              <div className="flex items-center gap-x-1 max-[385px]:justify-between">
+                <span className="text-neutral-600">Total</span>
                 <span
                   className={`text-lg font-bold`}
                   style={{ color: `${bg_primary || "#111111"}` }}
@@ -827,7 +832,7 @@ export const ModalCarrinho: React.FC<
                 color={"#3f8118"}
                 bg={"#cdf0b7"}
                 loading={isLoading}
-                // disabled={!status || !items.length}
+                disabled={!status || !items.length}
                 onClick={() => create()}
                 size={"lg"}
                 fontWeight={"light"}

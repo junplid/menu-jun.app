@@ -17,7 +17,8 @@ import { AiFillCheckCircle } from "react-icons/ai";
 import { CartContext } from "@contexts/cart.context";
 import { useSearchParams } from "react-router-dom";
 import opacity from "hex-color-opacity";
-import { IoMdCheckbox } from "react-icons/io";
+import { IoMdCheckbox, IoMdClose } from "react-icons/io";
+import { LuClipboardCheck } from "react-icons/lu";
 
 interface Props {
   defaultStateSection?: RefObject<{
@@ -232,13 +233,13 @@ export function SectionsItems({ defaultStateSection }: Props) {
               <Button
                 size={"md"}
                 colorPalette={"red"}
-                variant={"outline"}
+                variant={"ghost"}
                 onClick={() => {
                   window.history.back();
                 }}
                 className="duration-100 active:scale-95 transition-all"
               >
-                <span>Cancelar</span>
+                <IoMdClose />
               </Button>
               <Button
                 size={"md"}
@@ -270,8 +271,8 @@ export function SectionsItems({ defaultStateSection }: Props) {
               //   qntFlavorsMissing
               // }
               >
-                <span>
-                  Salvar{" "}
+                <span className="flex items-center gap-x-1.5">
+                  <LuClipboardCheck />
                   {formatToBRL(
                     ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                       0) +
