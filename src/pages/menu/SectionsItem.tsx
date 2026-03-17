@@ -471,6 +471,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                       <div
                         className={clsx(
                           "flex flex-col p-3 gap-y-1.5 rounded-md border-2 justify-between",
+                          sub.maxLength === 0 && "opacity-40"
                         )}
                         style={{ background, borderColor: border }}
 
@@ -493,7 +494,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                             )}
                             <div className="flex flex-col -space-y-2">
                               <span style={{ color }}>
-                                {sub.name}
+                                {sub.name} {sub.maxLength === 0 && <span className="bg-neutral-400 text-sm px-1 py-0.5 rounded-sm text-white">Indisponível</span>}
                               </span>
                               {sub.desc && (
                                 <span
