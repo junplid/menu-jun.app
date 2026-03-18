@@ -3,14 +3,18 @@ import { Outlet, useSearchParams } from "react-router-dom";
 import { JSX } from "@emotion/react/jsx-runtime";
 import { LayoutPrivateContext } from "./layout-private.context";
 import clsx from "clsx";
-import { Collapsible, Image } from "@chakra-ui/react";
+import { Image, Presence } from "@chakra-ui/react";
 import { DataMenuContext, TypePaymentMethods } from "./data-menu.context";
-import { PiMapPinFill } from "react-icons/pi";
 import { DialogBody, DialogContent, DialogRoot } from "@components/ui/dialog";
 import { RiWhatsappLine } from "react-icons/ri";
-import { LuPhone, LuBanknote, LuCreditCard, LuWallet } from "react-icons/lu";
+import { LuPhone, LuBanknote, LuCreditCard, LuWallet, LuChevronRight } from "react-icons/lu";
 import moment from "moment-timezone";
 import { SiPix } from "react-icons/si";
+import { TiFlashOutline } from "react-icons/ti";
+import { FaRegClock } from "react-icons/fa"
+import { TbPointFilled } from "react-icons/tb";
+import opacity from "hex-color-opacity";
+import { TextGradientComponent } from "@components/TextGradient";
 
 const weekDays = [
   "Domingo",
@@ -55,11 +59,11 @@ export function LayoutPrivateProvider(): JSX.Element {
     bg_capa,
     status,
     helperTextOpening,
-    info,
   } = useContext(DataMenuContext);
   const [headerOpen, setHeaderOpen] = useState(true);
   const [headerOpenDelay, setHeaderOpenDelay] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [dispence, setDispence] = useState(false);
 
   useEffect(() => {
     if (!headerOpen) {
@@ -76,6 +80,12 @@ export function LayoutPrivateProvider(): JSX.Element {
     }),
     [headerOpen],
   );
+
+  useEffect(() => {
+    setTimeout(() => {
+      setDispence(true)
+    }, 1200);
+  }, []);
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
@@ -99,7 +109,7 @@ export function LayoutPrivateProvider(): JSX.Element {
           <div className="px-3">
             <div
               className={clsx(
-                "duration-100 border mb-1 active:scale-95 mx-auto transition-all w-full max-w-lg px-3 rounded-2xl pb-2 border-neutral-100",
+                "duration-100 border mb-1 active:scale-95 mx-auto transition-all w-full max-w-lg px-2 rounded-2xl pb-2 border-neutral-100",
                 headerOpenDelay ? "-mt-14" : "-mt-12",
               )}
               style={{ background: bg_primary || "#fff" }}
@@ -110,58 +120,76 @@ export function LayoutPrivateProvider(): JSX.Element {
               }}
             >
               <div className={"flex flex-col"}>
-                <div className="flex flex-col items-center mx-auto">
-                  <Image
-                    src={logoImg}
-                    style={{
-                      minWidth: headerOpenDelay ? 85 : 75,
-                      maxWidth: headerOpenDelay ? 85 : 75,
-                      height: headerOpenDelay ? 85 : 75,
-                    }}
-                    className={clsx(
-                      "border-4 border-white duration-500 shadow-sm transition-all rounded-full bg-red-700",
-                      headerOpenDelay ? "-mt-[42.5px]" : "-mt-[22.5px]",
-                    )}
-                  />
+                <div className="flex flex-col items-center mx-auto w-full">
+                  <div className="flex justify-end relative items-center w-full">
+                    <Presence
+                      animationName={{
+                        _open: "slide-from-top, fade-in",
+                        _closed: "slide-to-bottom, fade-out",
+                      }}
+                      animationDuration="moderate"
+                      present={dispence}
+                      className="absolute top-1 -left-1.5"
+                    >
+                      <div className="flex p-1 px-2 pl-1 items-center rounded-xl" style={{
+                        borderColor: opacity(bg_capa || "#e5e5e5", .3),
+                      }}>
+                        <TiFlashOutline color={bg_capa || "#e5e5e5"} size={18} />
+                        <div className="flex text-xs  gap-x-1">
+                          <span className="text-neutral-600">Delivery</span>
+                          <TextGradientComponent backgroundImage={`linear-gradient(70deg, ${bg_capa || "#e5e5e5"}, ${opacity(bg_capa || "#e5e5e5", .3)}, ${bg_capa || "#e5e5e5"})`} className="font-extrabold">
+                            Rápido
+                          </TextGradientComponent>
+                        </div>
+                      </div>
+                    </Presence>
+                    <Image
+                      src={logoImg}
+                      style={{
+                        minWidth: 75,
+                        maxWidth: 75,
+                        height: 75,
+                      }}
+                      className={clsx(
+                        "border-4 border-white absolute z-10 top-0 left-1/2 -translate-x-1/2 duration-300 shadow-sm transition-all rounded-full bg-red-700",
+                        headerOpenDelay ? "-mt-[42.5px] scale-100" : "-mt-[22.5px] scale-75",
+                      )}
+                    />
+                    <span className="text-neutral-300 text-sm flex items-center gap-x-0.5 py-1">Informações <LuChevronRight /></span>
+                  </div>
                   <div
                     className={clsx(
                       "flex flex-col -mt-1 items-center transition-all",
-                      headerOpenDelay ? "pt-1" : "",
+                      headerOpenDelay ? "pt-1" : "pt-4",
                     )}
                   >
-                    <Collapsible.Root
-                      open={headerOpenDelay}
-                    >
-                      <Collapsible.Content className="items-center flex flex-col">
-                        <span className="text-neutral-900 font-normal text-xl sm:text-2xl">
-                          {titlePage}
-                        </span>
-                        {(info?.state_uf || info?.city) && (
-                          <span className="text-neutral-400 flex gap-x-2 items-center text-sm sm:text-lg">
-                            <PiMapPinFill />
-                            {info.city} {info.city && info.state_uf ? " - " : " "}
-                            {info?.state_uf} • Mais informações
+                    <span className="text-neutral-900 bg-white/50 leading-6 backdrop-blur-md font-normal text-lg sm:text-2xl">
+                      {titlePage}
+                    </span>
+                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 z-10 shadow-md px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
+                      {status ? (
+                        <div className="flex items-center gap-x-1 text-green-600">
+                          <TbPointFilled size={20} />
+                          <span className={clsx("font-extrabold flex items-center text-sm sm:text-lg")}>
+                            Aberto até 14:35
                           </span>
-                        )}
-                      </Collapsible.Content>
-                    </Collapsible.Root>
+                        </div>
+                      ) : (
+                        <div className={clsx("flex gap-x-1 mt-0 items-center")}>
+                          <FaRegClock className="text-red-600" />
+                          <span className="text-red-600 font-extrabold flex text-sm sm:text-lg">
+                            Fechado
+                          </span>
+                          <span className="leading-0 text-neutral-300">|</span>
+                          {helperTextOpening && (
+                            <span className="text-neutral-400 flex text-sm">
+                              {helperTextOpening}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
-                    {status ? (
-                      <span className={clsx("text-green-600 font-extrabold flex items-center text-sm sm:text-lg", headerOpenDelay ? "pt-0" : "pt-1")}>
-                        Aberto
-                      </span>
-                    ) : (
-                      <div className={clsx("flex gap-x-1 mt-1 items-center", headerOpenDelay ? "pt-0" : "pt-1")}>
-                        <span className="text-red-600 font-extrabold flex text-sm sm:text-lg">
-                          Fechado
-                        </span>
-                        {helperTextOpening && (
-                          <span className="text-neutral-500 flex text-sm">
-                            {helperTextOpening}
-                          </span>
-                        )}
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

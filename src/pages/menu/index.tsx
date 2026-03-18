@@ -91,13 +91,15 @@ export const MenuPage: React.FC = (): JSX.Element => {
         ref={categoriesContainerRef}
       >
         {categories.map((cat, index) => {
-          let background = opacity("#dddddd", index === currentTab ? 0.30 : 0.10);
+          let background = opacity("#dddddd", index === currentTab ? 0.50 : 0.10);
+          let shadow = opacity("#dddddd", index === currentTab ? 0.20 : 0);
           let border = opacity("#dddddd", index === currentTab ? 0.50 : 0);
           let textOn = opacity("#111111", 0.70);
 
           if (bg_capa) {
-            background = opacity(bg_capa, index === currentTab ? 0.10 : 0)
-            border = opacity(bg_capa, index === currentTab ? 0.14 : 0);
+            background = opacity(bg_capa, index === currentTab ? 0.20 : 0)
+            shadow = opacity(bg_capa, index === currentTab ? 0.20 : 0)
+            border = opacity(bg_capa, index === currentTab ? 0.35 : 0);
             if (index === currentTab) {
               textOn = opacity(bg_capa, 1)
             }
@@ -110,7 +112,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 handleTab(index);
                 if (headerOpen) setHeaderOpen(false);
               }}
-              style={{ background, borderWidth: "1px", borderColor: border }}
+              style={{
+                background: `radial-gradient(circle,#fff 25%, ${background} 100%)`,
+                borderWidth: "1.5px",
+                borderColor: border,
+                boxShadow: `0px 0px 10px inset ${shadow}`
+              }}
               className="grid border rounded-md grid-cols-[45px_1fr] px-3 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
               ref={(el) => {
                 categoriesRefs.current[index] = el;
