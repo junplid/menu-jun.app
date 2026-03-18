@@ -50,6 +50,7 @@ interface IDataMenuProps {
         uuid: string;
         desc: string | null;
         name: string;
+        status: boolean | null;
         image55x55png: string | null;
         maxLength: number;
       }[];
