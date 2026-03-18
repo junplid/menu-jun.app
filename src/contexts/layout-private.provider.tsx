@@ -151,7 +151,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                         height: 75,
                       }}
                       className={clsx(
-                        "border-4 border-white absolute z-10 top-0 left-1/2 -translate-x-1/2 duration-300 shadow-sm transition-all rounded-full bg-red-700",
+                        "border-4 border-white absolute top-0 left-1/2 -translate-x-1/2 duration-300 shadow-sm transition-all rounded-full bg-red-700",
                         headerOpenDelay ? "-mt-[42.5px] scale-100" : "-mt-[22.5px] scale-75",
                       )}
                     />
@@ -166,7 +166,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <span className="text-neutral-900 bg-white/50 leading-6 backdrop-blur-md font-normal text-lg sm:text-2xl">
                       {titlePage}
                     </span>
-                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 z-10 shadow-md px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
+                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 shadow-md px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
                       {status ? (
                         <div className="flex items-center gap-x-1 text-green-600">
                           <TbPointFilled size={20} />

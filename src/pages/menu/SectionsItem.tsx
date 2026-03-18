@@ -394,6 +394,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                         "",
                       )}
                       onClick={() => {
+                        if (!sub.status) return;
                         setStateSection((state) => {
                           let newState = { ...(state ?? {}) };
                           const v =
@@ -492,7 +493,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                                 height={"55px"}
                               />
                             )}
-                            <div className="flex flex-col -space-y-2">
+                            <div className="flex flex-col -space-y-1">
                               <span style={{ color }}>
                                 {sub.name} {(!sub.status || sub.maxLength === 0) && <span className="bg-neutral-400 text-sm px-1 py-0.5 rounded-sm text-white">Indisponível</span>}
                               </span>
@@ -538,6 +539,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                                   )}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    if (!sub.status) return;
                                     setStateSection((state) => {
                                       const newState = { ...(state ?? {}) };
                                       const v =
@@ -570,6 +572,7 @@ export function SectionsItems({ defaultStateSection }: Props) {
                                 <a
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    if (!sub.status) return;
                                     setStateSection((state) => {
                                       let newState = { ...(state ?? {}) };
                                       const v =
