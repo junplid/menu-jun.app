@@ -58,6 +58,7 @@ interface IData {
         name: string;
         image55x55png: string | null;
         maxLength: number;
+        status: boolean | null;
       }[];
       id: number;
       uuid: string;
