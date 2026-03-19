@@ -324,13 +324,17 @@ export function SectionsItems({ defaultStateSection }: Props) {
                         <div className="flex gap-x-1 items-center">
                           <span
                             className={clsx(
-                              `px-1 py-0.5 text-xs rounded-sm font-medium`,
-                              false
-                                ? "bg-green-400 text-green-800"
+                              `px-1 py-0.5 text-xs text-nowrap rounded-sm font-medium`,
+                              total >= (section.minOptions || 0)
+                                ? "bg-green-600 text-green-100"
                                 : "bg-neutral-700 text-neutral-100",
                             )}
                           >
-                            {total}/{section.minOptions || section.maxOptions}
+                            {section.maxOptions ? (
+                              `${total}/${section.maxOptions}`
+                            ) : (
+                              `${total} (mín. ${section.minOptions})`
+                            )}
                           </span>
                           {section.minOptions > 0 ? (
                             <div className="flex">
@@ -404,25 +408,30 @@ export function SectionsItems({ defaultStateSection }: Props) {
                             newState[section.uuid] = {};
                           }
 
-                          // pode escolher mais de 1
-                          if ((section.maxOptions || Infinity) > 1) {
-                            if (!sub.maxLength) {
-                              // mas item não pode ser escolhido;
-                            } else if (sub.maxLength > 1) {
-                              // o item pode ser escolhido +1 vez;
+                          // pode selecionar varias opções
+                          if (section.maxOptions === null || section.maxOptions > 1) {
+                            if (sub.maxLength === 0) {
+                              // mas o item não pode ser escolhido;
+                            } else if (sub.maxLength === null || sub.maxLength > 1) {
+                              // o item pode ser escolhido +1 vez; 
                               if (total < (section.maxOptions || Infinity)) {
                                 const next = Math.min(
                                   v + 1,
-                                  sub.maxLength,
+                                  sub.maxLength || Infinity,
                                   section.maxOptions || Infinity,
                                 );
                                 newState[section.uuid][sub.uuid] = next;
                               }
-                            } else {
+                            } else if (sub.maxLength === 1) {
                               // o item pode ser escolhido 1 vez;
                               if (v === 1) {
-                                const { [section.uuid]: _, ...rest } = newState;
-                                newState = rest;
+                                const { [sub.uuid]: _, ...rest } = newState[section.uuid];
+                                if (Object.keys(rest).length) {
+                                  newState[section.uuid] = rest;
+                                } else {
+                                  const { [section.uuid]: _, ...restState } = newState;
+                                  newState = restState
+                                }
                               } else {
                                 if (total < (section.maxOptions || Infinity)) {
                                   newState[section.uuid][sub.uuid] = 1;
@@ -430,17 +439,9 @@ export function SectionsItems({ defaultStateSection }: Props) {
                               }
                             }
                           } else {
-                            // pode apenas 1 item
-                            if (!sub.maxLength) {
+                            // pode apenas 1 item por vez
+                            if (sub.maxLength === 0) {
                               // o item não pode ser escolhido;
-                            } else if (sub.maxLength > 1) {
-                              // o item pode ser escolhido +1 vez;
-                              const next = Math.min(
-                                v + 1,
-                                sub.maxLength,
-                                section.maxOptions || Infinity,
-                              );
-                              newState[section.uuid][sub.uuid] = next;
                             } else {
                               if (v === 1) {
                                 const { [section.uuid]: _, ...rest } = newState;
@@ -526,114 +527,114 @@ export function SectionsItems({ defaultStateSection }: Props) {
                               </div>
                             </div>
                           </div>
-                          {(section.maxOptions === null ||
-                            (section.maxOptions > 1 && sub.maxLength > 1)) && (
-                              <div className="flex gap-x-1">
-                                <a
-                                  className={clsx(
-                                    "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
-                                    (sub.maxLength || section.maxOptions) ===
-                                      value || total === section.maxOptions
-                                      ? "opacity-40 cursor-not-allowed"
-                                      : "hover:bg-green-300 duration-200 cursor-pointer",
-                                  )}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!sub.status) return;
-                                    setStateSection((state) => {
-                                      const newState = { ...(state ?? {}) };
-                                      const v =
-                                        stateSection?.[section.uuid]?.[
-                                        sub.uuid
-                                        ] || 0;
+                          {((section.maxOptions === null && sub.maxLength === null) || (section.maxOptions && section.maxOptions > 1 && (sub.maxLength === null || sub.maxLength > 1)) || (section.maxOptions === null && sub.maxLength > 1)) && (
+                            <div className="flex gap-x-1">
+                              <a
+                                className={clsx(
+                                  "bg-green-200 z-10 duration-100 scale-100 active:scale-95 text-green-600 text-lg leading-0 w-6 h-6 flex items-center justify-center rounded-md",
+                                  (sub.maxLength || section.maxOptions) ===
+                                    value || total === section.maxOptions
+                                    ? "opacity-40 cursor-not-allowed"
+                                    : "hover:bg-green-300 duration-200 cursor-pointer",
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!sub.status) return;
+                                  setStateSection((state) => {
+                                    const newState = { ...(state ?? {}) };
+                                    const v =
+                                      stateSection?.[section.uuid]?.[
+                                      sub.uuid
+                                      ] || 0;
 
-                                      if (!newState[section.uuid]) {
-                                        newState[section.uuid] = {};
-                                      }
-                                      if (
-                                        total < (section.maxOptions || Infinity)
-                                      ) {
-                                        const next = Math.min(
-                                          v + 1,
-                                          sub.maxLength,
-                                          section.maxOptions || Infinity,
-                                        );
-                                        newState[section.uuid][sub.uuid] = next;
-                                      }
-                                      return newState;
-                                    });
-                                  }}
-                                >
-                                  +
-                                </a>
-                                <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
-                                  {value}
-                                </span>
-                                <a
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!sub.status) return;
-                                    setStateSection((state) => {
-                                      let newState = { ...(state ?? {}) };
-                                      const v =
-                                        stateSection?.[section.uuid]?.[
-                                        sub.uuid
-                                        ] || 0;
+                                    if (!newState[section.uuid]) {
+                                      newState[section.uuid] = {};
+                                    }
+                                    if (
+                                      total < (section.maxOptions || Infinity)
+                                    ) {
+                                      const next = Math.min(
+                                        v + 1,
+                                        sub.maxLength || Infinity,
+                                        section.maxOptions || Infinity,
+                                      );
+                                      newState[section.uuid][sub.uuid] = next;
+                                    }
+                                    return newState;
+                                  });
+                                }}
+                              >
+                                +
+                              </a>
+                              <span className="bg-white text-neutral-800 border border-zinc-100 text-sm w-6 h-6 flex items-center justify-center rounded-md">
+                                {value}
+                              </span>
+                              <a
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!sub.status) return;
+                                  setStateSection((state) => {
+                                    let newState = { ...(state ?? {}) };
+                                    const v =
+                                      stateSection?.[section.uuid]?.[
+                                      sub.uuid
+                                      ] || 0;
 
-                                      if (!newState[section.uuid]) {
-                                        newState[section.uuid] = {};
-                                      }
-                                      const next = Math.max(v - 1, 0);
-                                      if (!next) {
-                                        const { [section.uuid]: _, ...rest } =
-                                          newState;
-                                        newState = rest;
+                                    if (!newState[section.uuid]) {
+                                      newState[section.uuid] = {};
+                                    }
+                                    const next = Math.max(v - 1, 0);
+                                    if (!next) {
+                                      const { [sub.uuid]: _, ...rest } = newState[section.uuid];
+                                      if (Object.keys(rest).length) {
+                                        newState[section.uuid] = rest;
                                       } else {
-                                        newState[section.uuid][sub.uuid] = next;
+                                        const { [section.uuid]: _, ...restState } = newState;
+                                        newState = restState
                                       }
-                                      return newState;
-                                    });
-                                  }}
-                                  className={clsx(
-                                    "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
-                                    value == 0
-                                      ? "opacity-40 cursor-not-allowed"
-                                      : "hover:bg-red-300 cursor-pointer",
-                                  )}
-                                >
-                                  -
-                                </a>
-                              </div>
-                            )}
-                          {(section.maxOptions === null ||
-                            section.maxOptions > 1) &&
-                            sub.maxLength === 1 && (
-                              <button
-                                type="button"
-                                style={{ color: color }}
-                                className="flex items-center justify-center"
-                              >
-                                {value ? (
-                                  <IoMdCheckbox size={22} />
-                                ) : (
-                                  <MdOutlineCheckBoxOutlineBlank size={22} />
+                                    } else {
+                                      newState[section.uuid][sub.uuid] = next;
+                                    }
+                                    return newState;
+                                  });
+                                }}
+                                className={clsx(
+                                  "bg-red-200 duration-100 active:scale-95 transition-all text-red-600 w-6 h-6 text-lg leading-0 flex items-center justify-center rounded-md",
+                                  value == 0
+                                    ? "opacity-40 cursor-not-allowed"
+                                    : "hover:bg-red-300 cursor-pointer",
                                 )}
-                              </button>
-                            )}
-                          {(section.maxOptions === null ||
-                            section.maxOptions === 1) && (
-                              <button
-                                type="button"
-                                style={{ color: color }}
-                                className="flex items-center justify-center"
                               >
-                                {value ? (
-                                  <MdRadioButtonChecked size={22} />
-                                ) : (
-                                  <MdRadioButtonUnchecked size={22} />
-                                )}
-                              </button>
-                            )}
+                                -
+                              </a>
+                            </div>
+                          )}
+                          {((section.maxOptions === null && sub.maxLength === 1) || (section.maxOptions && section.maxOptions > 1 && sub.maxLength === 1)) && (
+                            <button
+                              type="button"
+                              style={{ color: color }}
+                              className="flex items-center justify-center"
+                            >
+                              {value ? (
+                                <IoMdCheckbox size={22} />
+                              ) : (
+                                <MdOutlineCheckBoxOutlineBlank size={22} />
+                              )}
+                            </button>
+                          )}
+                          {((section.maxOptions === 1 && sub.maxLength === null) || (section.maxOptions === 1 && sub.maxLength >= 1)) && (
+                            <button
+                              type="button"
+                              style={{ color: color }}
+                              className="flex items-center justify-center"
+                            >
+                              {value ? (
+                                <MdRadioButtonChecked size={22} />
+                              ) : (
+                                <MdRadioButtonUnchecked size={22} />
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
