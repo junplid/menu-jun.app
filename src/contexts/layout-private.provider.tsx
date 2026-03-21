@@ -171,7 +171,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                         <div className="flex items-center gap-x-1 text-green-600">
                           <TbPointFilled size={20} />
                           <span className={clsx("font-extrabold flex items-center text-sm sm:text-lg")}>
-                            Aberto até 14:35
+                            Aberto
                           </span>
                         </div>
                       ) : (
