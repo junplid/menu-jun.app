@@ -38,9 +38,9 @@ const responsive = {
 
 export const MenuPage: React.FC = (): JSX.Element => {
   const { categories, items, bg_capa } = useContext(DataMenuContext);
-  const {
-    items: cartItems,
-  } = useContext(CartContext);
+  // const {
+  //   items: cartItems,
+  // } = useContext(CartContext);
 
   const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
   const isMoving = useRef(false);
@@ -55,7 +55,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
   const categoriesRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const [currentTab, setCurrentTab] = useState(0);
-  const [showPresence, setShowPresence] = useState(false);
+  // const [showPresence, setShowPresence] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -66,27 +66,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
     el?.scrollIntoView({ behavior: "smooth", inline: "center" });
   }
 
-  useEffect(() => {
-    let id: NodeJS.Timeout;
-    if (cartItems.length) {
-      id = setTimeout(() => setShowPresence(true), 300);
-    } else {
-      setShowPresence(false);
-    }
+  // useEffect(() => {
+  //   let id: NodeJS.Timeout;
+  //   if (cartItems.length) {
+  //     id = setTimeout(() => setShowPresence(true), 300);
+  //   } else {
+  //     setShowPresence(false);
+  //   }
 
-    return () => clearTimeout(id);
-  }, [cartItems.length]);
+  //   return () => clearTimeout(id);
+  // }, [cartItems.length]);
 
   return (
     <main
       className="w-full relative duration-300 max-w-lg mx-auto pb-2 grid grid-rows-[auto_1fr] min-h-0"
-      style={{
-        paddingBottom: showPresence ? "70px" : "0px",
-      }}
+      style={{ paddingBottom: "70px" }}
     >
       <div
         className={
-          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll hide-scrollbar items-center gap-x-1 mt-1 px-3"
+          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll hide-scrollbar items-center px-1"
         }
         ref={categoriesContainerRef}
       >
@@ -113,7 +111,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 if (headerOpen) setHeaderOpen(false);
               }}
               style={{
-                background: `radial-gradient(circle,#fff 25%, ${background} 100%)`,
+                background: index === currentTab ? `radial-gradient(circle at 60% 50%,${opacity(bg_capa || "#dddddd", 0.06)} 10%, ${background} 100%)` : "#fff",
                 borderWidth: "1.5px",
                 borderColor: border,
                 boxShadow: `0px 0px 10px inset ${shadow}`
@@ -175,24 +173,34 @@ export const MenuPage: React.FC = (): JSX.Element => {
           }, 20);
         }}
       >
-        {categories.map((cat) => {
+        {categories.map((cat, index) => {
           const itemsOfCat = items.filter((ii) =>
             ii.categories.some((itemcat) => itemcat.uuid === cat.uuid),
           );
 
           return (
-            <GridWithShadows
-              listClassName="grid w-full grid-cols-1"
-              items={itemsOfCat}
-              grid={false}
-              renderItem={(item, index) => {
-                return (
-                  <div key={item.uuid} className={clsx("p-1 w-full border-b border-neutral-100 px-2.5", itemsOfCat.length - 1 === index && "border-b-0")}>
-                    <Item isMoving={isMoving} item={item} />
-                  </div>
-                );
-              }}
-            />
+            <div key={cat.uuid} className="flex flex-col flex-1 h-full">
+              <GridWithShadows
+                listClassName="grid w-full grid-cols-1 h-full bg-red-300"
+                items={[...itemsOfCat, null]}
+                grid={false}
+                renderItem={(item) => {
+                  if (item?.uuid) {
+                    return (
+                      <div key={item.uuid} className={clsx("p-1 w-full border-b border-neutral-100 px-2.5", itemsOfCat.length - 1 === index && "border-b-0")}>
+                        <Item isMoving={isMoving} item={item} />
+                      </div>
+                    );
+                  }
+                  return categories[index + 1]?.uuid && (
+                    <div className="flex flex-col items-center my-2 mt-5 justify-center py-3 text-sm opacity-40" >
+                      <span>Deslize para ver mais</span>
+                      <span>👉</span>
+                    </div>
+                  )
+                }}
+              />
+            </div>
           );
         })}
       </Carousel>
@@ -210,7 +218,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
       />
 
       <PreviewCartComponent
-        showPresence={showPresence}
+        // showPresence={showPresence}
         onClick={() => {
           const next = new URLSearchParams(searchParams);
           next.set("c", "true");
@@ -218,7 +226,10 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       />
 
-      <SectionsItems defaultStateSection={refDefaultStateSection} />
+      <SectionsItems defaultStateSection={refDefaultStateSection} sendToCategory={(catUuid) => {
+        const indexCat = categories.findIndex(c => c.uuid === catUuid);
+        if (indexCat >= 0) handleTab(indexCat);
+      }} />
     </main>
   );
 };

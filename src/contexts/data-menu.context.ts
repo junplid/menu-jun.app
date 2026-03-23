@@ -43,6 +43,7 @@ interface IDataMenuProps {
     name: string;
     img: string;
     qnt: number;
+    send_to_category_uuid?: string;
     sections: {
       subItems: {
         after_additional_price?: number;

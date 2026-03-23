@@ -73,6 +73,7 @@ interface IData {
     categories: { id: number; uuid: string }[];
     name: string;
     img: string;
+    send_to_category_uuid?: string;
     qnt: number;
   }[];
 }

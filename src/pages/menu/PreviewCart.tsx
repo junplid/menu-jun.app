@@ -1,4 +1,4 @@
-import { Circle, Presence } from "@chakra-ui/react";
+import { Circle } from "@chakra-ui/react";
 import { CartContext } from "@contexts/cart.context";
 import { DataMenuContext } from "@contexts/data-menu.context";
 import { formatToBRL } from "brazilian-values";
@@ -8,7 +8,7 @@ import { HiOutlineShoppingBag } from "react-icons/hi";
 
 interface IProps {
   onClick(): void;
-  showPresence: boolean;
+  // showPresence: boolean;
 }
 
 function PreviewCartComponent_(props: IProps) {
@@ -25,16 +25,7 @@ function PreviewCartComponent_(props: IProps) {
   }, [items]);
 
   return (
-    <Presence
-      animationName={{
-        _open: "slide-from-bottom-full, fade-in",
-        _closed: "slide-to-bottom-full",
-      }}
-      animationDuration="moderate"
-      present={props.showPresence}
-      position={"fixed"}
-      left={0}
-      zIndex={1}
+    <div
       style={{ boxShadow: "0 -12px 14px #bebebe2d" }}
       className="absolute w-full left-0 bottom-0 bg-white"
     >
@@ -61,7 +52,7 @@ function PreviewCartComponent_(props: IProps) {
           </Circle>
         </div>
 
-        <span className="ml-3 text-lg font-light" style={{ color: bg_capa || "#111111" }}>Ver pedido</span>
+        <span className="ml-3 text-lg font-light" style={{ color: bg_capa || "#111111" }}>{items.length ? "Ver pedido" : "Carrinho vazio"}</span>
 
         <div className="flex flex-col items-end -space-y-2">
           <span
@@ -72,11 +63,11 @@ function PreviewCartComponent_(props: IProps) {
           </span>
         </div>
       </div>
-    </Presence>
+    </div>
   );
 }
 
 export const PreviewCartComponent = memo(
   PreviewCartComponent_,
-  (prev, next) => prev.showPresence === next.showPresence,
+  // (prev, next) => prev.showPresence === next.showPresence,
 );

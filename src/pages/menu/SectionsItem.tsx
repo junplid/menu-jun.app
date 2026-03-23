@@ -26,9 +26,10 @@ interface Props {
     length: number;
     key: string;
   } | null>;
+  sendToCategory(uuid: string): void;
 }
 
-export function SectionsItems({ defaultStateSection }: Props) {
+export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("s");
 
@@ -208,6 +209,11 @@ export function SectionsItems({ defaultStateSection }: Props) {
                         sections: stateSection || undefined,
                       });
                       window.history.back();
+                      if (item.send_to_category_uuid) {
+                        setTimeout(() => {
+                          sendToCategory(item.send_to_category_uuid!);
+                        }, 400);
+                      }
                     })
                     .catch(() => undefined);
                 }

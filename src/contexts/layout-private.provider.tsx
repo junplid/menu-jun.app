@@ -95,7 +95,9 @@ export function LayoutPrivateProvider(): JSX.Element {
           // background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
         }}
       >
-        <header className="">
+        <header style={{
+          background: bg_capa ? opacity(bg_capa, 0.06) : "#fff"
+        }}>
           <div
             className={clsx(
               "w-full transition-all duration-300",
@@ -110,7 +112,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             <div
               className={clsx(
                 "duration-100 border mb-1 active:scale-95 mx-auto transition-all w-full max-w-lg px-2 rounded-2xl pb-2 border-neutral-100",
-                headerOpenDelay ? "-mt-14" : "-mt-12",
+                headerOpenDelay ? "-mt-16" : "-mt-14",
               )}
               style={{ background: bg_primary || "#fff" }}
               onClick={() => {
@@ -166,10 +168,10 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <span className="text-neutral-900 bg-white/50 leading-6 backdrop-blur-md font-normal text-lg sm:text-2xl">
                       {titlePage}
                     </span>
-                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 shadow-md px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
+                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 shadow-md shadow-neutral-700/6 px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
                       {status ? (
                         <div className="flex items-center gap-x-1 text-green-600">
-                          <TbPointFilled size={20} />
+                          <TbPointFilled size={20} className="text-green-500" />
                           <span className={clsx("font-extrabold flex items-center text-sm sm:text-lg")}>
                             Aberto
                           </span>
