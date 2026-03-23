@@ -99,7 +99,7 @@ function FormAddress(props: {
       <Field
         label={
           <span>
-            Endereço completo <span className="text-red-400">*</span>
+            Endereço de entrega <span className="text-red-400">*</span>
           </span>
         }
         errorText={errors.address?.message}
@@ -107,7 +107,7 @@ function FormAddress(props: {
       >
         <Input
           {...register("address")}
-          placeholder="Digite o endereço"
+          placeholder="Digite o endereço da entrega"
           size={"sm"}
           autoComplete="off"
           bg={"white"}
@@ -133,7 +133,7 @@ function FormAddress(props: {
         <Field
           label={
             <span>
-              Quem vai receber? <span className="text-red-400">*</span>
+              Nome da pessoa que vai receber <span className="text-red-400">*</span>
             </span>
           }
           invalid={!!errors.persona}

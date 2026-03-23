@@ -16,6 +16,7 @@ import { useSearchParams } from "react-router-dom";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { v4 } from "uuid"
 import opacity from "hex-color-opacity";
+import { FaHandPointRight } from "react-icons/fa";
 
 const responsive = {
   superLargeDesktop: {
@@ -193,9 +194,9 @@ export const MenuPage: React.FC = (): JSX.Element => {
                     );
                   }
                   return categories[index + 1]?.uuid && (
-                    <div className="flex flex-col items-center my-2 mt-5 justify-center py-3 text-sm opacity-40" >
+                    <div className="flex flex-col items-center my-3 gap-y-1 mt-5 justify-center py-3 text-sm opacity-70" >
                       <span>Deslize para ver mais</span>
-                      <span>👉</span>
+                      <FaHandPointRight size={20} />
                     </div>
                   )
                 }}
