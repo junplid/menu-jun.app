@@ -55,6 +55,7 @@ interface IProps {
     cep: string;
     persona: string;
     complement?: string | undefined;
+    reference_point: string;
   }
   | "retirar"
   | null;
@@ -93,7 +94,7 @@ function FormAddress(props: {
   return (
     <form
       onSubmit={handleSubmit(handleAddress)}
-      className="flex flex-col gap-y-1.5 px-2"
+      className="flex flex-col gap-y-2 px-2"
       style={{ marginTop: 10 }}
     >
       <Field
@@ -158,6 +159,18 @@ function FormAddress(props: {
           </span>
         )}
       </div>
+      <Field label={
+        <span>
+          Ponto de referência <span className="text-red-400">*</span>
+        </span>
+      } invalid={!!errors.reference_point}>
+        <Input
+          size={"sm"}
+          {...register("reference_point")}
+          autoComplete="off"
+          bg={"white"}
+        />
+      </Field>
       <Field label="Complemento" invalid={!!errors.complement}>
         <Input
           size={"sm"}
@@ -625,6 +638,7 @@ export const ModalCarrinho: React.FC<
             delivery_cep: address?.cep,
             delivery_complement: address?.complement,
             who_receives: address?.persona,
+            delivery_reference_point: address.reference_point,
           }),
         payment_method,
       });

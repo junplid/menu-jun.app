@@ -3,9 +3,12 @@ import { z } from "zod";
 
 export const FormSchema = z
   .object({
-    address: z.string().min(1, { message: "Quem recebe é obrigatório" }),
+    address: z
+      .string()
+      .min(1, { message: "Endereço de entrega é obrigatório" }),
     cep: z.string().length(9, { message: "CEP incompleto" }),
     persona: z.string().min(1, { message: "Quem recebe é obrigatório" }),
+    reference_point: z.string().min(1, { message: "Campo obrigatório" }),
     complement: z.string().optional(),
   })
   .refine(
