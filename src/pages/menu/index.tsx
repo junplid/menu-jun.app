@@ -5,7 +5,7 @@ import { JSX, RefObject, useContext, useEffect, useRef, useState } from "react";
 import Carousel from "react-multi-carousel";
 import GridWithShadows from "./GridRender";
 import { DataMenuContext } from "@contexts/data-menu.context";
-
+import "react-multi-carousel/lib/styles.css";
 import { SectionsItems } from "./SectionsItem";
 import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
