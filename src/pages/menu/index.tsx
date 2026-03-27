@@ -3,7 +3,6 @@ import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
 import { JSX, RefObject, useContext, useEffect, useRef, useState } from "react";
 import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
 import GridWithShadows from "./GridRender";
 import { DataMenuContext } from "@contexts/data-menu.context";
 

@@ -643,11 +643,10 @@ export const ModalCarrinho: React.FC<
         payment_method,
       });
 
-      //  resetCart();
-      // setIsLoading(false);
       setRedirectTo(data.redirectTo);
-      // window.open(redirectTo, "_blank");
-      // fazer o redirect para a pagina do whatsapp com o codigo do pedido. no whatsapp terá uma ia pronta já sabendo do pedido do cliente;w
+      window.open(data.redirectTo, "_blank");
+      setIsLoading(false);
+      resetCart();
     } catch (error) {
       if (error instanceof AxiosError) {
         setIsError(true);
@@ -744,8 +743,8 @@ export const ModalCarrinho: React.FC<
                 <span className="font-semibold text-lg uppercase text-green-600">
                   Pedido criado.
                 </span>
-                <p className="text-neutral-500 text-center">
-                  Para confirmar, envie o código do pedido para o nosso
+                <p className="text-neutral-500 text-center px-4">
+                  Confirme seu pedido enviando o código para o nosso
                   WhatsApp.
                 </p>
               </div>
