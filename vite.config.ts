@@ -8,7 +8,9 @@ import obfuscator from "vite-plugin-javascript-obfuscator";
 // https://vite.dev/config/
 export default defineConfig({
   server: {
-    allowedHosts: ["058b-2804-3894-961-5600-8ddc-1b30-155a-480.ngrok-free.app"],
+    allowedHosts: [
+      "c95e-2804-3894-961-5600-9651-58f6-cb89-8c6d.ngrok-free.app",
+    ],
   },
   plugins: [
     react(),

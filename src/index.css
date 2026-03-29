@@ -11,10 +11,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-body {
-  overflow: hidden;
-}
-
 .scroll-custom::-webkit-scrollbar-thumb {
   background-color: #d1d1d156;
 }
@@ -45,11 +41,11 @@ body {
 }
 
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE e Edge antigo */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE e Edge antigo */
+  scrollbar-width: none; /* Firefox */
 }
 
-.scroll-hidden::-webkit-scrollbar { 
+.scroll-hidden::-webkit-scrollbar {
   display: none;
 }
 
@@ -178,4 +174,15 @@ body {
 [data-rsbs-overlay],
 [data-rsbs-root] {
   box-shadow: none !important;
+}
+
+.leaflet-marker-icon img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+.leaflet-control-attribution {
+  display: none;
 }

@@ -29,7 +29,7 @@ import {
 import { CartContext } from "@contexts/cart.context";
 import clsx from "clsx";
 import { DataMenuContext } from "@contexts/data-menu.context";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
 import { BsDoorClosed, BsShop } from "react-icons/bs";
@@ -38,6 +38,7 @@ import { createOrder } from "../../../services/api/MenuOnline";
 import { PiChecksBold, PiMapPin } from "react-icons/pi";
 import { useSearchParams } from "react-router-dom";
 import { IoLogoWhatsapp } from "react-icons/io";
+import { MapComponent } from "./map";
 
 interface IProps {
   onReturnEdit(props: {
@@ -50,15 +51,18 @@ interface IProps {
   }): void;
   upsertAddress: (data: Fields | "retirar") => void;
   address:
-  | {
-    address: string;
-    cep: string;
-    persona: string;
-    complement?: string | undefined;
-    reference_point: string;
-  }
-  | "retirar"
-  | null;
+    | {
+        address: string;
+        number?: string;
+        cep: string;
+        persona: string;
+        complement?: string | undefined;
+        reference_point: string;
+        lat: number;
+        lng: number;
+      }
+    | "retirar"
+    | null;
 }
 
 const PAYMENT_OPTIONS = {
@@ -73,10 +77,12 @@ function FormAddress(props: {
   upsertAddress: (data: Fields | "retirar") => void;
   address: Fields | null;
 }) {
+  const [loadRoad, setLoadRoad] = useState(false);
   const {
     handleSubmit,
     register,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<Fields>({
     resolver: zodResolver(FormSchema),
@@ -91,29 +97,75 @@ function FormAddress(props: {
     props.submit();
   };
 
+  async function getAddress(lat: number, lng: number) {
+    try {
+      setLoadRoad(true);
+      const { data } = await axios(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+      );
+      if (data.address.road) {
+        setValue("address", data.address.road);
+      }
+      setLoadRoad(false);
+    } catch (error) {
+      setLoadRoad(false);
+      //
+    }
+  }
+
   return (
     <form
-      onSubmit={handleSubmit(handleAddress)}
+      onSubmit={handleSubmit(handleAddress, (err) => console.log(err))}
       className="flex flex-col gap-y-2 px-2"
       style={{ marginTop: 10 }}
     >
-      <Field
-        label={
-          <span>
-            Endereço de entrega <span className="text-red-400">*</span>
-          </span>
+      <MapComponent
+        isEdit={false}
+        defaultPosition={
+          props.address
+            ? { lat: props.address.lat, lng: props.address.lng }
+            : undefined
         }
-        errorText={errors.address?.message}
-        invalid={!!errors.address}
-      >
-        <Input
-          {...register("address")}
-          placeholder="Digite o endereço da entrega"
-          size={"sm"}
-          autoComplete="off"
-          bg={"white"}
-        />
-      </Field>
+        onSetPosition={({ lat, lng }) => {
+          setValue("lat", lat, { shouldDirty: true });
+          setValue("lng", lng, { shouldDirty: true });
+          getAddress(lat, lng);
+        }}
+      />
+      <div className="grid grid-cols-[1fr_100px] justify-between gap-x-1.5 mb-2">
+        <Field
+          label={
+            <div className="flex items-center gap-x-2">
+              <span>
+                Endereço de entrega <span className="text-red-400">*</span>
+              </span>
+              {loadRoad && <Spinner size={"sm"} />}
+            </div>
+          }
+          errorText={errors.address?.message}
+          invalid={!!errors.address}
+        >
+          <Input
+            {...register("address")}
+            placeholder="Digite o endereço da entrega"
+            size={"sm"}
+            autoComplete="off"
+            bg={"white"}
+          />
+        </Field>
+        <Field
+          label={<span>Número</span>}
+          errorText={errors.address?.message}
+          invalid={!!errors.address}
+        >
+          <Input
+            {...register("number")}
+            size={"sm"}
+            autoComplete="off"
+            bg={"white"}
+          />
+        </Field>
+      </div>
       <div className="grid grid-cols-[100px_1fr] justify-between gap-x-1.5 mb-2">
         <Field
           label={
@@ -134,7 +186,7 @@ function FormAddress(props: {
         <Field
           label={
             <span>
-              Nome da pessoa que vai receber <span className="text-red-400">*</span>
+              Nome de quem vai receber <span className="text-red-400">*</span>
             </span>
           }
           invalid={!!errors.persona}
@@ -159,11 +211,14 @@ function FormAddress(props: {
           </span>
         )}
       </div>
-      <Field label={
-        <span>
-          Ponto de referência <span className="text-red-400">*</span>
-        </span>
-      } invalid={!!errors.reference_point}>
+      <Field
+        label={
+          <span>
+            Ponto de referência <span className="text-red-400">*</span>
+          </span>
+        }
+        invalid={!!errors.reference_point}
+      >
         <Input
           size={"sm"}
           {...register("reference_point")}
@@ -180,6 +235,7 @@ function FormAddress(props: {
           bg={"white"}
         />
       </Field>
+
       <div className="grid grid-cols-2 gap-x-2 w-full mt-4">
         <Button
           onClick={() => {
@@ -214,8 +270,16 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const isAddress = searchParams.get("adr");
 
-  const { items, incrementQnt, changeObs, payment_method, payment_change_to, setPaymentChangeTo, setPaymentMethod, error } =
-    useContext(CartContext);
+  const {
+    items,
+    incrementQnt,
+    changeObs,
+    payment_method,
+    payment_change_to,
+    setPaymentChangeTo,
+    setPaymentMethod,
+    error,
+  } = useContext(CartContext);
 
   useEffect(() => {
     if (!refIsRenderBody.current) return;
@@ -230,7 +294,6 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
     .map((m) => PAYMENT_OPTIONS[m])
     .filter(Boolean)
     .filter((v, i, arr) => arr.findIndex((s) => s.value === v.value) === i);
-
 
   return (
     <DialogBody px={2} className="flex flex-col gap-y-2 -my-4 mt-0 h-full">
@@ -306,14 +369,13 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                                                 key={subUuid}
                                                 className="text-neutral-400 gap-x-2 flex font-light items-center"
                                               >
-                                                {value > 1
-                                                  ? `${value}x`
-                                                  : null}{" "}{subItem.name}{" "}
+                                                {value > 1 ? `${value}x` : null}{" "}
+                                                {subItem.name}{" "}
                                                 <span className="text-[13px] text-neutral-500">
                                                   {subItem.after_additional_price &&
                                                     `= ${formatToBRL(
                                                       subItem.after_additional_price *
-                                                      value,
+                                                        value,
                                                     )}`}
                                                 </span>
                                               </span>
@@ -425,7 +487,11 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
                   <span className="text-lg">Endereço de entrega</span>
                 </div>
                 <span className="text-base font-light leading-5.5 text-neutral-500">
-                  {props.address.address}({props.address.cep}) {props.address.complement ? `- ${props.address.complement}` : null}[{props.address.persona}]
+                  {props.address.address}({props.address.cep}){" "}
+                  {props.address.complement
+                    ? `- ${props.address.complement}`
+                    : null}
+                  [{props.address.persona}]
                 </span>
               </div>
               <a className="text-blue-300 tracking-wide underline underline-offset-2">
@@ -494,7 +560,6 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
         />
       )}
 
-
       {!isAddress && (
         <div className="font-medium -mt-1">
           <SegmentGroup.Root
@@ -510,29 +575,46 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
             />
           </SegmentGroup.Root>
           <div className="flex justify-center">
-            <span className={clsx(error === "forma-de-pagamento" ? "animate-error px-2 text-red-600 bg-red-100! transition-all" : "text-neutral-500", "text-center block font-normal")}>Forma de pagamento</span>
+            <span
+              className={clsx(
+                error === "forma-de-pagamento"
+                  ? "animate-error px-2 text-red-600 bg-red-100! transition-all"
+                  : "text-neutral-500",
+                "text-center block font-normal",
+              )}
+            >
+              Forma de pagamento
+            </span>
           </div>
-          <Collapsible.Root
-            open={payment_method === "Dinheiro"}
-          >
+          <Collapsible.Root open={payment_method === "Dinheiro"}>
             <Collapsible.Content>
               <div className="flex flex-col -space-y-1 pt-1.5">
                 <div className="flex items-center gap-x-2">
-                  <span className={clsx(error === "dinheiro"
-                    ? "animate-error text-red-600 bg-red-100! px-2 transition-all"
-                    : "",)}>Troco pra quanto{error === "dinheiro" ? " ???" : "?"}</span>
+                  <span
+                    className={clsx(
+                      error === "dinheiro"
+                        ? "animate-error text-red-600 bg-red-100! px-2 transition-all"
+                        : "",
+                    )}
+                  >
+                    Troco pra quanto{error === "dinheiro" ? " ???" : "?"}
+                  </span>
                   <Checkbox.Root
                     size={"sm"}
                     colorPalette={"teal"}
                     variant={"solid"}
                     checked={payment_change_to === "Não"}
                     onCheckedChange={() => {
-                      setPaymentChangeTo(payment_change_to === "Não" ? null : "Não")
+                      setPaymentChangeTo(
+                        payment_change_to === "Não" ? null : "Não",
+                      );
                     }}
                   >
                     <Checkbox.HiddenInput />
                     <Checkbox.Control />
-                    <Checkbox.Label className="font-light!">Não precisa.</Checkbox.Label>
+                    <Checkbox.Label className="font-light!">
+                      Não precisa.
+                    </Checkbox.Label>
                   </Checkbox.Root>
                 </div>
                 <Input
@@ -556,7 +638,8 @@ export const ModalCarrinho: React.FC<
   Omit<IProps, "upsertAddress" | "address">
 > = (props): JSX.Element => {
   const { bg_primary, uuid, info, status } = useContext(DataMenuContext);
-  const { items, payment_method, resetCart, setError, payment_change_to } = useContext(CartContext);
+  const { items, payment_method, resetCart, setError, payment_change_to } =
+    useContext(CartContext);
   const [isLoading, setIsLoading] = useState(false);
   const [_isError, setIsError] = useState(false);
   const [isErrorAddress, setIsErrorAddress] = useState(false);
@@ -633,13 +716,16 @@ export const ModalCarrinho: React.FC<
         ...(address === "retirar"
           ? { type_delivery: "retirar" }
           : {
-            type_delivery: "enviar",
-            delivery_address: address?.address,
-            delivery_cep: address?.cep,
-            delivery_complement: address?.complement,
-            who_receives: address?.persona,
-            delivery_reference_point: address.reference_point,
-          }),
+              type_delivery: "enviar",
+              delivery_address: address?.address,
+              delivery_cep: address?.cep,
+              delivery_complement: address?.complement,
+              delivery_lat: address?.lat,
+              delivery_lng: address?.lng,
+              delivery_number: address?.number,
+              who_receives: address?.persona,
+              delivery_reference_point: address.reference_point,
+            }),
         payment_method,
       });
 
@@ -666,15 +752,17 @@ export const ModalCarrinho: React.FC<
       onOpenChange={(change) => {
         if (!change.open) window.history.back();
       }}
-      placement={"center"}
+      preventScroll
       motionPreset={"slide-in-top"}
       lazyMount={false}
       unmountOnExit={false}
+      modal
     >
       <DialogContent
         bg={"#f3f3f3"}
         w={"500px"}
         className="h-[calc(100svh-30px)]!"
+        my={2}
         mx={-2.5}
         px={0}
       >
@@ -744,8 +832,7 @@ export const ModalCarrinho: React.FC<
                   Pedido criado.
                 </span>
                 <p className="text-neutral-500 text-center px-4">
-                  Confirme seu pedido enviando o código para o nosso
-                  WhatsApp.
+                  Confirme seu pedido enviando o código para o nosso WhatsApp.
                 </p>
               </div>
               <Presence
@@ -811,7 +898,12 @@ export const ModalCarrinho: React.FC<
           />
         )}
         {!isAddress && !isLoading && (
-          <DialogFooter className="flex max-[385px]:flex-col gap-1" justifyContent={"space-between"} p={4} pt={0.5}>
+          <DialogFooter
+            className="flex max-[385px]:flex-col gap-1"
+            justifyContent={"space-between"}
+            p={4}
+            pt={0.5}
+          >
             <div className="flex flex-col -space-y-0.5 w-full">
               {/* {totalValues.before > 0 && (
               <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
@@ -836,7 +928,12 @@ export const ModalCarrinho: React.FC<
                   className={`text-lg font-bold`}
                   style={{ color: `${bg_primary || "#111111"}` }}
                 >
-                  {formatToBRL(totalValues + (address !== null && address !== "retirar" ? info?.delivery_fee || 0 : 0))}
+                  {formatToBRL(
+                    totalValues +
+                      (address !== null && address !== "retirar"
+                        ? info?.delivery_fee || 0
+                        : 0),
+                  )}
                 </span>
               </div>
             </div>

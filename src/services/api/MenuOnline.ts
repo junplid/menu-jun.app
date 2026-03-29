@@ -12,6 +12,9 @@ export async function createOrder({
   who_receives?: string;
   delivery_address?: string;
   payment_method?: string;
+  delivery_lat?: number;
+  delivery_lng?: number;
+  delivery_number?: string;
   payment_change_to: null | string;
   items: {
     qnt: number;

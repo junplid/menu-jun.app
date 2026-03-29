@@ -6,10 +6,13 @@ export const FormSchema = z
     address: z
       .string()
       .min(1, { message: "Endereço de entrega é obrigatório" }),
+    number: z.string().optional(),
     cep: z.string().length(9, { message: "CEP incompleto" }),
     persona: z.string().min(1, { message: "Quem recebe é obrigatório" }),
     reference_point: z.string().min(1, { message: "Campo obrigatório" }),
     complement: z.string().optional(),
+    lat: z.number(),
+    lng: z.number(),
   })
   .refine(
     (state) => {

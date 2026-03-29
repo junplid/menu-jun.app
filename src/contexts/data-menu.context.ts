@@ -17,6 +17,8 @@ interface IDataMenuProps {
   bg_capa: string | null;
   isChatbot: boolean;
   info: {
+    lat?: number | null;
+    lng?: number | null;
     address?: string | null;
     state_uf?: string | null;
     phone_contact?: string | null;

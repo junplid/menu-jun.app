@@ -7,11 +7,17 @@ import { Image, Presence } from "@chakra-ui/react";
 import { DataMenuContext, TypePaymentMethods } from "./data-menu.context";
 import { DialogBody, DialogContent, DialogRoot } from "@components/ui/dialog";
 import { RiWhatsappLine } from "react-icons/ri";
-import { LuPhone, LuBanknote, LuCreditCard, LuWallet, LuChevronRight } from "react-icons/lu";
+import {
+  LuPhone,
+  LuBanknote,
+  LuCreditCard,
+  LuWallet,
+  LuChevronRight,
+} from "react-icons/lu";
 import moment from "moment-timezone";
 import { SiPix } from "react-icons/si";
 import { TiFlashOutline } from "react-icons/ti";
-import { FaRegClock } from "react-icons/fa"
+import { FaRegClock } from "react-icons/fa";
 import { TbPointFilled } from "react-icons/tb";
 import opacity from "hex-color-opacity";
 import { TextGradientComponent } from "@components/TextGradient";
@@ -37,10 +43,11 @@ function OperatingDaysList({ data }: any) {
         return (
           <div
             key={i}
-            className={`flex text-base justify-between px-3 py-2 rounded-md ${isToday
-              ? "bg-gray-200 font-semibold text-neutral-900"
-              : "text-neutral-600"
-              }`}
+            className={`flex text-base justify-between px-3 py-2 rounded-md ${
+              isToday
+                ? "bg-gray-200 font-semibold text-neutral-900"
+                : "text-neutral-600"
+            }`}
           >
             <span className="font-light">{item.day}</span>
             <span className="font-normal">{item.time}</span>
@@ -52,14 +59,8 @@ function OperatingDaysList({ data }: any) {
 }
 
 export function LayoutPrivateProvider(): JSX.Element {
-  const {
-    bg_primary,
-    logoImg,
-    titlePage,
-    bg_capa,
-    status,
-    helperTextOpening,
-  } = useContext(DataMenuContext);
+  const { bg_primary, logoImg, titlePage, bg_capa, status, helperTextOpening } =
+    useContext(DataMenuContext);
   const [headerOpen, setHeaderOpen] = useState(true);
   const [headerOpenDelay, setHeaderOpenDelay] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -83,7 +84,7 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   useEffect(() => {
     setTimeout(() => {
-      setDispence(true)
+      setDispence(true);
     }, 1200);
   }, []);
 
@@ -91,13 +92,17 @@ export function LayoutPrivateProvider(): JSX.Element {
     <LayoutPrivateContext.Provider value={dataValue}>
       <div
         className={"min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_2px]"}
-        style={{
-          // background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
-        }}
+        style={
+          {
+            // background: bg_capa ? opacity(bg_capa, 0.12) : "#f5f5f5"
+          }
+        }
       >
-        <header style={{
-          background: bg_capa ? opacity(bg_capa, 0.06) : "#fff"
-        }}>
+        <header
+          style={{
+            background: bg_capa ? opacity(bg_capa, 0.06) : "#fff",
+          }}
+        >
           <div
             className={clsx(
               "w-full transition-all duration-300",
@@ -133,13 +138,22 @@ export function LayoutPrivateProvider(): JSX.Element {
                       present={dispence}
                       className="absolute top-1 -left-1.5"
                     >
-                      <div className="flex p-1 px-2 pl-1 items-center rounded-xl" style={{
-                        borderColor: opacity(bg_capa || "#e5e5e5", .3),
-                      }}>
-                        <TiFlashOutline color={bg_capa || "#e5e5e5"} size={18} />
+                      <div
+                        className="flex p-1 px-2 pl-1 items-center rounded-xl"
+                        style={{
+                          borderColor: opacity(bg_capa || "#e5e5e5", 0.3),
+                        }}
+                      >
+                        <TiFlashOutline
+                          color={bg_capa || "#e5e5e5"}
+                          size={18}
+                        />
                         <div className="flex text-xs  gap-x-1">
                           <span className="text-neutral-600">Delivery</span>
-                          <TextGradientComponent backgroundImage={`linear-gradient(70deg, ${bg_capa || "#e5e5e5"}, ${opacity(bg_capa || "#e5e5e5", .3)}, ${bg_capa || "#e5e5e5"})`} className="font-extrabold">
+                          <TextGradientComponent
+                            backgroundImage={`linear-gradient(70deg, ${bg_capa || "#e5e5e5"}, ${opacity(bg_capa || "#e5e5e5", 0.3)}, ${bg_capa || "#e5e5e5"})`}
+                            className="font-extrabold"
+                          >
                             Rápido
                           </TextGradientComponent>
                         </div>
@@ -154,10 +168,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                       }}
                       className={clsx(
                         "border-4 border-white absolute top-0 left-1/2 -translate-x-1/2 duration-300 shadow-sm transition-all rounded-full bg-white",
-                        headerOpenDelay ? "-mt-[42.5px] scale-100" : "-mt-[22.5px] scale-75",
+                        headerOpenDelay
+                          ? "-mt-[42.5px] scale-100"
+                          : "-mt-[22.5px] scale-75",
                       )}
                     />
-                    <span className="text-neutral-300 text-sm flex items-center gap-x-0.5 py-1">Informações <LuChevronRight /></span>
+                    <span className="text-neutral-300 text-sm flex items-center gap-x-0.5 py-1">
+                      Informações <LuChevronRight />
+                    </span>
                   </div>
                   <div
                     className={clsx(
@@ -168,11 +186,20 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <span className="text-neutral-900 leading-6 font-normal text-lg sm:text-2xl">
                       {titlePage}
                     </span>
-                    <div className={clsx("flex items-center gap-x-1 text-neutral-400 shadow-md shadow-neutral-700/6 px-2 py-0.5 rounded-full", status ? "bg-green-50" : "")}>
+                    <div
+                      className={clsx(
+                        "flex items-center gap-x-1 text-neutral-400 shadow-md shadow-neutral-700/6 px-2 py-0.5 rounded-full",
+                        status ? "bg-green-50" : "",
+                      )}
+                    >
                       {status ? (
                         <div className="flex items-center gap-x-1 text-green-600">
                           <TbPointFilled size={20} className="text-green-500" />
-                          <span className={clsx("font-extrabold flex items-center text-sm sm:text-lg")}>
+                          <span
+                            className={clsx(
+                              "font-extrabold flex items-center text-sm sm:text-lg",
+                            )}
+                          >
                             Aberto
                           </span>
                         </div>
@@ -191,7 +218,6 @@ export function LayoutPrivateProvider(): JSX.Element {
                         </div>
                       )}
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -264,7 +290,7 @@ function ModalInfo() {
       defaultOpen={false}
       open={!!isOpen}
       onOpenChange={(change) => {
-        if (!change.open) window.history.back()
+        if (!change.open) window.history.back();
       }}
       placement={"center"}
       motionPreset={"slide-in-top"}
