@@ -13,7 +13,7 @@ import { ModalCarrinho } from "./modals/Carrinho";
 import { formatToBRL } from "brazilian-values";
 import { useSearchParams } from "react-router-dom";
 import { TbShoppingBagPlus } from "react-icons/tb";
-import { v4 } from "uuid"
+import { v4 } from "uuid";
 import opacity from "hex-color-opacity";
 import { FaHandPointRight } from "react-icons/fa";
 
@@ -89,17 +89,17 @@ export const MenuPage: React.FC = (): JSX.Element => {
         ref={categoriesContainerRef}
       >
         {categories.map((cat, index) => {
-          let background = opacity("#dddddd", index === currentTab ? 0.50 : 0.10);
-          let shadow = opacity("#dddddd", index === currentTab ? 0.20 : 0);
-          let border = opacity("#dddddd", index === currentTab ? 0.50 : 0);
-          let textOn = opacity("#111111", 0.70);
+          let background = opacity("#dddddd", index === currentTab ? 0.5 : 0.1);
+          let shadow = opacity("#dddddd", index === currentTab ? 0.2 : 0);
+          let border = opacity("#dddddd", index === currentTab ? 0.5 : 0);
+          let textOn = opacity("#111111", 0.7);
 
           if (bg_capa) {
-            background = opacity(bg_capa, index === currentTab ? 0.20 : 0)
-            shadow = opacity(bg_capa, index === currentTab ? 0.20 : 0)
+            background = opacity(bg_capa, index === currentTab ? 0.2 : 0);
+            shadow = opacity(bg_capa, index === currentTab ? 0.2 : 0);
             border = opacity(bg_capa, index === currentTab ? 0.35 : 0);
             if (index === currentTab) {
-              textOn = opacity(bg_capa, 1)
+              textOn = opacity(bg_capa, 1);
             }
           }
 
@@ -111,29 +111,36 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 if (headerOpen) setHeaderOpen(false);
               }}
               style={{
-                background: index === currentTab ? `radial-gradient(circle at 60% 50%,${opacity(bg_capa || "#dddddd", 0.06)} 10%, ${background} 100%)` : "#fff",
+                background:
+                  index === currentTab
+                    ? `radial-gradient(circle at 60% 50%,${opacity(bg_capa || "#dddddd", 0.06)} 10%, ${background} 100%)`
+                    : "#fff",
                 borderWidth: "1.5px",
                 borderColor: border,
-                boxShadow: `0px 0px 10px inset ${shadow}`
+                boxShadow: `0px 0px 10px inset ${shadow}`,
               }}
-              className="grid border rounded-md grid-cols-[45px_1fr] px-3 pl-1 gap-x-1 items-center cursor-pointer duration-100 active:scale-95 transition-all"
+              className="grid border rounded-md grid-rows-[45px_1fr] -space-y-0.5 px-3 items-center cursor-pointer duration-100 active:scale-95 transition-all"
               ref={(el) => {
                 categoriesRefs.current[index] = el;
               }}
             >
-              <AspectRatio ratio={1} w={"100%"}>
+              <AspectRatio ratio={1} w={"45px"} className="mx-auto">
                 <div
-                  className={clsx(`rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`)}
+                  className={clsx(
+                    `rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`,
+                  )}
                 >
                   <img
                     src={cat.image45x45png}
-                    className="w-full h-auto "
+                    className="w-full h-auto"
                     alt={cat.name}
                   />
                 </div>
               </AspectRatio>
               <span
-                className={clsx("duration-300 text-sm text-nowrap transition-all font-bold")}
+                className={clsx(
+                  "duration-300 text-sm text-center text-nowrap transition-all font-bold",
+                )}
                 style={{ color: textOn }}
               >
                 {cat.name}
@@ -187,17 +194,25 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 renderItem={(item) => {
                   if (item?.uuid) {
                     return (
-                      <div key={item.uuid} className={clsx("p-1 w-full border-b border-neutral-100 px-2.5", itemsOfCat.length - 1 === index && "border-b-0")}>
+                      <div
+                        key={item.uuid}
+                        className={clsx(
+                          "p-1 w-full border-b border-neutral-100 px-2.5",
+                          itemsOfCat.length - 1 === index && "border-b-0",
+                        )}
+                      >
                         <Item isMoving={isMoving} item={item} />
                       </div>
                     );
                   }
-                  return categories[index + 1]?.uuid && (
-                    <div className="flex flex-col items-center my-3 gap-y-1 mt-5 justify-center py-3 text-sm opacity-70" >
-                      <span>Deslize para ver mais</span>
-                      <FaHandPointRight size={20} />
-                    </div>
-                  )
+                  return (
+                    categories[index + 1]?.uuid && (
+                      <div className="flex flex-col items-center my-3 gap-y-1 mt-5 justify-center py-3 text-sm opacity-70">
+                        <span>Deslize para ver mais</span>
+                        <FaHandPointRight size={20} />
+                      </div>
+                    )
+                  );
                 }}
               />
             </div>
@@ -226,16 +241,19 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       />
 
-      <SectionsItems defaultStateSection={refDefaultStateSection} sendToCategory={(catUuid) => {
-        const indexCat = categories.findIndex(c => c.uuid === catUuid);
-        if (indexCat >= 0) handleTab(indexCat);
-      }} />
+      <SectionsItems
+        defaultStateSection={refDefaultStateSection}
+        sendToCategory={(catUuid) => {
+          const indexCat = categories.findIndex((c) => c.uuid === catUuid);
+          if (indexCat >= 0) handleTab(indexCat);
+        }}
+      />
     </main>
   );
 };
 
 interface Props {
-  isMoving: RefObject<boolean>
+  isMoving: RefObject<boolean>;
   item: any;
 }
 
@@ -257,12 +275,14 @@ function Item({ isMoving, item }: Props) {
 
     return () => {
       clearTimeout(kk);
-    }
+    };
   }, [keyPresence]);
 
   const discount =
     item.beforePrice && item.afterPrice
-      ? Math.round(((item.beforePrice - item.afterPrice) / item.beforePrice) * 100)
+      ? Math.round(
+          ((item.beforePrice - item.afterPrice) / item.beforePrice) * 100,
+        )
       : null;
 
   return (
@@ -280,11 +300,7 @@ function Item({ isMoving, item }: Props) {
           setSearchParams(next);
         } else {
           setKeyPresence(v4());
-          if (
-            cartItems.some(
-              (itemCart) => itemCart.uuid === item.uuid,
-            )
-          ) {
+          if (cartItems.some((itemCart) => itemCart.uuid === item.uuid)) {
             incrementQntItemCart(item.uuid, 1);
           } else {
             addCartItem({
@@ -304,9 +320,7 @@ function Item({ isMoving, item }: Props) {
               "line-clamp-2 w-full text-lg leading-5 font-normal",
             )}
             style={{
-              color: false
-                ? `${bg_primary || "#111111"}`
-                : undefined,
+              color: false ? `${bg_primary || "#111111"}` : undefined,
             }}
           >
             {item.name}
@@ -348,10 +362,16 @@ function Item({ isMoving, item }: Props) {
       <div className={clsx("relative")}>
         {!item.qnt && (
           <div className="bg-neutral-600 rotate-12 absolute z-20 px-1 py-0.5 left-1/2 -translate-x-1/2 top-1/5 translate-y-1/2">
-            <span className="text-white font-semibold border-y-2 text-sm">ESGOTADO</span>
+            <span className="text-white font-semibold border-y-2 text-sm">
+              ESGOTADO
+            </span>
           </div>
         )}
-        <AspectRatio ratio={1} w={"100px"} className={clsx(!item.qnt ? "opacity-35" : "",)}>
+        <AspectRatio
+          ratio={1}
+          w={"100px"}
+          className={clsx(!item.qnt ? "opacity-35" : "")}
+        >
           <img
             src={item.img}
             alt={item.name}
@@ -370,12 +390,12 @@ function Item({ isMoving, item }: Props) {
           style={{
             background: "#fff",
             color: bg_capa || "oklch(62.7% 0.194 149.214)",
-            borderColor: bg_capa || "oklch(62.7% 0.194 149.214)"
+            borderColor: bg_capa || "oklch(62.7% 0.194 149.214)",
           }}
         >
           <TbShoppingBagPlus size={22} />
         </Presence>
       </div>
     </article>
-  )
+  );
 }
