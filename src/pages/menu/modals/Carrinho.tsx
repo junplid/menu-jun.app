@@ -15,7 +15,7 @@ import {
   SegmentGroup,
   Spinner,
 } from "@chakra-ui/react";
-import { formatToBRL } from "brazilian-values";
+import { formatToBRL, parseToNumber } from "brazilian-values";
 import GridWithShadows from "../GridRender";
 import { Field } from "@components/ui/field";
 import { useHookFormMask, withMask } from "use-mask-input";
@@ -703,6 +703,21 @@ export const ModalCarrinho: React.FC<
         setIsLoading(false);
         return;
       }
+
+      if (payment_method === "Dinheiro" && payment_change_to) {
+        const n = parseToNumber(payment_change_to);
+        const to =
+          totalValues +
+          (address !== null && address !== "retirar"
+            ? info?.delivery_fee || 0
+            : 0);
+        if (to < n) {
+          alert("O valor para troco não pode menor que o total");
+          setIsLoading(false);
+          return;
+        }
+      }
+
       setIsLoading(true);
       const data = await createOrder({
         uuid: uuid,
