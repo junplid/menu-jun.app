@@ -131,7 +131,7 @@ function FormAddress(props: {
         </Button>
       </div>
 
-      <div className="flex flex-col w-full gap-y-4 overflow-y-auto h-[calc(100vh-380px)]">
+      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-380px)]">
         <MapComponent
           isEdit={false}
           defaultPosition={
@@ -146,6 +146,12 @@ function FormAddress(props: {
           }}
         />
 
+        {(errors.lat?.message || errors.lng?.message) && (
+          <span className="text-red-500 font-medium block -mt-2">
+            Defina corretamente o local de entrega movendo o pin no mapa.
+          </span>
+        )}
+
         <div className="grid px-2 grid-cols-[1fr_100px] justify-between gap-x-2">
           <Field
             label={
@@ -156,7 +162,6 @@ function FormAddress(props: {
                 {loadRoad && <Spinner size="sm" />}
               </div>
             }
-            errorText={errors.address?.message}
             invalid={!!errors.address}
           >
             <Input
@@ -189,7 +194,6 @@ function FormAddress(props: {
               </span>
             }
             invalid={!!errors.cep}
-            errorText={errors.cep?.message}
           >
             <Input
               {...registerWithMask("cep", "99999-999")}
@@ -206,7 +210,6 @@ function FormAddress(props: {
               </span>
             }
             invalid={!!errors.persona}
-            errorText={errors.persona?.message}
           >
             <Input
               {...register("persona")}
@@ -224,7 +227,6 @@ function FormAddress(props: {
             </span>
           }
           invalid={!!errors.reference_point}
-          errorText={errors.reference_point?.message}
           className="px-2"
         >
           <Input
@@ -598,7 +600,7 @@ export const ModalCarrinho: React.FC<
 
               {/* === PASSO 3: PAGAMENTO === */}
               {step === 3 && (
-                <div className="flex flex-col gap-4 overflow-y-auto h-[calc(100vh-356px)]">
+                <div className="flex flex-col gap-4 overflow-y-auto pb-16 h-[calc(100vh-356px)]">
                   <div className="bg-white p-4 mx-4 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide flex justify-between">
                       Resumo do Pedido

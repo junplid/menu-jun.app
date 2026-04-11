@@ -112,38 +112,49 @@ export function LayoutPrivateProvider(): JSX.Element {
               }}
             >
               {/* Topo do Card: Badge (Esq), Logo (Centro) e Botão Info (Dir) */}
-              <div className="flex justify-between items-start pt-3 h-12">
-                <div className="w-1/3 flex justify-start">
-                  <Presence
-                    animationName={{
-                      _open: "slide-from-top, fade-in",
-                      _closed: "slide-to-bottom, fade-out",
-                    }}
-                    animationDuration="moderate"
-                    present={dispence}
-                  >
-                    <div
-                      className="flex px-2 py-0.5 items-center rounded-lg border bg-white/60 backdrop-blur-sm shadow-sm"
-                      style={{
-                        borderColor: opacity(bg_capa || "#e5e5e5", 0.3),
+              <div className="flex gap-x-2 justify-between items-start pt-3 h-12">
+                <div className="flex items-center gap-x-2">
+                  <div className="flex justify-start">
+                    <Presence
+                      animationName={{
+                        _open: "slide-from-top, fade-in",
+                        _closed: "slide-to-bottom, fade-out",
                       }}
+                      animationDuration="moderate"
+                      present={dispence}
                     >
-                      <TiFlashOutline color={bg_capa || "#e5e5e5"} size={16} />
-                      <div className="flex text-sm gap-x-1 ml-0.5">
-                        <span className="text-neutral-600">Delivery</span>
-                        <TextGradientComponent
-                          backgroundImage={`linear-gradient(70deg, ${bg_capa || "#e5e5e5"}, ${opacity(bg_capa || "#e5e5e5", 0.3)}, ${bg_capa || "#e5e5e5"})`}
-                          className="font-extrabold uppercase tracking-wide"
-                        >
-                          Rápido
-                        </TextGradientComponent>
+                      <div
+                        className="flex px-2 py-0.5 items-center rounded-lg border bg-white/60 backdrop-blur-sm shadow-sm"
+                        style={{
+                          borderColor: opacity(bg_capa || "#e5e5e5", 0.3),
+                        }}
+                      >
+                        <TiFlashOutline
+                          color={bg_capa || "#e5e5e5"}
+                          size={16}
+                        />
+                        <div className="flex text-sm gap-x-1 ml-0.5">
+                          <span className="text-neutral-600">Delivery</span>
+                          <TextGradientComponent
+                            backgroundImage={`linear-gradient(70deg, ${bg_capa || "#e5e5e5"}, ${opacity(bg_capa || "#e5e5e5", 0.3)}, ${bg_capa || "#e5e5e5"})`}
+                            className="font-extrabold uppercase tracking-wide"
+                          >
+                            Rápido
+                          </TextGradientComponent>
+                        </div>
                       </div>
+                    </Presence>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <div className="text-neutral-400 font-medium hover:text-neutral-600 hover:bg-neutral-100 transition-colors text-sm flex items-center gap-x-0.5 py-1 px-2.5 rounded-full bg-neutral-50 border border-neutral-100 shadow-sm">
+                      Info <LuChevronRight size={14} className="-mr-0.5" />
                     </div>
-                  </Presence>
+                  </div>
                 </div>
 
                 {/* Logo Centralizada e Flutuante */}
-                <div className="w-1/3 flex justify-center relative">
+                <div className="flex justify-center relative">
                   <Image
                     src={logoImg}
                     style={{
@@ -153,15 +164,9 @@ export function LayoutPrivateProvider(): JSX.Element {
                       backgroundColor: "#fff",
                     }}
                     className={clsx(
-                      "border-[3px] border-white absolute duration-300 shadow-md transition-all rounded-full object-cover -top-8 scale-90",
+                      "border-[3px] border-white absolute duration-300 shadow-md transition-all rounded-full object-cover -top-8 right-0 scale-90",
                     )}
                   />
-                </div>
-
-                <div className="w-1/3 flex justify-end">
-                  <div className="text-neutral-400 font-medium hover:text-neutral-600 hover:bg-neutral-100 transition-colors text-[11px] sm:text-xs flex items-center gap-x-0.5 py-1 px-2.5 rounded-full bg-neutral-50 border border-neutral-100 shadow-sm">
-                    Info <LuChevronRight size={14} className="-mr-0.5" />
-                  </div>
                 </div>
               </div>
 
