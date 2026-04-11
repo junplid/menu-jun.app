@@ -1,18 +1,11 @@
+import { DialogContent, DialogBody, DialogRoot } from "@components/ui/dialog";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
-  DialogContent,
-  DialogBody,
-  DialogFooter,
-  DialogRoot,
-} from "@components/ui/dialog";
-import { JSX, useContext, useEffect, useMemo, useRef, useState } from "react";
-import {
-  AspectRatio,
   Button,
   Checkbox,
   Collapsible,
   Input,
   Presence,
-  SegmentGroup,
   Spinner,
 } from "@chakra-ui/react";
 import { formatToBRL, parseToNumber } from "brazilian-values";
@@ -32,14 +25,15 @@ import { DataMenuContext } from "@contexts/data-menu.context";
 import axios, { AxiosError } from "axios";
 import { ErrorResponse_I } from "../../../services/api/ErrorResponse";
 import { toaster } from "@components/ui/toaster";
-import { BsDoorClosed, BsShop } from "react-icons/bs";
+import { BsDoorClosed } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { createOrder } from "../../../services/api/MenuOnline";
-import { PiChecksBold, PiMapPin } from "react-icons/pi";
+import { PiChecksBold } from "react-icons/pi";
 import { useSearchParams } from "react-router-dom";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { MapComponent } from "./map";
 
+// --- Tipagens e Constantes ---
 interface IProps {
   onReturnEdit(props: {
     uuid: string;
@@ -65,13 +59,14 @@ interface IProps {
     | null;
 }
 
-const PAYMENT_OPTIONS = {
+const PAYMENT_OPTIONS: Record<string, { label: string; value: string }> = {
   Pix: { label: "PIX", value: "PIX" },
   Dinheiro: { label: "Dinheiro", value: "Dinheiro" },
   Cartao_Credito: { label: "Crédito", value: "Crédito" },
   Cartao_Debito: { label: "Débito", value: "Débito" },
 };
 
+// --- Componente de Formulário de Endereço ---
 function FormAddress(props: {
   submit: () => void;
   upsertAddress: (data: Fields | "retirar") => void;
@@ -93,8 +88,7 @@ function FormAddress(props: {
 
   const handleAddress = async (fields: Fields) => {
     props.upsertAddress(fields);
-    reset();
-    props.submit();
+    props.submit(); // Avança para o próximo passo
   };
 
   async function getAddress(lat: number, lng: number) {
@@ -109,167 +103,168 @@ function FormAddress(props: {
       setLoadRoad(false);
     } catch (error) {
       setLoadRoad(false);
-      //
     }
   }
 
   return (
+    // Passamos um ID para o form para podermos submetê-lo a partir do botão no footer
     <form
+      id="address-form"
       onSubmit={handleSubmit(handleAddress, (err) => console.log(err))}
-      className="flex flex-col gap-y-2 px-2"
-      style={{ marginTop: 10 }}
+      className="flex flex-col gap-y-3 px-3"
     >
-      <MapComponent
-        isEdit={false}
-        defaultPosition={
-          props.address
-            ? { lat: props.address.lat, lng: props.address.lng }
-            : undefined
-        }
-        onSetPosition={({ lat, lng }) => {
-          setValue("lat", lat, { shouldDirty: true });
-          setValue("lng", lng, { shouldDirty: true });
-          getAddress(lat, lng);
-        }}
-      />
-      <div className="grid grid-cols-[1fr_100px] justify-between gap-x-1.5 mb-2">
-        <Field
-          label={
-            <div className="flex items-center gap-x-2">
-              <span>
-                Endereço de entrega <span className="text-red-400">*</span>
-              </span>
-              {loadRoad && <Spinner size={"sm"} />}
-            </div>
-          }
-          errorText={errors.address?.message}
-          invalid={!!errors.address}
-        >
-          <Input
-            {...register("address")}
-            placeholder="Digite o endereço da entrega"
-            size={"sm"}
-            autoComplete="off"
-            bg={"white"}
-          />
-        </Field>
-        <Field
-          label={<span>Número</span>}
-          errorText={errors.address?.message}
-          invalid={!!errors.address}
-        >
-          <Input
-            {...register("number")}
-            size={"sm"}
-            autoComplete="off"
-            bg={"white"}
-          />
-        </Field>
-      </div>
-      <div className="grid grid-cols-[100px_1fr] justify-between gap-x-1.5 mb-2">
-        <Field
-          label={
-            <span>
-              CEP <span className="text-red-400">*</span>
-            </span>
-          }
-          invalid={!!errors.cep}
-        >
-          <Input
-            {...registerWithMask("cep", "99999-999")}
-            placeholder="00000-000"
-            size={"sm"}
-            autoComplete="off"
-            bg={"white"}
-          />
-        </Field>
-        <Field
-          label={
-            <span>
-              Nome de quem vai receber <span className="text-red-400">*</span>
-            </span>
-          }
-          invalid={!!errors.persona}
-        >
-          <Input
-            {...register("persona")}
-            size={"sm"}
-            autoComplete="off"
-            bg={"white"}
-          />
-        </Field>
-      </div>
-      <div className="-mt-2.5">
-        {errors.cep?.message && (
-          <span className="block font-medium text-xs text-red-400">
-            {errors.cep?.message}
-          </span>
-        )}
-        {errors.persona?.message && (
-          <span className="font-medium text-xs block text-red-400">
-            {errors.persona?.message}
-          </span>
-        )}
-      </div>
-      <Field
-        label={
-          <span>
-            Ponto de referência <span className="text-red-400">*</span>
-          </span>
-        }
-        invalid={!!errors.reference_point}
-      >
-        <Input
-          size={"sm"}
-          {...register("reference_point")}
-          autoComplete="off"
-          bg={"white"}
-        />
-      </Field>
-      <Field label="Complemento" invalid={!!errors.complement}>
-        <Input
-          size={"sm"}
-          {...register("complement")}
-          placeholder="Ao lado da ..."
-          autoComplete="off"
-          bg={"white"}
-        />
-      </Field>
-
-      <div className="grid grid-cols-2 gap-x-2 w-full mt-4">
+      <div className="flex justify-between items-center bg-green-50 p-3 rounded-lg border border-green-100 mb-2">
+        <span className="text-sm text-green-800 font-medium">
+          Prefere buscar o pedido?
+        </span>
         <Button
           onClick={() => {
             props.upsertAddress("retirar");
             reset();
             props.submit();
           }}
-          type={"button"}
-          variant={"outline"}
-          className="w-full"
-          size={"sm"}
-          bg={"white"}
+          type="button"
+          size="sm"
+          className="bg-white! border border-green-300! text-green-700! hover:bg-green-100!"
         >
           Retirar na loja
         </Button>
-        <Button
-          type={"submit"}
-          colorPalette={"blackAlpha"}
-          className="w-full"
-          size={"sm"}
+      </div>
+
+      <div className="flex flex-col w-full gap-y-4 overflow-y-auto h-[calc(100vh-380px)]">
+        <MapComponent
+          isEdit={false}
+          defaultPosition={
+            props.address
+              ? { lat: props.address.lat, lng: props.address.lng }
+              : undefined
+          }
+          onSetPosition={({ lat, lng }) => {
+            setValue("lat", lat, { shouldDirty: true });
+            setValue("lng", lng, { shouldDirty: true });
+            getAddress(lat, lng);
+          }}
+        />
+
+        <div className="grid px-2 grid-cols-[1fr_100px] justify-between gap-x-2">
+          <Field
+            label={
+              <div className="flex items-center gap-x-2">
+                <span>
+                  Endereço <span className="text-red-400">*</span>
+                </span>
+                {loadRoad && <Spinner size="sm" />}
+              </div>
+            }
+            errorText={errors.address?.message}
+            invalid={!!errors.address}
+          >
+            <Input
+              {...register("address")}
+              placeholder="Digite o endereço"
+              size="sm"
+              autoComplete="off"
+              bg="white"
+            />
+          </Field>
+          <Field
+            label={<span>Número</span>}
+            errorText={errors.number?.message}
+            invalid={!!errors.number}
+          >
+            <Input
+              {...register("number")}
+              size="sm"
+              autoComplete="off"
+              bg="white"
+            />
+          </Field>
+        </div>
+
+        <div className="grid px-2 grid-cols-[100px_1fr] justify-between gap-x-2">
+          <Field
+            label={
+              <span>
+                CEP <span className="text-red-400">*</span>
+              </span>
+            }
+            invalid={!!errors.cep}
+            errorText={errors.cep?.message}
+          >
+            <Input
+              {...registerWithMask("cep", "99999-999")}
+              placeholder="00000-000"
+              size="sm"
+              autoComplete="off"
+              bg="white"
+            />
+          </Field>
+          <Field
+            label={
+              <span>
+                Quem vai receber <span className="text-red-400">*</span>
+              </span>
+            }
+            invalid={!!errors.persona}
+            errorText={errors.persona?.message}
+          >
+            <Input
+              {...register("persona")}
+              size="sm"
+              autoComplete="off"
+              bg="white"
+            />
+          </Field>
+        </div>
+
+        <Field
+          label={
+            <span>
+              Ponto de referência <span className="text-red-400">*</span>
+            </span>
+          }
+          invalid={!!errors.reference_point}
+          errorText={errors.reference_point?.message}
+          className="px-2"
         >
-          Salvar endereço
-        </Button>
+          <Input
+            size="sm"
+            {...register("reference_point")}
+            autoComplete="off"
+            bg="white"
+          />
+        </Field>
+
+        <Field
+          label="Complemento"
+          invalid={!!errors.complement}
+          errorText={errors.complement?.message}
+          className=" px-2"
+        >
+          <Input
+            size="sm"
+            {...register("complement")}
+            placeholder="Apto, Bloco..."
+            autoComplete="off"
+            bg="white"
+          />
+        </Field>
       </div>
     </form>
   );
 }
 
-function Body(props: IProps & { isErrorAddress: boolean }) {
-  const { bg_primary, items: itemsData, info } = useContext(DataMenuContext);
-  const refIsRenderBody = useRef(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const isAddress = searchParams.get("adr");
-
+// --- Componente Principal ---
+export const ModalCarrinho: React.FC<
+  Omit<IProps, "upsertAddress" | "address">
+> = (props) => {
+  const {
+    bg_primary,
+    uuid,
+    info,
+    status,
+    items: itemsData,
+  } = useContext(DataMenuContext);
   const {
     items,
     incrementQnt,
@@ -278,449 +273,61 @@ function Body(props: IProps & { isErrorAddress: boolean }) {
     payment_change_to,
     setPaymentChangeTo,
     setPaymentMethod,
+    resetCart,
+    setError,
     error,
   } = useContext(CartContext);
 
-  useEffect(() => {
-    if (!refIsRenderBody.current) return;
-    if (!items.length && refIsRenderBody.current) {
-      setTimeout(() => {
-        window.history.back();
-      }, 100);
-    }
-  }, [items.length]);
-
-  const payment_methods_items = (info?.payment_methods || [])
-    .map((m) => PAYMENT_OPTIONS[m])
-    .filter(Boolean)
-    .filter((v, i, arr) => arr.findIndex((s) => s.value === v.value) === i);
-
-  return (
-    <DialogBody px={2} className="flex flex-col gap-y-2 -my-4 mt-0 h-full">
-      {!isAddress && (
-        <div className="relative h-full">
-          <GridWithShadows
-            grid={false}
-            listClassName="flex flex-col w-full !relative justify-start"
-            items={items}
-            renderItem={(item) => {
-              const product = itemsData.find((s) => s.uuid === item.uuid);
-              if (!product) return null;
-              return (
-                <div key={item.key} className={clsx("py-1")}>
-                  <article className="w-full gap-x-2 text-base grid rounded-md p-3 border border-neutral-200 bg-white grid-cols-[1fr_50px] min-[450px]:grid-cols-[1fr_minmax(50px,80px)] items-start">
-                    <div>
-                      <div className="flex flex-col mb-2 items-baseline">
-                        <div className="flex flex-col -space-y-0.5">
-                          <span
-                            className={`font-normal text-lg`}
-                            style={{ color: `${bg_primary || "#111111"}` }}
-                          >
-                            {item.qnt}x {product.name}
-                          </span>
-                          <div className="flex items-center gap-x-1">
-                            {product.beforePrice && (
-                              <span className="text-zinc-400 tracking-tight font-medium line-through text-xs">
-                                {formatToBRL(product.beforePrice)}
-                              </span>
-                            )}
-                            {product.afterPrice && (
-                              <span
-                                className={`font-semibold text-[13px]`}
-                                style={{ color: `${bg_primary || "#111111"}` }}
-                              >
-                                {formatToBRL(product.afterPrice)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col w-full">
-                          {item.sections && (
-                            <ul className="list-disc ml-1 mt-2 text-neutral-600">
-                              {Object.entries(item.sections).map(
-                                ([sectionUuid, objSub]) => {
-                                  if (!objSub) return null;
-                                  const section = product.sections.find(
-                                    (sec) => sec.uuid === sectionUuid,
-                                  );
-                                  if (!section) return null;
-                                  return (
-                                    <li
-                                      className="flex flex-col"
-                                      key={sectionUuid}
-                                    >
-                                      <span className="font-normal">
-                                        • {section.title}
-                                      </span>
-                                      <div className="pl-2 -mt-1.5 flex flex-col -space-y-1">
-                                        {Object.entries(objSub).map(
-                                          ([subUuid, value]) => {
-                                            if (!value) return null;
-                                            const subItem =
-                                              section.subItems.find(
-                                                (subitem) =>
-                                                  subitem.uuid === subUuid,
-                                              );
-                                            if (!subItem) return null;
-
-                                            return (
-                                              <span
-                                                key={subUuid}
-                                                className="text-neutral-400 gap-x-2 flex font-light items-center"
-                                              >
-                                                {value > 1 ? `${value}x` : null}{" "}
-                                                {subItem.name}{" "}
-                                                <span className="text-[13px] text-neutral-500">
-                                                  {subItem.after_additional_price &&
-                                                    `= ${formatToBRL(
-                                                      subItem.after_additional_price *
-                                                        value,
-                                                    )}`}
-                                                </span>
-                                              </span>
-                                            );
-                                          },
-                                        )}
-                                      </div>
-                                    </li>
-                                  );
-                                },
-                              )}
-                            </ul>
-                          )}
-                        </div>
-                        <Input
-                          value={item.obs}
-                          onChange={({ target }) =>
-                            changeObs(item.key, target.value)
-                          }
-                          placeholder="Observações..."
-                          size={"sm"}
-                          className={"bg-white! mt-1.5"}
-                        />
-                      </div>
-
-                      <div className="flex gap-x-1 mt-1 ">
-                        <span className="bg-white border border-zinc-300 py-1 text-sm w-10 flex items-center justify-center rounded-md">
-                          {item.qnt}
-                        </span>
-                        <a
-                          onClick={() => incrementQnt(item.key, +1)}
-                          className={
-                            "bg-green-200 text-green-600 hover:bg-green-300 cursor-pointer py-1 text-lg leading-0 w-7 flex items-center justify-center rounded-md"
-                          }
-                        >
-                          +
-                        </a>
-                        <a
-                          onClick={() => {
-                            incrementQnt(item.key, -1);
-                          }}
-                          className="bg-red-200 hover:bg-red-300 cursor-pointer text-red-600 py-1 w-7 text-lg leading-0 flex items-center justify-center rounded-md"
-                        >
-                          -
-                        </a>
-                        {item.sections && (
-                          <a
-                            onClick={async () => {
-                              props.onReturnEdit({
-                                uuid: item.uuid,
-                                ref: {
-                                  sections: item.sections!,
-                                  length: item.qnt,
-                                  key: item.key,
-                                },
-                              });
-                            }}
-                            className="bg-blue-200 hover:bg-blue-300 cursor-pointer text-blue-500 duration-200 py-1 px-2 leading-0 flex items-center justify-center rounded-md"
-                          >
-                            <MdModeEdit />
-                          </a>
-                        )}
-
-                        <div className="flex flex-col justify-end -space-y-1.5 ml-1">
-                          {/* {product.beforePrice && (
-                              <span className="text-zinc-400 font-medium line-through text-sm">
-                                {formatToBRL(product.beforePrice! * item.qnt)}
-                              </span>
-                            )} */}
-
-                          <span
-                            className={`font-semibold text-[17px]`}
-                            style={{ color: `${bg_primary || "#111111"}` }}
-                          >
-                            {formatToBRL(item.total * item.qnt)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <AspectRatio ratio={1 / 1} w={"100%"}>
-                      <img
-                        src={itemsData.find((i) => i.uuid === item.uuid)?.img}
-                        className="p-0 rounded-md pointer-events-none"
-                        draggable={false}
-                      />
-                    </AspectRatio>
-                  </article>
-                </div>
-              );
-            }}
-          />
-        </div>
-      )}
-
-      {props.address && !isAddress && (
-        <div className="flex items-center justify-between mb-1">
-          {props.address !== "retirar" && (
-            <div
-              onClick={() => {
-                const next = new URLSearchParams(searchParams);
-                next.set("adr", "true");
-                setSearchParams(next);
-              }}
-              className="flex cursor-pointer items-center w-full p-1.5 px-3 gap-x-2 shadow-sm justify-between bg-white rounded-lg"
-            >
-              <div className="flex flex-col -space-y-0.5 items-baseline">
-                <div className="flex w-full gap-x-2 items-center">
-                  <PiMapPin size={18} />
-                  <span className="text-lg">Endereço de entrega</span>
-                </div>
-                <span className="text-base font-light leading-5.5 text-neutral-500">
-                  {props.address.address}({props.address.cep}){" "}
-                  {props.address.complement
-                    ? `- ${props.address.complement}`
-                    : null}
-                  [{props.address.persona}]
-                </span>
-              </div>
-              <a className="text-blue-300 tracking-wide underline underline-offset-2">
-                Editar
-              </a>
-            </div>
-          )}
-          {props.address === "retirar" && (
-            <div
-              onClick={() => {
-                const next = new URLSearchParams(searchParams);
-                next.set("adr", "true");
-                setSearchParams(next);
-              }}
-              className="flex cursor-pointer items-center w-full p-1.5 px-3 gap-x-2 shadow-sm justify-between bg-white rounded-lg"
-            >
-              <div className="flex flex-col -space-y-0.5 items-baseline">
-                <div className="flex w-full gap-x-2 items-center">
-                  <BsShop size={18} />
-                  <span className="text-lg">Retirada na loja</span>
-                </div>
-                <span className="text-base font-light text-neutral-500">
-                  {info?.address}
-                </span>
-              </div>
-              <a className="text-blue-300 tracking-wide underline underline-offset-2">
-                Editar
-              </a>
-            </div>
-          )}
-        </div>
-      )}
-
-      {!props.address && !isAddress && (
-        <a
-          className={clsx(
-            "p-3.5 px-3 border text-center ",
-            props.isErrorAddress
-              ? "animate-error border-red-200 text-white"
-              : "bg-white border-zinc-200",
-          )}
-          onClick={() => {
-            const next = new URLSearchParams(searchParams);
-            next.set("adr", "true");
-            setSearchParams(next);
-          }}
-        >
-          Definir endereço ou Retirada{" "}
-          <span
-            className={clsx(
-              "text-red-400 font-semibold text-lg leading-0",
-              props.isErrorAddress ? "text-white" : "text-red-400",
-            )}
-          >
-            *
-          </span>
-        </a>
-      )}
-      {isAddress && (
-        <FormAddress
-          address={props.address !== "retirar" ? props.address : null}
-          upsertAddress={props.upsertAddress}
-          submit={() => {
-            window.history.back();
-          }}
-        />
-      )}
-
-      {!isAddress && (
-        <div className="font-medium -mt-1">
-          <SegmentGroup.Root
-            bg={"#fdfdfd"}
-            className="w-full py-2 px-2 font-light"
-            value={payment_method}
-            onValueChange={(v) => setPaymentMethod(v.value || "PIX")}
-          >
-            <SegmentGroup.Indicator className="py-2" bg={"#f4f4f4"} />
-            <SegmentGroup.Items
-              className="w-full"
-              items={payment_methods_items}
-            />
-          </SegmentGroup.Root>
-          <div className="flex justify-center">
-            <span
-              className={clsx(
-                error === "forma-de-pagamento"
-                  ? "animate-error px-2 text-red-600 bg-red-100! transition-all"
-                  : "text-neutral-500",
-                "text-center block font-normal",
-              )}
-            >
-              Forma de pagamento
-            </span>
-          </div>
-          <Collapsible.Root open={payment_method === "Dinheiro"}>
-            <Collapsible.Content>
-              <div className="flex flex-col -space-y-1 pt-1.5">
-                <div className="flex items-center gap-x-2">
-                  <span
-                    className={clsx(
-                      error === "dinheiro"
-                        ? "animate-error text-red-600 bg-red-100! px-2 transition-all"
-                        : "",
-                    )}
-                  >
-                    Troco pra quanto{error === "dinheiro" ? " ???" : "?"}
-                  </span>
-                  <Checkbox.Root
-                    size={"sm"}
-                    colorPalette={"teal"}
-                    variant={"solid"}
-                    checked={payment_change_to === "Não"}
-                    onCheckedChange={() => {
-                      setPaymentChangeTo(
-                        payment_change_to === "Não" ? null : "Não",
-                      );
-                    }}
-                  >
-                    <Checkbox.HiddenInput />
-                    <Checkbox.Control />
-                    <Checkbox.Label className="font-light!">
-                      Não precisa.
-                    </Checkbox.Label>
-                  </Checkbox.Root>
-                </div>
-                <Input
-                  value={payment_change_to || ""}
-                  onChange={({ target }) => setPaymentChangeTo(target.value)}
-                  disabled={payment_change_to === "Não"}
-                  size={"xs"}
-                  className={"bg-white! mt-1.5"}
-                  ref={withMask("brl-currency")}
-                />
-              </div>
-            </Collapsible.Content>
-          </Collapsible.Root>
-        </div>
-      )}
-    </DialogBody>
-  );
-}
-
-export const ModalCarrinho: React.FC<
-  Omit<IProps, "upsertAddress" | "address">
-> = (props): JSX.Element => {
-  const { bg_primary, uuid, info, status } = useContext(DataMenuContext);
-  const { items, payment_method, resetCart, setError, payment_change_to } =
-    useContext(CartContext);
-  const [isLoading, setIsLoading] = useState(false);
-  const [_isError, setIsError] = useState(false);
-  const [isErrorAddress, setIsErrorAddress] = useState(false);
   const { address, upsertAddress } = useAddressStore();
+  const [searchParams] = useSearchParams();
+  const isOpen = searchParams.get("c");
 
+  // Controle de Fluxo (Stepped Checkout)
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [redirectTo, setRedirectTo] = useState("");
 
-  const [searchParams, _setSearchParams] = useSearchParams();
-  const isOpen = searchParams.get("c");
-  const isAddress = searchParams.get("adr");
-
   const totalValues = useMemo(() => {
-    // if (!items.length) return { after: 0, before: 0 };
-    // return items.reduce(
-    //   (prev, curr) => {
-    //     if (curr.type === "pizza") {
-    //       const { price } = sizes.find((d) => d.uuid === curr.uuid) || {};
-    //       prev.after += price || 0;
-    //     } else {
-    //       const { afterPrice, beforePrice } =
-    //         itemsData.find((d) => d.uuid === curr.uuid) || {};
-    //       prev.after += afterPrice || 0;
-    //       prev.before += beforePrice || 0;
-    //     }
-    //     return prev;
-    //   },
-    //   { after: 0, before: 0 },
-    // );
     if (!items.length) return 0;
-
-    return items.reduce((prev, curr) => {
-      prev += curr.total * curr.qnt;
-      return prev;
-    }, 0);
+    return items.reduce((prev, curr) => prev + curr.total * curr.qnt, 0);
   }, [items]);
 
-  const create = async () => {
-    try {
-      setIsError(false);
-      if (!address) {
-        setIsErrorAddress(true);
-        setTimeout(() => {
-          setIsErrorAddress(false);
-          setIsLoading(false);
-        }, 1100);
-        return;
-      }
-      if (!payment_method) {
-        setError("forma-de-pagamento");
-        setTimeout(() => {
-          setError(null);
-        }, 1100);
-        setIsLoading(false);
-        return;
-      }
-      if (payment_method === "Dinheiro" && !payment_change_to) {
-        setError("dinheiro");
-        setTimeout(() => {
-          setError(null);
-        }, 1100);
-        setIsLoading(false);
-        return;
-      }
+  const subtotal = totalValues;
+  const taxaEntrega =
+    address !== null && address !== "retirar" ? info?.delivery_fee || 0 : 0;
+  const valorTotal = subtotal + taxaEntrega;
 
-      if (payment_method === "Dinheiro" && payment_change_to) {
-        const n = parseToNumber(payment_change_to);
-        const to =
-          totalValues +
-          (address !== null && address !== "retirar"
-            ? info?.delivery_fee || 0
-            : 0);
-        if (to < n) {
-          alert("O valor para troco não pode menor que o total");
-          setIsLoading(false);
+  useEffect(() => {
+    if (!items.length && isOpen) {
+      setTimeout(() => window.history.back(), 100);
+    }
+  }, [items.length, isOpen]);
+
+  const handleCreateOrder = async () => {
+    if (!payment_method) {
+      setError("forma-de-pagamento");
+      setTimeout(() => setError(null), 1500);
+      return;
+    }
+    if (payment_method === "Dinheiro") {
+      if (!payment_change_to) {
+        setError("dinheiro");
+        setTimeout(() => setError(null), 1500);
+        return;
+      }
+      if (payment_change_to !== "Não") {
+        const troco = parseToNumber(payment_change_to);
+        if (valorTotal > troco) {
+          alert("O valor para troco não pode ser menor que o total do pedido.");
           return;
         }
       }
+    }
 
+    try {
       setIsLoading(true);
-      const data = await createOrder({
-        uuid: uuid,
+      const payload = {
+        uuid,
         items: items.map((item) => ({
           uuid: item.uuid,
           qnt: item.qnt,
@@ -728,6 +335,7 @@ export const ModalCarrinho: React.FC<
           sections: item.sections,
         })),
         payment_change_to,
+        payment_method,
         ...(address === "retirar"
           ? { type_delivery: "retirar" }
           : {
@@ -739,241 +347,443 @@ export const ModalCarrinho: React.FC<
               delivery_lng: address?.lng,
               delivery_number: address?.number,
               who_receives: address?.persona,
-              delivery_reference_point: address.reference_point,
+              delivery_reference_point: address?.reference_point,
             }),
-        payment_method,
-      });
+      };
 
+      // @ts-expect-error
+      const data = await createOrder(payload);
       setRedirectTo(data.redirectTo);
-      window.open(data.redirectTo, "_blank");
       setIsLoading(false);
-      resetCart();
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setIsError(true);
-        setIsLoading(false);
-        if (error.response?.status === 400) {
-          const dataError = error.response?.data as ErrorResponse_I;
-          if (dataError.toast.length) dataError.toast.forEach(toaster.create);
-        }
+    } catch (err) {
+      setIsLoading(false);
+      if (err instanceof AxiosError && err.response?.status === 400) {
+        const dataError = err.response?.data as ErrorResponse_I;
+        if (dataError.toast.length) dataError.toast.forEach(toaster.create);
       }
     }
   };
 
+  const payment_methods_items = (info?.payment_methods || [])
+    .map((m) => PAYMENT_OPTIONS[m])
+    .filter(Boolean)
+    .filter((v, i, arr) => arr.findIndex((s) => s.value === v.value) === i);
+
   return (
     <DialogRoot
-      defaultOpen={false}
       open={!!isOpen}
       onOpenChange={(change) => {
         if (!change.open) window.history.back();
       }}
       preventScroll
-      motionPreset={"slide-in-top"}
-      lazyMount={false}
-      unmountOnExit={false}
+      motionPreset="slide-in-top"
       modal
     >
       <DialogContent
-        bg={"#f3f3f3"}
-        w={"500px"}
-        className="h-[calc(100svh-30px)]!"
-        my={2}
-        mx={-2.5}
-        px={0}
+        bg="#f9f9fb"
+        w="100%"
+        maxW="500px"
+        className="h-[calc(100svh-140px)] overflow-hidden sm:rounded-2xl flex flex-col"
+        p={0}
       >
-        {/* <DialogHeader
-        zIndex={9}
-        position={"relative"}
-        p={4}
-        flexDirection={"column"}
-        gap={0}
-        mb={2}
-      >
-        <DialogTitle className="text-neutral-500 flex gap-x-3 items-center">
-          <div className="relative">
-            <Float offset={1} placement={"bottom-end"}>
-              <Circle
-                size="5"
-                fontSize={"11px"}
-                fontWeight={"black"}
-                bg="white"
-                color="black"
-                border={"1px solid #acacac"}
-              >
-                {items.reduce((prev, curr) => {
-                  prev = prev + curr.qnt;
-                  return prev;
-                }, 0)}
-              </Circle>
-            </Float>
-            <HiOutlineShoppingBag size={30} />
+        {/* HEADER DE PROGRESSO */}
+        {!isLoading && !redirectTo && (
+          <div className="bg-white px-4 py-3 shadow-sm z-10 sm:rounded-t-2xl shrink-0">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-xl font-bold text-gray-800">Seu Pedido</h2>
+              <span className="text-sm font-medium text-gray-400">
+                Passo {step} de 3
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-1.5 flex overflow-hidden">
+              <div
+                className="bg-green-500 h-full transition-all duration-300"
+                style={{ width: `${(step / 3) * 100}%` }}
+              />
+            </div>
           </div>
+        )}
 
-          <span className="font-medium">{titlePage}</span>
-        </DialogTitle>
-        <DialogCloseTrigger />
-      </DialogHeader> */}
-        {isLoading && (
-          <div className="flex relative flex-col w-full h-full items-center justify-center">
-            <Presence
-              animationName={{
-                _open: "slide-from-bottom, fade-in",
-                _closed: "slide-to-top, fade-out",
-              }}
-              animationDuration="moderate"
-              present={!redirectTo}
-              className="top-1/5 absolute flex items-center justify-center"
-            >
-              <div className="flex flex-col gap-y-0.5 items-center">
-                <span className="font-light text-lg text-neutral-500">
-                  Criando pedido
-                </span>
-                <Spinner size={"md"} />
-              </div>
-            </Presence>
-
-            <Presence
-              animationName={{
-                _open: "slide-from-bottom, fade-in",
-                _closed: "slide-to-top, fade-out",
-              }}
-              animationDuration="moderate"
-              present={!!redirectTo}
-              lazyMount
-              className="flex flex-col w-full items-center justify-center"
-            >
-              <div className="flex flex-col gap-y-0.5 items-center mb-3">
-                <span className="font-semibold text-lg uppercase text-green-600">
-                  Pedido criado.
-                </span>
-                <p className="text-neutral-500 text-center px-4">
-                  Confirme seu pedido enviando o código para o nosso WhatsApp.
-                </p>
-              </div>
+        {/* CORPO DO MODAL */}
+        <DialogBody className="flex flex-col px-0! py-2! pb-0! overflow-y-hidden overflow-x-hidden relative flex-1">
+          {isLoading && (
+            <div className="flex flex-col w-full h-full items-center justify-center pt-20">
               <Presence
-                animationName={{
-                  _open: "slide-from-bottom, fade-in",
-                  _closed: "slide-to-top, fade-out",
-                }}
-                animationDuration="moderate"
-                present
-                className="flex items-center w-full justify-center"
+                present={!redirectTo}
+                animationName={{ _open: "fade-in", _closed: "fade-out" }}
               >
-                <div
-                  className="w-full max-w-2xs p-4 bg-[#e5ddd5] rounded-lg"
-                  style={{ boxShadow: "inset 0px 0px 8px 1px #d7cbbed3" }}
-                >
+                <div className="flex flex-col gap-y-2 items-center">
+                  <span className="font-light text-lg text-neutral-500">
+                    Criando pedido...
+                  </span>
+                  <Spinner size="xl" color="green.500" />
+                </div>
+              </Presence>
+            </div>
+          )}
+
+          {redirectTo && !isLoading && (
+            <div className="flex flex-col w-full h-full items-center justify-center px-4 pt-10">
+              <Presence
+                present={!!redirectTo}
+                animationName={{ _open: "slide-from-bottom, fade-in" }}
+              >
+                <div className="flex flex-col gap-y-1 items-center mb-6">
+                  <span className="font-semibold text-2xl uppercase text-green-600">
+                    Pedido Criado!
+                  </span>
+                  <p className="text-neutral-500 text-center text-sm">
+                    Confirme seu pedido enviando o código para o nosso WhatsApp.
+                  </p>
+                </div>
+
+                <div className="w-full max-w-sm p-4 bg-[#e5ddd5] rounded-xl mb-6 shadow-inner">
                   <div className="flex justify-end">
-                    <div className="relative bg-[#d9fdd3] text-gray-900 px-4 py-2 pb-1 rounded-lg rounded-tr-none max-w-[82%] shadow-sm">
-                      <p className="text-sm">
+                    <div className="relative bg-[#d9fdd3] text-gray-900 px-4 py-2 pb-1 rounded-lg rounded-tr-none shadow-sm max-w-[85%]">
+                      <p className="text-sm whitespace-pre-wrap">
                         {
                           decodeURIComponent(redirectTo).match(
                             /text=(.*)$/,
                           )?.[1]
                         }
                       </p>
-
-                      <div className="text-xs text-gray-500 text-right mt-1 translate-x-2 flex items-center justify-end gap-1">
-                        <span>12:41</span>
+                      <div className="text-xs text-gray-500 text-right mt-1 flex items-center justify-end gap-1">
+                        <span>Agora</span>
                         <PiChecksBold size={16} className="text-blue-500" />
                       </div>
-
-                      {/* pontinha do balão */}
                       <span className="absolute -right-1.5 top-0 w-0 h-0 border-b-10 border-l-[6px] border-t-transparent border-b-transparent border-l-[#d9fdd3]" />
                     </div>
                   </div>
                 </div>
-              </Presence>
-              <Button
-                color={"#3f8118"}
-                bg={"#cdf0b7"}
-                onClick={() => {
-                  window.open(redirectTo, "_blank");
-                  resetCart();
-                  setIsLoading(false);
-                  setRedirectTo("");
-                  window.history.back();
-                }}
-                size={"lg"}
-                fontWeight={"light"}
-                className="mt-4 outline-none!"
-              >
-                <IoLogoWhatsapp />
-                Enviar mensagem
-              </Button>
-            </Presence>
-          </div>
-        )}
-        {!isLoading && (
-          <Body
-            {...props}
-            isErrorAddress={isErrorAddress}
-            upsertAddress={upsertAddress}
-            address={address}
-          />
-        )}
-        {!isAddress && !isLoading && (
-          <DialogFooter
-            className="flex max-[385px]:flex-col gap-1"
-            justifyContent={"space-between"}
-            p={4}
-            pt={0.5}
-          >
-            <div className="flex flex-col -space-y-0.5 w-full">
-              {/* {totalValues.before > 0 && (
-              <span className="text-zinc-400 font-medium line-through text-sm sm:text-lg">
-                {formatToBRL(totalValues.before)}
-              </span>
-            )} */}
-              {!!info?.delivery_fee &&
-                address !== null &&
-                address !== "retirar" && (
-                  <div className="flex items-center gap-x-1 max-[385px]:justify-between w-full">
-                    <span className="text-sm text-neutral-500">
-                      Taxa de entrega:
-                    </span>
-                    <span className="text-sm text-neutral-500">
-                      {formatToBRL(info?.delivery_fee)}
-                    </span>
-                  </div>
-                )}
-              <div className="flex items-center gap-x-1 max-[385px]:justify-between">
-                <span className="text-neutral-600">Total</span>
-                <span
-                  className={`text-lg font-bold`}
-                  style={{ color: `${bg_primary || "#111111"}` }}
+
+                <Button
+                  color="white"
+                  bg="#25D366"
+                  _hover={{ bg: "#128C7E" }}
+                  onClick={() => {
+                    window.open(redirectTo, "_blank");
+                    resetCart();
+                    setRedirectTo("");
+                    setStep(1);
+                    // window.history.back();
+                  }}
+                  size="xl"
+                  className="w-full max-w-sm h-14 rounded-xl font-bold text-lg shadow-md"
                 >
-                  {formatToBRL(
-                    totalValues +
-                      (address !== null && address !== "retirar"
-                        ? info?.delivery_fee || 0
-                        : 0),
-                  )}
-                </span>
-              </div>
+                  <IoLogoWhatsapp size={24} className="mr-2" />
+                  Enviar mensagem
+                </Button>
+              </Presence>
             </div>
-            <div className="flex flex-col items-center -space-y-2">
-              <Button
-                color={"#3f8118"}
-                bg={"#cdf0b7"}
-                loading={isLoading}
-                disabled={!status || !items.length}
-                onClick={() => create()}
-                size={"lg"}
-                fontWeight={"light"}
-              >
-                FAZER PEDIDO
-              </Button>
-              {!status && (
-                <div className="flex items-center gap-x-0.5 bg-red-200 text-red-500 p-1 px-2 z-10">
-                  <BsDoorClosed />
-                  <span className="text-[11px] font-semibold leading-2 rounded-sm">
-                    Fechado agora
-                  </span>
+          )}
+
+          {!isLoading && !redirectTo && (
+            <>
+              {/* === PASSO 1: MEUS ITENS === */}
+              {step === 1 && (
+                <div className="relative h-full">
+                  <GridWithShadows
+                    grid={false}
+                    listClassName="flex flex-col w-full !relative justify-start"
+                    items={items}
+                    renderItem={(item) => {
+                      const product = itemsData.find(
+                        (s) => s.uuid === item.uuid,
+                      );
+                      if (!product) return null;
+                      return (
+                        <div
+                          key={item.key}
+                          className="flex flex-col bg-white p-3 mx-4 my-3 rounded-xl shadow-md border border-gray-100"
+                        >
+                          <div className="flex gap-3">
+                            <div className="w-20 h-20 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+                              <img
+                                src={product.img}
+                                className="w-full h-full object-cover"
+                                alt={product.name}
+                              />
+                            </div>
+
+                            <div className="flex flex-col w-full justify-between">
+                              <div>
+                                <div className="flex justify-between items-start gap-2">
+                                  <h3 className="font-semibold text-gray-800 text-[15px] leading-tight">
+                                    {product.name}
+                                  </h3>
+                                  <span
+                                    className="font-bold text-gray-900 shrink-0 text-base"
+                                    style={{ color: bg_primary || "#111" }}
+                                  >
+                                    {formatToBRL(item.total * item.qnt)}
+                                  </span>
+                                </div>
+
+                                {item.sections && (
+                                  <p className="text-sm text-gray-400 line-clamp-1">
+                                    {Object.values(item.sections)
+                                      .map((sub) =>
+                                        Object.keys(sub || {}).length > 0
+                                          ? "Opções selecionadas"
+                                          : "",
+                                      )
+                                      .find(Boolean)}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="flex items-center justify-between mt-2">
+                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-1">
+                                  <button
+                                    onClick={() => incrementQnt(item.key, -1)}
+                                    className="w-7 h-7 flex items-center justify-center text-red-600 font-bold active:bg-gray-200 rounded-md"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="font-medium text-sm w-4 text-center">
+                                    {item.qnt}
+                                  </span>
+                                  <button
+                                    onClick={() => incrementQnt(item.key, +1)}
+                                    className="w-7 h-7 flex items-center justify-center text-green-600 font-bold active:bg-green-100 rounded-md"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                {item.sections && (
+                                  <button
+                                    onClick={() =>
+                                      props.onReturnEdit({
+                                        uuid: item.uuid,
+                                        ref: {
+                                          sections: item.sections!,
+                                          length: item.qnt,
+                                          key: item.key,
+                                        },
+                                      })
+                                    }
+                                    className="text-blue-500 bg-blue-50 p-1.5 rounded-md"
+                                  >
+                                    <MdModeEdit size={16} />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Input
+                            value={item.obs}
+                            onChange={({ target }) =>
+                              changeObs(item.key, target.value)
+                            }
+                            placeholder="Observações..."
+                            className={"bg-white! mt-1.5"}
+                          />
+                        </div>
+                      );
+                    }}
+                  />
                 </div>
               )}
-            </div>
-          </DialogFooter>
+
+              {/* === PASSO 2: ENDEREÇO === */}
+              {step === 2 && (
+                <div>
+                  <FormAddress
+                    address={address !== "retirar" ? address : null}
+                    upsertAddress={upsertAddress}
+                    submit={() => setStep(3)}
+                  />
+                </div>
+              )}
+
+              {/* === PASSO 3: PAGAMENTO === */}
+              {step === 3 && (
+                <div className="flex flex-col gap-4 overflow-y-auto h-[calc(100vh-356px)]">
+                  <div className="bg-white p-4 mx-4 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide flex justify-between">
+                      Resumo do Pedido
+                      <button
+                        onClick={() => setStep(1)}
+                        className="text-blue-500 font-normal normal-case text-sm underline"
+                      >
+                        Editar itens
+                      </button>
+                    </h3>
+                    <div className="flex justify-between text-gray-600 text-base mb-1">
+                      <span>Subtotal</span>
+                      <span>{formatToBRL(subtotal)}</span>
+                    </div>
+                    {taxaEntrega > 0 && address !== "retirar" && (
+                      <div className="flex justify-between text-gray-600 text-base mb-2">
+                        <span>Taxa de Entrega</span>
+                        <span>{formatToBRL(taxaEntrega)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-bold text-gray-900 text-lg border-t border-gray-100 pt-2 mt-2">
+                      <span>Total</span>
+                      <span style={{ color: bg_primary || "#111" }}>
+                        {formatToBRL(valorTotal)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="px-4">
+                    <h3
+                      className={clsx(
+                        "font-semibold text-sm uppercase tracking-wide mb-2 transition-colors",
+                        error === "forma-de-pagamento"
+                          ? "text-red-500"
+                          : "text-gray-800",
+                      )}
+                    >
+                      Forma de Pagamento
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {payment_methods_items.map((method) => (
+                        <button
+                          key={method.value}
+                          onClick={() => setPaymentMethod(method.value)}
+                          className={clsx(
+                            "py-3 px-2 rounded-xl border-2 text-sm font-medium transition-all",
+                            payment_method === method.value
+                              ? "border-green-500 bg-green-50 text-green-700"
+                              : error === "forma-de-pagamento"
+                                ? "border-red-300 bg-red-50 text-red-600"
+                                : "border-gray-200 bg-white text-gray-600 hover:border-gray-300",
+                          )}
+                        >
+                          {method.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Collapsible.Root open={payment_method === "Dinheiro"}>
+                    <Collapsible.Content>
+                      <div
+                        className={clsx(
+                          "bg-white p-4 mx-4 rounded-xl border mt-1 flex flex-col gap-3",
+                          error == "dinheiro"
+                            ? "border-red-400 bg-red-50"
+                            : "border-gray-200",
+                        )}
+                      >
+                        <label
+                          className={clsx(
+                            "text-sm font-medium",
+                            error === "dinheiro"
+                              ? "animate-error text-red-600 bg-red-100! px-2 transition-all"
+                              : "text-gray-700",
+                          )}
+                        >
+                          Troco para quanto{error === "dinheiro" ? " ???" : "?"}
+                        </label>
+                        <Input
+                          value={payment_change_to || ""}
+                          onChange={({ target }) =>
+                            setPaymentChangeTo(target.value)
+                          }
+                          disabled={payment_change_to === "Não"}
+                          placeholder="R$ 0,00"
+                          size="lg"
+                          bg="white"
+                          className="border-gray-300"
+                          ref={withMask("brl-currency")}
+                        />
+                        <Checkbox.Root
+                          checked={payment_change_to === "Não"}
+                          onCheckedChange={() =>
+                            setPaymentChangeTo(
+                              payment_change_to === "Não" ? null : "Não",
+                            )
+                          }
+                          colorPalette="green"
+                        >
+                          <Checkbox.HiddenInput />
+                          <Checkbox.Control />
+                          <Checkbox.Label className="text-sm font-medium text-gray-700">
+                            Não preciso de troco
+                          </Checkbox.Label>
+                        </Checkbox.Root>
+                      </div>
+                    </Collapsible.Content>
+                  </Collapsible.Root>
+                </div>
+              )}
+            </>
+          )}
+        </DialogBody>
+
+        {/* RODAPÉ FIXO DE AÇÕES */}
+        {!isLoading && !redirectTo && (
+          <div className="w-full bg-white border-t border-gray-200 p-4 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
+            {step === 1 && (
+              <div className="flex gap-2 w-full">
+                <Button
+                  variant="outline"
+                  className="flex-1! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                  onClick={() => window.history.back()}
+                >
+                  Continuar comprando
+                </Button>
+                <Button
+                  className="flex-1! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                  style={{ backgroundColor: bg_primary || "#111" }}
+                  onClick={() => setStep(2)}
+                  disabled={!status || !items.length}
+                >
+                  Ir para Endereço
+                </Button>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="flex gap-2 w-full">
+                <Button
+                  variant="outline"
+                  className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                  onClick={() => setStep(1)}
+                >
+                  Voltar
+                </Button>
+                {/* O botão abaixo engatilha o formulário de endereço usando o ID "address-form" */}
+                <Button
+                  form="address-form"
+                  type="submit"
+                  className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                  style={{ backgroundColor: bg_primary || "#111" }}
+                >
+                  Ir para Pagamento
+                </Button>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
+                  onClick={handleCreateOrder}
+                  disabled={!status}
+                >
+                  Finalizar Pedido • {formatToBRL(valorTotal)}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full! text-gray-500! h-10! font-medium!"
+                  onClick={() => window.history.back()}
+                >
+                  Continuar comprando
+                </Button>
+              </div>
+            )}
+
+            {!status && (
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-red-100 border border-red-200 text-red-600 px-3 py-1 rounded-full shadow-sm">
+                <BsDoorClosed size={14} />
+                <span className="text-xs font-semibold">Fechado agora</span>
+              </div>
+            )}
+          </div>
         )}
       </DialogContent>
     </DialogRoot>

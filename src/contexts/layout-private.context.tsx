@@ -1,8 +1,5 @@
-import { createContext, Dispatch, SetStateAction } from "react";
+import { createContext } from "react";
 
-interface IFlowContextProps {
-  headerOpen: boolean;
-  setHeaderOpen: Dispatch<SetStateAction<boolean>>;
-}
+interface IFlowContextProps {}
 
 export const LayoutPrivateContext = createContext({} as IFlowContextProps);

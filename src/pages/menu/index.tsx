@@ -1,5 +1,4 @@
 import { AspectRatio, Presence } from "@chakra-ui/react";
-import { LayoutPrivateContext } from "@contexts/layout-private.context";
 import clsx from "clsx";
 import { JSX, RefObject, useContext, useEffect, useRef, useState } from "react";
 import Carousel from "react-multi-carousel";
@@ -38,11 +37,7 @@ const responsive = {
 
 export const MenuPage: React.FC = (): JSX.Element => {
   const { categories, items, bg_capa } = useContext(DataMenuContext);
-  // const {
-  //   items: cartItems,
-  // } = useContext(CartContext);
 
-  const { headerOpen, setHeaderOpen } = useContext(LayoutPrivateContext);
   const isMoving = useRef(false);
   const ref = useRef<Carousel>(null);
   const refDefaultStateSection = useRef<{
@@ -108,7 +103,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
               key={cat.uuid}
               onClick={() => {
                 handleTab(index);
-                if (headerOpen) setHeaderOpen(false);
               }}
               style={{
                 background:
@@ -174,7 +168,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
             });
           }
 
-          if (headerOpen) setHeaderOpen(false);
           setTimeout(() => {
             isMoving.current = false;
           }, 20);

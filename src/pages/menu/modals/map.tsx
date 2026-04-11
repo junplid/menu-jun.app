@@ -183,7 +183,7 @@ export const MapComponent = memo(function MapComponent(props: Props) {
   }
 
   return (
-    <div className="relative w-full rounded-md overflow-hidden">
+    <div className="relative w-full min-h-52.5! rounded-md overflow-hidden">
       {askedLocation &&
         !permissionDenied &&
         !position &&

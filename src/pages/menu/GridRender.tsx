@@ -88,6 +88,7 @@ export default function GridWithShadows<T>({
           listClassName={listClassName}
           components={virtuosoComponents}
           itemContent={(index) => renderItem(items[index], index)}
+          increaseViewportBy={{ top: 600, bottom: 800 }}
         />
       ) : (
         <Virtuoso
@@ -96,6 +97,7 @@ export default function GridWithShadows<T>({
           className={listClassName}
           components={virtuosoComponents}
           itemContent={(index) => renderItem(items[index], index)}
+          increaseViewportBy={{ top: 600, bottom: 800 }}
         />
       )}
 
