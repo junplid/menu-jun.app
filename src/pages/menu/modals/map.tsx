@@ -5,6 +5,7 @@ import {
   useMapEvents,
   useMap,
   Popup,
+  Circle,
 } from "react-leaflet";
 import { divIcon, LatLng, LatLngExpression } from "leaflet";
 import {
@@ -21,6 +22,22 @@ import { renderToString } from "react-dom/server";
 import { IoStorefront } from "react-icons/io5";
 import { Spinner } from "@chakra-ui/react";
 import { DataMenuContext } from "@contexts/data-menu.context";
+import { point, distance } from "@turf/turf";
+
+export function isWithinDeliveryArea(
+  store: { lng: number; lat: number; max_distance_km: number },
+  customer: { lng: number; lat: number },
+) {
+  const from = point([store.lng, store.lat]);
+  const to = point([customer.lng, customer.lat]);
+
+  const km = distance(from, to, { units: "kilometers" });
+
+  return {
+    distanceKm: km,
+    isInside: km <= store.max_distance_km,
+  };
+}
 
 const customIcon = divIcon({
   html: `
@@ -264,10 +281,18 @@ export const MapComponent = memo(function MapComponent(props: Props) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {info?.lat && info?.lng && (
-          <LocationStoreMarker
-            markerRef={markerRef}
-            position={{ lat: info.lat, lng: info.lng } as LatLng}
-          />
+          <>
+            <LocationStoreMarker
+              markerRef={markerRef}
+              position={{ lat: info.lat, lng: info.lng } as LatLng}
+            />
+            {info.max_distance_km && (
+              <Circle
+                center={[info.lat, info.lng]}
+                radius={info.max_distance_km * 1000}
+              />
+            )}
+          </>
         )}
 
         <AdjustMap

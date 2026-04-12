@@ -27,6 +27,8 @@ interface IDataMenuProps {
     links?: string[];
     delivery_fee?: number;
     payment_methods: TypePaymentMethods[];
+    max_distance_km: number | null;
+    price_per_km: number | undefined;
   } | null;
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];

@@ -31,7 +31,7 @@ import { createOrder } from "../../../services/api/MenuOnline";
 import { PiChecksBold } from "react-icons/pi";
 import { useSearchParams } from "react-router-dom";
 import { IoLogoWhatsapp } from "react-icons/io";
-import { MapComponent } from "./map";
+import { isWithinDeliveryArea, MapComponent } from "./map";
 
 // --- Tipagens e Constantes ---
 interface IProps {
@@ -71,7 +71,12 @@ function FormAddress(props: {
   submit: () => void;
   upsertAddress: (data: Fields | "retirar") => void;
   address: Fields | null;
+  deliveryArea: {
+    distanceKm: number;
+    isInside: boolean;
+  } | null;
 }) {
+  const { info } = useContext(DataMenuContext);
   const [loadRoad, setLoadRoad] = useState(false);
   const {
     handleSubmit,
@@ -140,15 +145,40 @@ function FormAddress(props: {
               : undefined
           }
           onSetPosition={({ lat, lng }) => {
-            setValue("lat", lat, { shouldDirty: true });
-            setValue("lng", lng, { shouldDirty: true });
-            getAddress(lat, lng);
+            if (info && info.lat && info.lng && info.max_distance_km) {
+              const area = isWithinDeliveryArea(
+                {
+                  lat: info.lat,
+                  lng: info.lng,
+                  max_distance_km: info.max_distance_km,
+                },
+                { lat, lng },
+              );
+              if (area.isInside) {
+                setValue("lat", lat, { shouldDirty: true });
+                setValue("lng", lng, { shouldDirty: true });
+                getAddress(lat, lng);
+              }
+              return;
+            }
+
+            if (!info?.max_distance_km) {
+              setValue("lat", lat, { shouldDirty: true });
+              setValue("lng", lng, { shouldDirty: true });
+              getAddress(lat, lng);
+            }
           }}
         />
 
         {(errors.lat?.message || errors.lng?.message) && (
           <span className="text-red-500 font-medium block -mt-2">
             Defina corretamente o local de entrega movendo o pin no mapa.
+          </span>
+        )}
+
+        {props.deliveryArea && !props.deliveryArea.isInside && (
+          <span className="text-red-500 font-medium block -mt-2">
+            Ops! Ainda não entregamos nessa região 😕
           </span>
         )}
 
@@ -280,6 +310,11 @@ export const ModalCarrinho: React.FC<
     error,
   } = useContext(CartContext);
 
+  const [deliveryArea, setDeliveryArea] = useState<{
+    distanceKm: number;
+    isInside: boolean;
+  } | null>(null);
+
   const { address, upsertAddress } = useAddressStore();
   const [searchParams] = useSearchParams();
   const isOpen = searchParams.get("c");
@@ -296,7 +331,11 @@ export const ModalCarrinho: React.FC<
 
   const subtotal = totalValues;
   const taxaEntrega =
-    address !== null && address !== "retirar" ? info?.delivery_fee || 0 : 0;
+    address !== null && address !== "retirar" && deliveryArea?.isInside
+      ? (info?.delivery_fee || 0) +
+        deliveryArea.distanceKm * 1.3 * (info?.price_per_km || 0)
+      : 0;
+
   const valorTotal = subtotal + taxaEntrega;
 
   useEffect(() => {
@@ -365,6 +404,28 @@ export const ModalCarrinho: React.FC<
       }
     }
   };
+
+  useEffect(() => {
+    if (
+      info &&
+      info.lat &&
+      info.lng &&
+      info?.max_distance_km &&
+      address &&
+      address !== "retirar"
+    ) {
+      const area = isWithinDeliveryArea(
+        {
+          lat: info.lat,
+          lng: info.lng,
+          max_distance_km: info.max_distance_km,
+        },
+        { lat: address.lat, lng: address.lng },
+      );
+
+      setDeliveryArea(area);
+    }
+  }, [address]);
 
   const payment_methods_items = (info?.payment_methods || [])
     .map((m) => PAYMENT_OPTIONS[m])
@@ -594,6 +655,7 @@ export const ModalCarrinho: React.FC<
                     address={address !== "retirar" ? address : null}
                     upsertAddress={upsertAddress}
                     submit={() => setStep(3)}
+                    deliveryArea={deliveryArea}
                   />
                 </div>
               )}
@@ -754,6 +816,7 @@ export const ModalCarrinho: React.FC<
                   type="submit"
                   className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
                   style={{ backgroundColor: bg_primary || "#111" }}
+                  disabled={deliveryArea !== null && !deliveryArea.isInside}
                 >
                   Ir para Pagamento
                 </Button>
@@ -765,7 +828,9 @@ export const ModalCarrinho: React.FC<
                 <Button
                   className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
                   onClick={handleCreateOrder}
-                  disabled={!status}
+                  disabled={
+                    !status || (deliveryArea !== null && !deliveryArea.isInside)
+                  }
                 >
                   Finalizar Pedido • {formatToBRL(valorTotal)}
                 </Button>
