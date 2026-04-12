@@ -25,7 +25,7 @@ import { DataMenuContext } from "@contexts/data-menu.context";
 import { point, distance } from "@turf/turf";
 
 export function isWithinDeliveryArea(
-  store: { lng: number; lat: number; max_distance_km: number },
+  store: { lng: number; lat: number; max_distance_km?: number | null },
   customer: { lng: number; lat: number },
 ) {
   const from = point([store.lng, store.lat]);
@@ -35,7 +35,7 @@ export function isWithinDeliveryArea(
 
   return {
     distanceKm: km,
-    isInside: km <= store.max_distance_km,
+    isInside: store.max_distance_km ? km <= store.max_distance_km : true,
   };
 }
 

@@ -116,7 +116,7 @@ function FormAddress(props: {
     <form
       id="address-form"
       onSubmit={handleSubmit(handleAddress, (err) => console.log(err))}
-      className="flex flex-col gap-y-3 px-3"
+      className="flex flex-col gap-y-0 px-3"
     >
       <div className="flex justify-between items-center bg-green-50 p-3 rounded-lg border border-green-100 mb-2">
         <span className="text-sm text-green-800 font-medium">
@@ -136,7 +136,7 @@ function FormAddress(props: {
         </Button>
       </div>
 
-      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-380px)]">
+      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-305px)]">
         <MapComponent
           isEdit={false}
           defaultPosition={
@@ -145,7 +145,7 @@ function FormAddress(props: {
               : undefined
           }
           onSetPosition={({ lat, lng }) => {
-            if (info && info.lat && info.lng && info.max_distance_km) {
+            if (info && info.lat && info.lng) {
               const area = isWithinDeliveryArea(
                 {
                   lat: info.lat,
@@ -406,14 +406,7 @@ export const ModalCarrinho: React.FC<
   };
 
   useEffect(() => {
-    if (
-      info &&
-      info.lat &&
-      info.lng &&
-      info?.max_distance_km &&
-      address &&
-      address !== "retirar"
-    ) {
+    if (info && info.lat && info.lng && address && address !== "retirar") {
       const area = isWithinDeliveryArea(
         {
           lat: info.lat,
@@ -446,8 +439,9 @@ export const ModalCarrinho: React.FC<
         bg="#f9f9fb"
         w="100%"
         maxW="500px"
-        className="h-[calc(100svh-140px)] overflow-hidden sm:rounded-2xl flex flex-col"
+        className="h-[calc(100svh-80px)] overflow-hidden sm:rounded-2xl flex flex-col"
         p={0}
+        mt={4}
       >
         {/* HEADER DE PROGRESSO */}
         {!isLoading && !redirectTo && (
@@ -557,10 +551,10 @@ export const ModalCarrinho: React.FC<
                       return (
                         <div
                           key={item.key}
-                          className="flex flex-col bg-white p-3 mx-4 my-3 rounded-xl shadow-md border border-gray-100"
+                          className="flex flex-col bg-white p-3 mx-4 my-1 rounded-xl shadow-sm border border-gray-100"
                         >
                           <div className="flex gap-3">
-                            <div className="w-20 h-20 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+                            <div className="w-14 h-14 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
                               <img
                                 src={product.img}
                                 className="w-full h-full object-cover"
@@ -662,7 +656,7 @@ export const ModalCarrinho: React.FC<
 
               {/* === PASSO 3: PAGAMENTO === */}
               {step === 3 && (
-                <div className="flex flex-col gap-4 overflow-y-auto pb-16 h-[calc(100vh-356px)]">
+                <div className="flex flex-col gap-4 overflow-y-auto pb-16 h-[calc(100vh-290px)]">
                   <div className="bg-white p-4 mx-4 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide flex justify-between">
                       Resumo do Pedido
