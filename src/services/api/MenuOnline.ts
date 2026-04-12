@@ -47,6 +47,8 @@ export async function getMenuOnline(identifier: string): Promise<{
     city: string | null;
     links: string[];
     payment_methods: TypePaymentMethods[];
+    max_distance_km: number | null;
+    price_per_km: number | undefined;
   } | null;
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];
