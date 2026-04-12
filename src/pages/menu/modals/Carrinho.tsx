@@ -200,6 +200,8 @@ function FormAddress(props: {
               size="sm"
               autoComplete="off"
               bg="white"
+              maxLength={120}
+              minLength={5}
             />
           </Field>
           <Field
@@ -212,6 +214,8 @@ function FormAddress(props: {
               size="sm"
               autoComplete="off"
               bg="white"
+              minLength={1}
+              maxLength={10}
             />
           </Field>
         </div>
@@ -246,6 +250,8 @@ function FormAddress(props: {
               size="sm"
               autoComplete="off"
               bg="white"
+              minLength={2}
+              maxLength={35}
             />
           </Field>
         </div>
@@ -264,6 +270,8 @@ function FormAddress(props: {
             {...register("reference_point")}
             autoComplete="off"
             bg="white"
+            minLength={4}
+            maxLength={120}
           />
         </Field>
 
@@ -279,6 +287,7 @@ function FormAddress(props: {
             placeholder="Apto, Bloco..."
             autoComplete="off"
             bg="white"
+            maxLength={60}
           />
         </Field>
       </div>
@@ -634,6 +643,7 @@ export const ModalCarrinho: React.FC<
                             }
                             placeholder="Observações..."
                             className={"bg-white! mt-1.5"}
+                            maxLength={130}
                           />
                         </div>
                       );
