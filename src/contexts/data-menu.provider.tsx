@@ -22,6 +22,7 @@ interface IData {
   status: boolean;
   uuid: string;
   logoImg: string;
+  capaImg: string | null;
   bg_primary: string | null;
   bg_secondary: string | null;
   bg_tertiary: string | null;
@@ -39,6 +40,10 @@ interface IData {
     payment_methods: TypePaymentMethods[];
     max_distance_km: number | null;
     price_per_km: number | undefined;
+
+    deliveries_begin_at: string | null;
+    average_delivery_time: string | null;
+    minimum_value_per_order: number | null;
   } | null;
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];
@@ -103,7 +108,6 @@ export function DataMenuProvider({
           if (document.title !== result.titlePage)
             document.title = result.titlePage + " | Cardápio digital";
         }
-
         const src = api.getUri() + "/public/images/";
         try {
           await preloadImage(src + result.logoImg);
@@ -111,6 +115,13 @@ export function DataMenuProvider({
         } catch (error) {
           result.logoImg = "";
         }
+        try {
+          await preloadImage(src + result.capaImg);
+          result.capaImg = src + result.capaImg;
+        } catch (error) {
+          result.capaImg = "";
+        }
+
         result.categories = await Promise.all(
           result.categories.map(async (cat) => {
             try {
@@ -123,17 +134,20 @@ export function DataMenuProvider({
           }),
         );
         const nextList = await Promise.all(
-          result.items.map(async (item) => {
+          result.items.map(async (item, index) => {
             try {
-              await preloadImage(src + item.img);
+              if (index <= 10 && item.img) {
+                await preloadImage(src + item.img);
+              }
               item.img = src + item.img;
               item.sections = await Promise.all(
                 item.sections.map(async (sec) => {
                   sec.subItems = await Promise.all(
                     sec.subItems.map(async (sub) => {
                       try {
-                        await preloadImage(src + sub.image55x55png);
-                        sub.image55x55png = src + sub.image55x55png;
+                        if (sub.image55x55png) {
+                          sub.image55x55png = src + sub.image55x55png;
+                        }
                         return sub;
                       } catch (error) {
                         return sub;

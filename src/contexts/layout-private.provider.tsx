@@ -66,8 +66,15 @@ function OperatingDaysList({ data }: any) {
 }
 
 export function LayoutPrivateProvider(): JSX.Element {
-  const { logoImg, titlePage, bg_capa, status, helperTextOpening } =
-    useContext(DataMenuContext);
+  const {
+    logoImg,
+    titlePage,
+    capaImg,
+    bg_capa,
+    status,
+    info,
+    helperTextOpening,
+  } = useContext(DataMenuContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [dispence, setDispence] = useState(false);
 
@@ -92,10 +99,12 @@ export function LayoutPrivateProvider(): JSX.Element {
         >
           {/* Capa de Fundo - Aumentei levemente a altura para dar respiro à logo */}
           <div
-            className={clsx("w-full transition-all duration-300 h-24")}
-            style={{
-              background: bg_capa || "#e5e5e5",
-            }}
+            className="w-full h-24 transition-all duration-300 bg-center bg-cover bg-no-repeat"
+            style={
+              capaImg
+                ? { backgroundImage: `url(${capaImg})` }
+                : { backgroundColor: bg_capa || "#e5e5e5" }
+            }
           />
 
           <div className="px-3">
@@ -230,7 +239,7 @@ export function LayoutPrivateProvider(): JSX.Element {
                 {/* MOCK: Tempo de Entrega */}
                 <div className="flex items-center gap-x-1.5 text-neutral-500 font-medium px-1">
                   <FaMotorcycle size={14} className="text-neutral-400" />
-                  <span>30-45 min</span>
+                  <span>{info?.average_delivery_time ?? "30-45 min"}</span>
                 </div>
 
                 <span className="text-neutral-200 hidden sm:block">|</span>
@@ -241,7 +250,12 @@ export function LayoutPrivateProvider(): JSX.Element {
                     size={16}
                     className="text-neutral-400 -mr-0.5"
                   />
-                  <span>Mín. R$ 5</span>
+                  <span>
+                    Mín.{" "}
+                    {info?.minimum_value_per_order
+                      ? `R$ ${info?.minimum_value_per_order}`
+                      : `R$ 5`}
+                  </span>
                 </div>
               </div>
             </div>

@@ -32,6 +32,7 @@ import { PiChecksBold } from "react-icons/pi";
 import { useSearchParams } from "react-router-dom";
 import { IoLogoWhatsapp } from "react-icons/io";
 import { isWithinDeliveryArea, MapComponent } from "./map";
+import moment from "moment-timezone";
 
 // --- Tipagens e Constantes ---
 interface IProps {
@@ -66,6 +67,34 @@ const PAYMENT_OPTIONS: Record<string, { label: string; value: string }> = {
   Cartao_Debito: { label: "Débito", value: "Débito" },
 };
 
+function formatHour(hhmm: string) {
+  const [h, m] = hhmm.split(":");
+
+  const hour = Number(h); // remove zero à esquerda
+
+  if (m === "00") {
+    return `${hour}h`;
+  }
+
+  return `${hour}:${m}`;
+}
+
+function getDeliveryMessage(deliveryTime?: string | null) {
+  if (!deliveryTime) return null;
+
+  const agora = moment.tz("America/Sao_Paulo");
+
+  const [h, m] = deliveryTime.split(":").map(Number);
+
+  const inicio = agora.clone().hour(h).minute(m).second(0);
+
+  if (agora.isBefore(inicio)) {
+    return `Pedidos Delivery começam a sair às ${formatHour(deliveryTime)}`;
+  }
+
+  return null;
+}
+
 // --- Componente de Formulário de Endereço ---
 function FormAddress(props: {
   submit: () => void;
@@ -88,7 +117,7 @@ function FormAddress(props: {
     resolver: zodResolver(FormSchema),
     defaultValues: props.address || undefined,
   });
-
+  const deliveryMessage = getDeliveryMessage(info?.deliveries_begin_at);
   const registerWithMask = useHookFormMask(register);
 
   const handleAddress = async (fields: Fields) => {
@@ -136,7 +165,15 @@ function FormAddress(props: {
         </Button>
       </div>
 
-      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-305px)]">
+      {deliveryMessage && (
+        <div className="mb-2 px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center gap-2">
+          <span className="text-yellow-800 text-sm font-medium">
+            ⏰ {deliveryMessage}
+          </span>
+        </div>
+      )}
+
+      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-350px)]">
         <MapComponent
           isEdit={false}
           defaultPosition={
@@ -433,6 +470,13 @@ export const ModalCarrinho: React.FC<
     .map((m) => PAYMENT_OPTIONS[m])
     .filter(Boolean)
     .filter((v, i, arr) => arr.findIndex((s) => s.value === v.value) === i);
+
+  const minimo = info?.minimum_value_per_order || 0;
+
+  const falta = minimo - subtotal;
+  const atingiuMinimo = subtotal >= minimo;
+
+  const progresso = minimo > 0 ? Math.min((subtotal / minimo) * 100, 100) : 100;
 
   return (
     <DialogRoot
@@ -829,15 +873,38 @@ export const ModalCarrinho: React.FC<
 
             {step === 3 && (
               <div className="flex flex-col gap-2 w-full">
-                <Button
-                  className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
-                  onClick={handleCreateOrder}
-                  disabled={
-                    !status || (deliveryArea !== null && !deliveryArea.isInside)
-                  }
-                >
-                  Finalizar Pedido • {formatToBRL(valorTotal)}
-                </Button>
+                {minimo > 0 && !atingiuMinimo && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                    <div className="flex justify-between text-sm font-medium text-yellow-800 mb-1">
+                      <span>Pedido mínimo</span>
+                      <span>{formatToBRL(minimo)}</span>
+                    </div>
+
+                    <div className="w-full bg-yellow-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="h-full bg-yellow-400 transition-all"
+                        style={{ width: `${progresso}%` }}
+                      />
+                    </div>
+
+                    <p className="text-xs text-yellow-700 mt-2">
+                      Faltam <strong>{formatToBRL(falta)}</strong> para atingir
+                      o pedido mínimo
+                    </p>
+                  </div>
+                )}
+                {atingiuMinimo && (
+                  <Button
+                    className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
+                    onClick={handleCreateOrder}
+                    disabled={
+                      !status ||
+                      (deliveryArea !== null && !deliveryArea.isInside)
+                    }
+                  >
+                    Finalizar Pedido • {formatToBRL(valorTotal)}
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   className="w-full! text-gray-500! h-10! font-medium!"

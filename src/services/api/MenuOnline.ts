@@ -37,6 +37,7 @@ export async function getMenuOnline(identifier: string): Promise<{
   bg_secondary: string | null;
   bg_tertiary: string | null;
   bg_capa: string | null;
+  capaImg: string | null;
   titlePage: string | null;
   isChatbot: boolean;
   info: {
@@ -49,6 +50,10 @@ export async function getMenuOnline(identifier: string): Promise<{
     payment_methods: TypePaymentMethods[];
     max_distance_km: number | null;
     price_per_km: number | undefined;
+
+    deliveries_begin_at: string | null;
+    average_delivery_time: string | null;
+    minimum_value_per_order: number | null;
   } | null;
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];
