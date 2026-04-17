@@ -134,12 +134,11 @@ export function DataMenuProvider({
           }),
         );
         const nextList = await Promise.all(
-          result.items.map(async (item, index) => {
+          result.items.map(async (item) => {
             try {
-              if (index <= 10 && item.img) {
-                await preloadImage(src + item.img);
+              if (item.img) {
+                item.img = src + item.img;
               }
-              item.img = src + item.img;
               item.sections = await Promise.all(
                 item.sections.map(async (sec) => {
                   sec.subItems = await Promise.all(

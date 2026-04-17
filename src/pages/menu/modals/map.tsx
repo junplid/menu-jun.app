@@ -5,7 +5,6 @@ import {
   useMapEvents,
   useMap,
   Popup,
-  Circle,
 } from "react-leaflet";
 import { divIcon, LatLng, LatLngExpression } from "leaflet";
 import {
@@ -28,8 +27,23 @@ export function isWithinDeliveryArea(
   store: { lng: number; lat: number; max_distance_km?: number | null },
   customer: { lng: number; lat: number },
 ) {
-  const from = point([store.lng, store.lat]);
-  const to = point([customer.lng, customer.lat]);
+  const storeLat = Number(store.lat);
+  const storeLng = Number(store.lng);
+  const customerLat = Number(customer.lat);
+  const customerLng = Number(customer.lng);
+  const values = [storeLat, storeLng, customerLat, customerLng];
+
+  const isValid = values.every((v) => Number.isFinite(v));
+
+  if (!isValid) {
+    return {
+      distanceKm: null,
+      isInside: false,
+    };
+  }
+
+  const from = point([storeLng, storeLat]);
+  const to = point([customerLng, customerLat]);
 
   const km = distance(from, to, { units: "kilometers" });
 
@@ -68,13 +82,23 @@ function AdjustMap({ position, isfly }: any) {
   const refIsFly = useRef(false);
 
   useEffect(() => {
-    if (!map || !position || refIsFly.current) return;
+    if (!map || refIsFly.current) return;
+    if (!position) return;
+
+    const lat = Number(position.lat);
+    const lng = Number(position.lng);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
     requestAnimationFrame(() => {
       refIsFly.current = true;
+
+      const coords: LatLngExpression = [lat, lng];
+
       if (isfly) {
-        map.flyTo(position, 16);
+        map.flyTo(coords, 16);
       } else {
-        map.setView(position, map.getZoom());
+        map.setView(coords, map.getZoom());
       }
     });
   }, [position, map]);
@@ -146,7 +170,6 @@ export const MapComponent = memo(function MapComponent(props: Props) {
   const [position, setPosition] = useState<LatLng | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [askedLocation, setAskedLocation] = useState(false);
-  const [loja, _setLoja] = useState([-12.865178, -38.435886]);
   const markerRef = useRef<any>(null);
   const [isEdit, setIsEdit] = useState(false);
   const { info } = useContext(DataMenuContext);
@@ -198,6 +221,15 @@ export const MapComponent = memo(function MapComponent(props: Props) {
       </div>
     );
   }
+
+  if (!info) return null;
+
+  const lat = Number(info.lat);
+  const lng = Number(info.lng);
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  const isValidCoords = Number.isFinite(lat) && Number.isFinite(lng);
 
   return (
     <div className="relative w-full min-h-52.5! rounded-md overflow-hidden">
@@ -272,59 +304,56 @@ export const MapComponent = memo(function MapComponent(props: Props) {
           </>
         )}
 
-      <MapContainer
-        center={loja as LatLngExpression}
-        zoom={16}
-        style={{ height: "210px", width: "100%" }}
-        zoomControl={false}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {isValidCoords && (
+        <>
+          <MapContainer
+            center={[lat, lng]}
+            zoom={16}
+            style={{ height: "210px", width: "100%" }}
+            zoomControl={false}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {info?.lat && info?.lng && (
-          <>
-            <LocationStoreMarker
-              markerRef={markerRef}
-              position={{ lat: info.lat, lng: info.lng } as LatLng}
-            />
-            {info.max_distance_km && (
-              <Circle
-                center={[info.lat, info.lng]}
-                radius={info.max_distance_km * 1000}
-              />
+            {isValidCoords && (
+              <>
+                <LocationStoreMarker
+                  markerRef={markerRef}
+                  position={{ lat, lng } as LatLng}
+                />
+              </>
             )}
-          </>
-        )}
 
-        <AdjustMap
-          position={props.defaultPosition || position}
-          isfly={!props.defaultPosition}
-        />
-        <MapCenterTracker
-          onSetPosition={props.onSetPosition}
-          markerRef={markerRef}
-        />
-        <FixMap />
-      </MapContainer>
+            <AdjustMap
+              position={props.defaultPosition || position}
+              isfly={!props.defaultPosition}
+            />
+            <MapCenterTracker
+              onSetPosition={props.onSetPosition}
+              markerRef={markerRef}
+            />
+            <FixMap />
+          </MapContainer>
+          {!props.defaultPosition && !askedLocation && (
+            <div
+              onClick={requestLocation}
+              className="absolute inset-0 z-9999 bg-white/90 flex flex-col items-center justify-center gap-3 p-4"
+            >
+              {!permissionDenied && (
+                <p className="text-center text-sm">
+                  📍 Toque no mapa para ajustar sua localização
+                </p>
+              )}
 
-      {!props.defaultPosition && !askedLocation && (
-        <div
-          onClick={requestLocation}
-          className="absolute inset-0 z-9999 bg-white/90 flex flex-col items-center justify-center gap-3 p-4"
-        >
-          {!permissionDenied && (
-            <p className="text-center text-sm">
-              📍 Toque no mapa para ajustar sua localização
-            </p>
+              {permissionDenied && (
+                <p className="text-xs text-red-500 text-center">
+                  Você bloqueou a localização!
+                  <br />
+                  Ative nas configurações do navegador.
+                </p>
+              )}
+            </div>
           )}
-
-          {permissionDenied && (
-            <p className="text-xs text-red-500 text-center">
-              Você bloqueou a localização!
-              <br />
-              Ative nas configurações do navegador.
-            </p>
-          )}
-        </div>
+        </>
       )}
     </div>
   );

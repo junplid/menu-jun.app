@@ -41,7 +41,7 @@ interface IDataMenuProps {
     id: number;
     uuid: string;
     name: string;
-    image45x45png: string;
+    image45x45png?: string | null;
   }[];
   items: {
     afterPrice?: number;

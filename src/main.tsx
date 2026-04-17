@@ -1,5 +1,17 @@
 import "./index.css";
 
+window.onerror = function (msg, url, line, _col, error) {
+  document.body.innerHTML = `
+    <div style="padding:20px;font-family:sans-serif">
+      <h2>Erro detectado</h2>
+      <p><b>Mensagem:</b> ${msg}</p>
+      <p><b>Linha:</b> ${line}</p>
+      <p><b>Arquivo:</b> ${url}</p>
+      <p><b>Arquivo:</b> ${error}</p>
+    </div>
+  `;
+};
+
 import { createRoot } from "react-dom/client";
 import { Provider } from "@components/ui/provider.tsx";
 import App from "./App.tsx";
@@ -21,5 +33,5 @@ createRoot(document.getElementById("root")!).render(
       </QueryClientProvider>
       <Toaster />
     </Provider>
-  </CookiesProvider>
+  </CookiesProvider>,
 );

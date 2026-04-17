@@ -462,7 +462,7 @@ export const ModalCarrinho: React.FC<
         { lat: address.lat, lng: address.lng },
       );
 
-      setDeliveryArea(area);
+      if (area.distanceKm) setDeliveryArea(area);
     }
   }, [address]);
 
@@ -604,7 +604,7 @@ export const ModalCarrinho: React.FC<
                       return (
                         <div
                           key={item.key}
-                          className="flex flex-col bg-white p-3 mx-4 my-1 rounded-xl shadow-sm border border-gray-100"
+                          className="flex flex-col bg-white p-3 mx-4 my-1 rounded-xl shadow-md border border-gray-100"
                         >
                           <div className="flex gap-3">
                             <div className="w-14 h-14 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
@@ -674,7 +674,7 @@ export const ModalCarrinho: React.FC<
                                     }
                                     className="text-blue-500 bg-blue-50 p-1.5 rounded-md"
                                   >
-                                    <MdModeEdit size={16} />
+                                    <MdModeEdit size={22} />
                                   </button>
                                 )}
                               </div>
@@ -833,13 +833,13 @@ export const ModalCarrinho: React.FC<
               <div className="flex gap-2 w-full">
                 <Button
                   variant="outline"
-                  className="flex-1! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                  className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
                   onClick={() => window.history.back()}
                 >
-                  Continuar comprando
+                  Voltar
                 </Button>
                 <Button
-                  className="flex-1! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                  className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
                   style={{ backgroundColor: bg_primary || "#111" }}
                   onClick={() => setStep(2)}
                   disabled={!status || !items.length}

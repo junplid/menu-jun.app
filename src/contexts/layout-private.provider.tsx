@@ -73,7 +73,7 @@ export function LayoutPrivateProvider(): JSX.Element {
     bg_capa,
     status,
     info,
-    helperTextOpening,
+    // helperTextOpening,
   } = useContext(DataMenuContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [dispence, setDispence] = useState(false);
@@ -111,7 +111,7 @@ export function LayoutPrivateProvider(): JSX.Element {
             {/* Card Principal Flutuante */}
             <div
               className={clsx(
-                "-mt-16 duration-200 shadow-[0_4px_20px_rgba(0,0,0,0.04)] border active:scale-[0.99] mx-auto transition-all w-full max-w-lg px-4 rounded-2xl pb-3 border-neutral-100 cursor-pointer relative",
+                "-mt-16 duration-200 shadow-[0_4px_20px_rgba(0,0,0,0.04)] border active:scale-[0.99] mx-auto transition-all w-full max-w-lg max-[390px]:px-1.5 px-4 rounded-2xl pb-3 border-neutral-100 cursor-pointer relative",
               )}
               style={{ background: "#fff" }}
               onClick={() => {
@@ -183,7 +183,7 @@ export function LayoutPrivateProvider(): JSX.Element {
               <div className="flex flex-col items-center mt-2 text-center">
                 <h1
                   className={
-                    "text-neutral-900 leading-tight font-bold text-2xl tracking-tight mb-1"
+                    "text-neutral-900 leading-tight font-bold text-2xl tracking-tight"
                   }
                 >
                   {titlePage}
@@ -192,11 +192,11 @@ export function LayoutPrivateProvider(): JSX.Element {
               </div>
 
               {/* Base do Card: Status e Informações Extras */}
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[14px]">
+              <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 max-[390px]:text-[13px] text-[14px]">
                 {/* Pílula de Status (Aberto/Fechado) */}
                 <div
                   className={clsx(
-                    "flex items-center gap-x-1.5 px-2.5 py-1 rounded-md font-semibold border shadow-sm",
+                    "flex items-center gap-x-1 px-2 py-1.5 rounded-md font-semibold border shadow-sm",
                     status
                       ? "bg-[#f0fdf4] text-green-700 border-green-200"
                       : "bg-[#fef2f2] text-red-600 border-red-200",
@@ -214,16 +214,14 @@ export function LayoutPrivateProvider(): JSX.Element {
                     <>
                       <FaRegClock size={13} className="text-red-500" />
                       <span>Fechado</span>
-                      {helperTextOpening && (
+                      {/* {helperTextOpening && (
                         <span className="font-medium text-red-400 ml-1 opacity-90">
                           • {helperTextOpening}
                         </span>
-                      )}
+                      )} */}
                     </>
                   )}
                 </div>
-
-                <span className="text-neutral-200 hidden sm:block">|</span>
 
                 {/* MOCK: Avaliação */}
                 {/* <div className="flex items-center gap-x-1 text-yellow-500 font-bold bg-yellow-50/50 px-2 py-1 rounded-md border border-yellow-100/50">
@@ -238,16 +236,14 @@ export function LayoutPrivateProvider(): JSX.Element {
 
                 {/* MOCK: Tempo de Entrega */}
                 <div className="flex items-center gap-x-1.5 text-neutral-500 font-medium px-1">
-                  <FaMotorcycle size={14} className="text-neutral-400" />
+                  <FaMotorcycle size={16} className="text-neutral-400" />
                   <span>{info?.average_delivery_time ?? "30-45 min"}</span>
                 </div>
 
-                <span className="text-neutral-200 hidden sm:block">|</span>
-
                 {/* MOCK: Pedido Mínimo */}
-                <div className="flex items-center gap-x-1 text-neutral-500 font-medium px-1">
+                <div className="flex items-center gap-x-0.5 text-neutral-500 font-medium px-1">
                   <MdOutlineAttachMoney
-                    size={16}
+                    size={18}
                     className="text-neutral-400 -mr-0.5"
                   />
                   <span>

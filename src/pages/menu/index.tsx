@@ -113,27 +113,30 @@ export const MenuPage: React.FC = (): JSX.Element => {
                 borderColor: border,
                 boxShadow: `0px 0px 10px inset ${shadow}`,
               }}
-              className="grid border rounded-md grid-rows-[45px_1fr] -space-y-0.5 px-3 items-center cursor-pointer duration-100 active:scale-95 transition-all"
+              className="grid border rounded-md -space-y-0.5 px-3 items-center cursor-pointer duration-100 active:scale-95 transition-all"
               ref={(el) => {
                 categoriesRefs.current[index] = el;
               }}
             >
-              <AspectRatio ratio={1} w={"45px"} className="mx-auto">
-                <div
-                  className={clsx(
-                    `rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`,
-                  )}
-                >
-                  <img
-                    src={cat.image45x45png}
-                    className="w-full h-auto"
-                    alt={cat.name}
-                  />
-                </div>
-              </AspectRatio>
+              {cat.image45x45png && (
+                <AspectRatio ratio={1} w={"45px"} className="mx-auto">
+                  <div
+                    className={clsx(
+                      `rounded-xl w-full p-0.5 flex justify-center duration-300 items-center`,
+                    )}
+                  >
+                    <img
+                      src={cat.image45x45png}
+                      className="w-full h-auto"
+                      alt={cat.name}
+                    />
+                  </div>
+                </AspectRatio>
+              )}
               <span
                 className={clsx(
                   "duration-300 text-sm text-center text-nowrap transition-all font-bold",
+                  cat.image45x45png ? "" : "py-2",
                 )}
                 style={{ color: textOn }}
               >
