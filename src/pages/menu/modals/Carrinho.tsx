@@ -173,7 +173,10 @@ function FormAddress(props: {
         </div>
       )}
 
-      <div className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto h-[calc(100vh-350px)]">
+      <div
+        style={{ height: "calc(100vh - 225px)" }}
+        className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto"
+      >
         <MapComponent
           isEdit={false}
           defaultPosition={
@@ -711,7 +714,10 @@ export const ModalCarrinho: React.FC<
 
               {/* === PASSO 3: PAGAMENTO === */}
               {step === 3 && (
-                <div className="flex flex-col gap-4 overflow-y-auto pb-16 h-[calc(100vh-290px)]">
+                <div
+                  style={{ height: "calc(100vh - 205px)" }}
+                  className="flex flex-col gap-4 overflow-y-auto pb-14"
+                >
                   <div className="bg-white p-4 mx-4 rounded-xl shadow-sm border border-gray-100">
                     <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide flex justify-between">
                       Resumo do Pedido
