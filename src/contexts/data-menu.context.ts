@@ -72,6 +72,35 @@ interface IDataMenuProps {
     name: string;
     image45x45png: string | null;
   }[];
+  items: {
+    qnt: number;
+    afterPrice: number | undefined;
+    beforePrice: number | undefined;
+    send_to_category_uuid: string | null;
+    sections: {
+      subItems: {
+        after_additional_price: number | undefined;
+        before_additional_price: number | undefined;
+        uuid: string;
+        desc: string | null;
+        status: boolean | null;
+        name: string;
+        image55x55png: string | null;
+        maxLength: number | null;
+      }[];
+      id: number;
+      uuid: string;
+      title: string | null;
+      helpText: string | null;
+      required: boolean;
+      minOptions: number;
+      maxOptions: number | null;
+    }[];
+    uuid: string;
+    desc: string | null;
+    name: string;
+    img: string;
+  }[];
 }
 
 export const DataMenuContext = createContext({} as IDataMenuProps);

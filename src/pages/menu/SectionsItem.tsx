@@ -8,7 +8,12 @@ import {
 } from "react";
 import "react-spring-bottom-sheet/dist/style.css";
 import { BottomSheet, BottomSheetRef } from "react-spring-bottom-sheet";
-import { MdDeleteOutline, MdOutlineCheckBoxOutlineBlank, MdRadioButtonChecked, MdRadioButtonUnchecked } from "react-icons/md";
+import {
+  MdDeleteOutline,
+  MdOutlineCheckBoxOutlineBlank,
+  MdRadioButtonChecked,
+  MdRadioButtonUnchecked,
+} from "react-icons/md";
 import { Button, IconButton } from "@chakra-ui/react";
 import clsx from "clsx";
 import { DataMenuContext } from "@contexts/data-menu.context";
@@ -149,7 +154,7 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                 colorPalette={"red"}
                 variant={"subtle"}
                 onClick={() => {
-                  window.history.back()
+                  window.history.back();
                 }}
                 className="duration-100 active:scale-95 transition-all"
               >
@@ -218,10 +223,10 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                     .catch(() => undefined);
                 }
               }}
-            // disabled={
-            //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
-            //   qntFlavorsMissing
-            // }
+              // disabled={
+              //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+              //   qntFlavorsMissing
+              // }
             >
               <span>
                 Adicionar{" "}
@@ -229,7 +234,7 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                   ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                     0) +
                     totalSection) *
-                  length,
+                    length,
                 )}
               </span>
             </Button>
@@ -272,10 +277,10 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                     .catch(() => undefined);
                 }}
                 className="duration-100 active:scale-95 transition-all"
-              // disabled={
-              //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
-              //   qntFlavorsMissing
-              // }
+                // disabled={
+                //   sizes.find((s) => s.uuid === sizeSelected)?.flavors ===
+                //   qntFlavorsMissing
+                // }
               >
                 <span className="flex items-center gap-x-1.5">
                   <LuClipboardCheck />
@@ -283,7 +288,7 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                     ((items.find((item) => item.uuid === isOpen)?.afterPrice ||
                       0) +
                       totalSection) *
-                    length,
+                      length,
                   )}
                 </span>
               </Button>
@@ -322,59 +327,57 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                 {(section.helpText ||
                   section.minOptions ||
                   section.maxOptions) && (
-                    <div className="flex justify-between items-start">
-                      <p className="line-clamp-2 text-neutral-500 font-light text-start">
-                        {section.helpText}
-                      </p>
-                      {(section.minOptions || section.maxOptions) && (
-                        <div className="flex gap-x-1 items-center">
-                          <span
-                            className={clsx(
-                              `px-1 py-0.5 text-xs text-nowrap rounded-sm font-medium`,
-                              total >= (section.minOptions || 0)
-                                ? "bg-green-600 text-green-100"
-                                : "bg-neutral-700 text-neutral-100",
-                            )}
-                          >
-                            {section.maxOptions ? (
-                              `${total}/${section.maxOptions}`
-                            ) : (
-                              `${total} (mín. ${section.minOptions})`
-                            )}
-                          </span>
-                          {section.minOptions > 0 ? (
-                            <div className="flex">
-                              {total < (section.minOptions || Infinity) && (
-                                <span
-                                  className={clsx(
-                                    "text-neutral-100 text-xs font-medium px-1 py-0.5 rounded-sm",
-                                    sectionError === section.uuid
-                                      ? "animate-error"
-                                      : "bg-neutral-700",
-                                  )}
-                                >
-                                  OBRIGATÓRIO
-                                </span>
-                              )}
-                              {total >= (section.minOptions || Infinity) && (
-                                <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
-                                  <AiFillCheckCircle size={16} />
-                                </span>
-                              )}
-                            </div>
-                          ) : (
-                            <div>
-                              {total === (section.maxOptions || Infinity) && (
-                                <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
-                                  <AiFillCheckCircle size={16} />
-                                </span>
-                              )}
-                            </div>
+                  <div className="flex justify-between items-start">
+                    <p className="line-clamp-2 text-neutral-500 font-light text-start">
+                      {section.helpText}
+                    </p>
+                    {(section.minOptions || section.maxOptions) && (
+                      <div className="flex gap-x-1 items-center">
+                        <span
+                          className={clsx(
+                            `px-1 py-0.5 text-xs text-nowrap rounded-sm font-medium`,
+                            total >= (section.minOptions || 0)
+                              ? "bg-green-600 text-green-100"
+                              : "bg-neutral-700 text-neutral-100",
                           )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        >
+                          {section.maxOptions
+                            ? `${total}/${section.maxOptions}`
+                            : `${total} (mín. ${section.minOptions})`}
+                        </span>
+                        {section.minOptions > 0 ? (
+                          <div className="flex">
+                            {total < (section.minOptions || Infinity) && (
+                              <span
+                                className={clsx(
+                                  "text-neutral-100 text-xs font-medium px-1 py-0.5 rounded-sm",
+                                  sectionError === section.uuid
+                                    ? "animate-error"
+                                    : "bg-neutral-700",
+                                )}
+                              >
+                                OBRIGATÓRIO
+                              </span>
+                            )}
+                            {total >= (section.minOptions || Infinity) && (
+                              <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
+                                <AiFillCheckCircle size={16} />
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            {total === (section.maxOptions || Infinity) && (
+                              <span className="bg-green-600 text-xs text-green-100 font-medium px-1 py-0.5 block rounded-sm">
+                                <AiFillCheckCircle size={16} />
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="space-y-2 my-2">
                 {section.subItems.map((sub) => {
@@ -384,13 +387,19 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                   let color = "";
 
                   if (bg_capa) {
-                    background = opacity(!!value ? bg_capa : "#f4f4f5", !!value ? 0.2 : 1)
+                    background = opacity(
+                      !!value ? bg_capa : "#f4f4f5",
+                      !!value ? 0.2 : 1,
+                    );
                     border = opacity(bg_capa, !!value ? 0.3 : 0);
-                    color = !!value ? bg_capa : "#525252"
+                    color = !!value ? bg_capa : "#525252";
                   } else {
-                    background = opacity(!!value ? "#dcfce7" : "#f4f4f5", !!value ? 0.6 : 1);
+                    background = opacity(
+                      !!value ? "#dcfce7" : "#f4f4f5",
+                      !!value ? 0.6 : 1,
+                    );
                     border = opacity("#00c951", !!value ? 1 : 0);
-                    color = !!value ? "#008236" : "#525252"
+                    color = !!value ? "#008236" : "#525252";
                   }
 
                   return (
@@ -400,8 +409,8 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                         "select-none w-full relative flex-1 px-2",
                         (section.maxOptions === null ||
                           section.maxOptions >= 1) &&
-                        sub.maxLength === 1 &&
-                        "",
+                          sub.maxLength === 1 &&
+                          "",
                       )}
                       onClick={() => {
                         if (!sub.status) return;
@@ -415,11 +424,17 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                           }
 
                           // pode selecionar varias opções
-                          if (section.maxOptions === null || section.maxOptions > 1) {
+                          if (
+                            section.maxOptions === null ||
+                            section.maxOptions > 1
+                          ) {
                             if (sub.maxLength === 0) {
                               // mas o item não pode ser escolhido;
-                            } else if (sub.maxLength === null || sub.maxLength > 1) {
-                              // o item pode ser escolhido +1 vez; 
+                            } else if (
+                              sub.maxLength === null ||
+                              sub.maxLength > 1
+                            ) {
+                              // o item pode ser escolhido +1 vez;
                               if (total < (section.maxOptions || Infinity)) {
                                 const next = Math.min(
                                   v + 1,
@@ -431,12 +446,14 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                             } else if (sub.maxLength === 1) {
                               // o item pode ser escolhido 1 vez;
                               if (v === 1) {
-                                const { [sub.uuid]: _, ...rest } = newState[section.uuid];
+                                const { [sub.uuid]: _, ...rest } =
+                                  newState[section.uuid];
                                 if (Object.keys(rest).length) {
                                   newState[section.uuid] = rest;
                                 } else {
-                                  const { [section.uuid]: _, ...restState } = newState;
-                                  newState = restState
+                                  const { [section.uuid]: _, ...restState } =
+                                    newState;
+                                  newState = restState;
                                 }
                               } else {
                                 if (total < (section.maxOptions || Infinity)) {
@@ -479,10 +496,9 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                       <div
                         className={clsx(
                           "flex flex-col p-3 gap-y-1.5 rounded-md border-2 justify-between",
-                          (!sub.status || sub.maxLength === 0) && "opacity-40"
+                          (!sub.status || sub.maxLength === 0) && "opacity-40",
                         )}
                         style={{ background, borderColor: border }}
-
                       >
                         <div className="flex px-1 w-full items-center justify-between">
                           <div
@@ -502,7 +518,12 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                             )}
                             <div className="flex flex-col -space-y-1">
                               <span style={{ color }}>
-                                {sub.name} {(!sub.status || sub.maxLength === 0) && <span className="bg-neutral-400 text-sm px-1 py-0.5 rounded-sm text-white">Indisponível</span>}
+                                {sub.name}{" "}
+                                {(!sub.status || sub.maxLength === 0) && (
+                                  <span className="bg-neutral-400 text-sm px-1 py-0.5 rounded-sm text-white">
+                                    Indisponível
+                                  </span>
+                                )}
                               </span>
                               {sub.desc && (
                                 <span
@@ -521,7 +542,8 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                                 {sub.after_additional_price && (
                                   <span
                                     className={"font-medium"}
-                                    style={{ color }}                                  >
+                                    style={{ color }}
+                                  >
                                     {formatToBRL(sub.after_additional_price)}
                                   </span>
                                 )}
@@ -533,7 +555,13 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                               </div>
                             </div>
                           </div>
-                          {((section.maxOptions === null && sub.maxLength === null) || (section.maxOptions && section.maxOptions > 1 && (sub.maxLength === null || sub.maxLength > 1)) || (section.maxOptions === null && sub.maxLength > 1)) && (
+                          {((section.maxOptions === null &&
+                            sub.maxLength === null) ||
+                            (section.maxOptions &&
+                              section.maxOptions > 1 &&
+                              (sub.maxLength === null || sub.maxLength > 1)) ||
+                            (section.maxOptions === null &&
+                              (sub.maxLength || Infinity) > 1)) && (
                             <div className="flex gap-x-1">
                               <a
                                 className={clsx(
@@ -550,7 +578,7 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                                     const newState = { ...(state ?? {}) };
                                     const v =
                                       stateSection?.[section.uuid]?.[
-                                      sub.uuid
+                                        sub.uuid
                                       ] || 0;
 
                                     if (!newState[section.uuid]) {
@@ -583,7 +611,7 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                                     let newState = { ...(state ?? {}) };
                                     const v =
                                       stateSection?.[section.uuid]?.[
-                                      sub.uuid
+                                        sub.uuid
                                       ] || 0;
 
                                     if (!newState[section.uuid]) {
@@ -591,12 +619,16 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                                     }
                                     const next = Math.max(v - 1, 0);
                                     if (!next) {
-                                      const { [sub.uuid]: _, ...rest } = newState[section.uuid];
+                                      const { [sub.uuid]: _, ...rest } =
+                                        newState[section.uuid];
                                       if (Object.keys(rest).length) {
                                         newState[section.uuid] = rest;
                                       } else {
-                                        const { [section.uuid]: _, ...restState } = newState;
-                                        newState = restState
+                                        const {
+                                          [section.uuid]: _,
+                                          ...restState
+                                        } = newState;
+                                        newState = restState;
                                       }
                                     } else {
                                       newState[section.uuid][sub.uuid] = next;
@@ -615,7 +647,11 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                               </a>
                             </div>
                           )}
-                          {((section.maxOptions === null && sub.maxLength === 1) || (section.maxOptions && section.maxOptions > 1 && sub.maxLength === 1)) && (
+                          {((section.maxOptions === null &&
+                            sub.maxLength === 1) ||
+                            (section.maxOptions &&
+                              section.maxOptions > 1 &&
+                              sub.maxLength === 1)) && (
                             <button
                               type="button"
                               style={{ color: color }}
@@ -628,7 +664,10 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
                               )}
                             </button>
                           )}
-                          {((section.maxOptions === 1 && sub.maxLength === null) || (section.maxOptions === 1 && sub.maxLength >= 1)) && (
+                          {((section.maxOptions === 1 &&
+                            sub.maxLength === null) ||
+                            (section.maxOptions === 1 &&
+                              (sub.maxLength || Infinity) >= 1)) && (
                             <button
                               type="button"
                               style={{ color: color }}

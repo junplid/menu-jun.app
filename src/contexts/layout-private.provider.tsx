@@ -340,10 +340,12 @@ function ModalInfo() {
       onOpenChange={(change) => {
         if (!change.open) window.history.back();
       }}
-      placement="center"
-      motionPreset="slide-in-bottom"
+      size={"full"}
+      motionPreset={"slide-in-bottom"}
+      placement={"top"}
     >
       <DialogContent
+        maxW={"600px"}
         bg="#f8f9fa"
         className="rounded-3xl overflow-hidden max-w-[95%] sm:max-w-lg"
       >

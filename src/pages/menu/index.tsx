@@ -11,6 +11,7 @@ import { TbShoppingBagPlus } from "react-icons/tb";
 import { v4 } from "uuid";
 import opacity from "hex-color-opacity";
 import { CategoriesFixedComponent } from "./CategoriesFixed";
+import { SectionsItems } from "./SectionsItem";
 
 function smoothScrollToY(targetY: number, duration = 700) {
   const startY = window.scrollY;
@@ -120,12 +121,12 @@ export const MenuPage: React.FC = (): JSX.Element => {
 
   return (
     <main
-      className="w-full relative duration-300 max-w-lg mx-auto pb-2 flex-1"
+      className="w-full max-w-lg mx-auto pb-2 flex-1 overflow-x-hidden"
       style={{ paddingBottom: "90px" }}
     >
       <div
         className={
-          "flex py-2 gap-x-2 overflow-x-scroll hide-scrollbar items-center px-3 scroll-pl-3"
+          "flex py-2 gap-x-2 max-w-lg min-w-0 overflow-x-auto hide-scrollbar items-center px-3"
         }
         ref={categoriesContainerRef}
       >
@@ -233,7 +234,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
       />
 
       <PreviewCartComponent
-        // showPresence={showPresence}
         onClick={() => {
           const next = new URLSearchParams(searchParams);
           next.set("c", "true");
@@ -241,13 +241,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       />
 
-      {/* <SectionsItems
+      <SectionsItems
         defaultStateSection={refDefaultStateSection}
         sendToCategory={(catUuid) => {
           const indexCat = categories.findIndex((c) => c.uuid === catUuid);
           if (indexCat >= 0) handleTab(indexCat);
         }}
-      /> */}
+      />
     </main>
   );
 };

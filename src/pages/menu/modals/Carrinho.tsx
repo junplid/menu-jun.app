@@ -485,8 +485,10 @@ export const ModalCarrinho: React.FC<
         if (!change.open) window.history.back();
       }}
       preventScroll
-      motionPreset="slide-in-top"
       modal
+      size={"full"}
+      motionPreset={"slide-in-bottom"}
+      placement={"top"}
     >
       <DialogContent
         bg="#f9f9fb"
@@ -494,7 +496,6 @@ export const ModalCarrinho: React.FC<
         maxW="500px"
         className="h-[calc(100svh-80px)] overflow-hidden sm:rounded-2xl flex flex-col"
         p={0}
-        mt={4}
       >
         {/* HEADER DE PROGRESSO */}
         {!isLoading && !redirectTo && (

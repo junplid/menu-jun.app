@@ -176,6 +176,10 @@
   box-shadow: none !important;
 }
 
+[data-rsbs-overlay] {
+  z-index: 999 !important;
+}
+
 .leaflet-marker-icon img {
   pointer-events: none;
   user-select: none;
@@ -185,4 +189,8 @@
 
 .leaflet-control-attribution {
   display: none;
+}
+
+.chakra-dialog__positioner {
+  padding: 0 !important;
 }

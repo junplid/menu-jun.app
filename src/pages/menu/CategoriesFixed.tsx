@@ -25,7 +25,7 @@ export function CategoriesFixedComponent({
       <InViewComponent onChange={(view) => setInView(view)} />
       <div
         className={clsx(
-          "fixed z-30 shadow-md shadow-neutral-400/14 w-full left-0 bg-white duration-300",
+          "fixed z-10 shadow-md shadow-neutral-400/14 w-full left-0 bg-white duration-300",
           !inView ? "top-0" : "-top-16",
         )}
       >
