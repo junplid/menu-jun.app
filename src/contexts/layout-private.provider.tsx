@@ -88,15 +88,8 @@ export function LayoutPrivateProvider(): JSX.Element {
 
   return (
     <LayoutPrivateContext.Provider value={dataValue}>
-      <div
-        className={"min-h-svh overflow-y-hidden grid grid-rows-[auto_1fr_2px]"}
-      >
-        <header
-          style={{
-            background: bg_capa ? opacity(bg_capa, 0.06) : "#fff",
-          }}
-          className="pb-2"
-        >
+      <div className={"grid bg-neutral-100 grid-rows-[auto_1fr_2px]"}>
+        <header className="pb-2 bg-neutral-100">
           {/* Capa de Fundo - Aumentei levemente a altura para dar respiro à logo */}
           <div
             className="w-full h-24 transition-all duration-300 bg-center bg-cover bg-no-repeat"

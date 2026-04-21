@@ -1,11 +1,7 @@
 import { AspectRatio, Presence } from "@chakra-ui/react";
 import clsx from "clsx";
-import { JSX, RefObject, useContext, useEffect, useRef, useState } from "react";
-import Carousel from "react-multi-carousel";
-import GridWithShadows from "./GridRender";
+import { JSX, useContext, useEffect, useRef, useState } from "react";
 import { DataMenuContext } from "@contexts/data-menu.context";
-import "react-multi-carousel/lib/styles.css";
-import { SectionsItems } from "./SectionsItem";
 import { CartContext } from "@contexts/cart.context";
 import { PreviewCartComponent } from "./PreviewCart";
 import { ModalCarrinho } from "./modals/Carrinho";
@@ -14,72 +10,122 @@ import { useSearchParams } from "react-router-dom";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import { v4 } from "uuid";
 import opacity from "hex-color-opacity";
-import { FaHandPointRight } from "react-icons/fa";
+import { CategoriesFixedComponent } from "./CategoriesFixed";
 
-const responsive = {
-  superLargeDesktop: {
-    breakpoint: { max: 4000, min: 3000 },
-    items: 1,
-  },
-  desktop: {
-    breakpoint: { max: 3000, min: 1024 },
-    items: 1,
-  },
-  tablet: {
-    breakpoint: { max: 1024, min: 464 },
-    items: 1,
-  },
-  mobile: {
-    breakpoint: { max: 464, min: 0 },
-    items: 1,
-  },
-};
+function smoothScrollToY(targetY: number, duration = 700) {
+  const startY = window.scrollY;
+  const diff = targetY - startY;
+  const start = performance.now();
+
+  function easeOutCubic(t: number) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function step(now: number) {
+    const progress = Math.min((now - start) / duration, 1);
+    window.scrollTo(0, startY + diff * easeOutCubic(progress));
+
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
 
 export const MenuPage: React.FC = (): JSX.Element => {
-  const { categories, items, bg_capa } = useContext(DataMenuContext);
+  const { categories } = useContext(DataMenuContext);
 
-  const isMoving = useRef(false);
-  const ref = useRef<Carousel>(null);
   const refDefaultStateSection = useRef<{
     sections: Record<string, Record<string, number>>;
     length: number;
     key: string;
   }>(null);
 
+  const categorySectionRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const categoryChipRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
   const categoriesContainerRef = useRef<HTMLDivElement | null>(null);
   const categoriesRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const [currentTab, setCurrentTab] = useState(0);
-  // const [showPresence, setShowPresence] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
   function handleTab(i: number) {
-    ref.current?.goToSlide(i);
+    setCurrentTab(i);
 
-    const el = categoriesRefs.current[i];
-    el?.scrollIntoView({ behavior: "smooth", inline: "center" });
+    const section = categorySectionRefs.current[i];
+    if (section) {
+      const headerOffset = 65; // ajuste conforme sua navbar fixa
+      const y =
+        section.getBoundingClientRect().top + window.scrollY - headerOffset;
+      smoothScrollToY(y, 1200); // aumenta aqui para deixar mais lento
+    }
+
+    const chip = categoryChipRefs.current[i];
+    chip?.scrollIntoView({
+      behavior: "smooth",
+      inline: "start",
+      block: "start",
+    });
   }
 
-  // useEffect(() => {
-  //   let id: NodeJS.Timeout;
-  //   if (cartItems.length) {
-  //     id = setTimeout(() => setShowPresence(true), 300);
-  //   } else {
-  //     setShowPresence(false);
-  //   }
+  const activeTabTimeoutRef = useRef<number | null>(null);
+  const lastVisibleIndexRef = useRef<number | null>(null);
 
-  //   return () => clearTimeout(id);
-  // }, [cartItems.length]);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((entry) => entry.isIntersecting);
+        if (!visible) return;
+
+        const index = Number((visible.target as HTMLElement).dataset.index);
+        if (Number.isNaN(index)) return;
+
+        lastVisibleIndexRef.current = index;
+
+        if (activeTabTimeoutRef.current) {
+          window.clearTimeout(activeTabTimeoutRef.current);
+        }
+
+        activeTabTimeoutRef.current = window.setTimeout(() => {
+          if (lastVisibleIndexRef.current === index) {
+            setCurrentTab(index);
+
+            const chip = categoryChipRefs.current[index];
+            chip?.scrollIntoView({
+              behavior: "smooth",
+              inline: "start",
+              block: "start",
+            });
+          }
+        }, 400);
+      },
+      {
+        threshold: 0.3,
+        root: null,
+      },
+    );
+
+    Object.values(categorySectionRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+      if (activeTabTimeoutRef.current) {
+        window.clearTimeout(activeTabTimeoutRef.current);
+      }
+    };
+  }, [categories]);
 
   return (
     <main
-      className="w-full relative duration-300 max-w-lg mx-auto pb-2 grid grid-rows-[auto_1fr] min-h-0"
-      style={{ paddingBottom: "70px" }}
+      className="w-full relative duration-300 max-w-lg mx-auto pb-2 flex-1"
+      style={{ paddingBottom: "90px" }}
     >
       <div
         className={
-          "flex bg-white py-2 border border-neutral-100 overflow-x-scroll hide-scrollbar items-center px-1"
+          "flex py-2 gap-x-2 overflow-x-scroll hide-scrollbar items-center px-3 scroll-pl-3"
         }
         ref={categoriesContainerRef}
       >
@@ -88,15 +134,6 @@ export const MenuPage: React.FC = (): JSX.Element => {
           let shadow = opacity("#dddddd", index === currentTab ? 0.2 : 0);
           let border = opacity("#dddddd", index === currentTab ? 0.5 : 0);
           let textOn = opacity("#111111", 0.7);
-
-          if (bg_capa) {
-            background = opacity(bg_capa, index === currentTab ? 0.2 : 0);
-            shadow = opacity(bg_capa, index === currentTab ? 0.2 : 0);
-            border = opacity(bg_capa, index === currentTab ? 0.35 : 0);
-            if (index === currentTab) {
-              textOn = opacity(bg_capa, 1);
-            }
-          }
 
           return (
             <div
@@ -107,13 +144,13 @@ export const MenuPage: React.FC = (): JSX.Element => {
               style={{
                 background:
                   index === currentTab
-                    ? `radial-gradient(circle at 60% 50%,${opacity(bg_capa || "#dddddd", 0.06)} 10%, ${background} 100%)`
+                    ? `radial-gradient(circle at 60% 50%,${opacity("#e8e8e8", 0.06)} 10%, ${background} 100%)`
                     : "#fff",
                 borderWidth: "1.5px",
                 borderColor: border,
                 boxShadow: `0px 0px 10px inset ${shadow}`,
               }}
-              className="grid border rounded-md -space-y-0.5 px-3 items-center cursor-pointer duration-100 active:scale-95 transition-all"
+              className="shrink-0 scroll-ml-3 grid border rounded-md -space-y-0.5 px-3 items-center cursor-pointer duration-100 active:scale-95 transition-all"
               ref={(el) => {
                 categoriesRefs.current[index] = el;
               }}
@@ -146,75 +183,42 @@ export const MenuPage: React.FC = (): JSX.Element => {
           );
         })}
       </div>
+      <CategoriesFixedComponent
+        currentTab={currentTab}
+        onTabClick={handleTab}
+        categoryChipRefs={categoryChipRefs}
+      />
 
-      <Carousel
-        ref={ref}
-        infinite={false}
-        arrows={false}
-        responsive={responsive}
-        minimumTouchDrag={3}
-        beforeChange={() => {
-          isMoving.current = true;
-        }}
-        afterChange={(_, { currentSlide }) => {
-          setCurrentTab(currentSlide);
-          const el = categoriesRefs.current[currentSlide];
-          const container = categoriesContainerRef.current;
-
-          if (el && container) {
-            const left =
-              el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
-
-            container.scrollTo({
-              left,
-              behavior: "smooth",
-            });
-          }
-
-          setTimeout(() => {
-            isMoving.current = false;
-          }, 20);
-        }}
-      >
-        {categories.map((cat, index) => {
-          const itemsOfCat = items.filter((ii) =>
-            ii.categories.some((itemcat) => itemcat.uuid === cat.uuid),
-          );
-
-          return (
-            <div key={cat.uuid} className="flex flex-col flex-1 h-full">
-              <GridWithShadows
-                listClassName="grid w-full grid-cols-1 h-full bg-red-300"
-                items={[...itemsOfCat, null]}
-                grid={false}
-                renderItem={(item) => {
-                  if (item?.uuid) {
-                    return (
-                      <div
-                        key={item.uuid}
-                        className={clsx(
-                          "p-1 w-full border-b border-neutral-100 px-2.5",
-                          itemsOfCat.length - 1 === index && "border-b-0",
-                        )}
-                      >
-                        <Item isMoving={isMoving} item={item} />
-                      </div>
-                    );
-                  }
-                  return (
-                    categories[index + 1]?.uuid && (
-                      <div className="flex flex-col items-center my-3 gap-y-1 mt-5 justify-center py-3 text-sm opacity-70">
-                        <span>Deslize para ver mais</span>
-                        <FaHandPointRight size={20} />
-                      </div>
-                    )
-                  );
-                }}
-              />
-            </div>
-          );
-        })}
-      </Carousel>
+      {categories.map((cat, index) => {
+        return (
+          <div
+            data-index={index}
+            ref={(el) => {
+              categorySectionRefs.current[index] = el;
+            }}
+            key={cat.uuid}
+            className={clsx(
+              "flex px-3 flex-col scroll-mt-16",
+              index == 0 ? "mt-5" : "my-10",
+            )}
+          >
+            <h3 className="uppercase font-extrabold mb-1 text-lg">
+              {cat.name}
+            </h3>
+            {cat.items.map((item, itemIndex) => (
+              <div
+                key={item.uuid}
+                className={clsx(
+                  "w-full my-1 first:mt-0",
+                  cat.items.length - 1 === itemIndex && "border-b-0",
+                )}
+              >
+                <Item item={item} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       <ModalCarrinho
         onReturnEdit={(item) => {
@@ -237,24 +241,22 @@ export const MenuPage: React.FC = (): JSX.Element => {
         }}
       />
 
-      <SectionsItems
+      {/* <SectionsItems
         defaultStateSection={refDefaultStateSection}
         sendToCategory={(catUuid) => {
           const indexCat = categories.findIndex((c) => c.uuid === catUuid);
           if (indexCat >= 0) handleTab(indexCat);
         }}
-      />
+      /> */}
     </main>
   );
 };
 
 interface Props {
-  isMoving: RefObject<boolean>;
   item: any;
 }
 
-function Item({ isMoving, item }: Props) {
-  const { bg_primary, bg_capa } = useContext(DataMenuContext);
+function Item({ item }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     items: cartItems,
@@ -284,11 +286,10 @@ function Item({ isMoving, item }: Props) {
   return (
     <article
       className={clsx(
-        "rounded-xl p-1 h-full grid grid-cols-[1fr_100px] select-none items-center w-full relative",
+        "rounded-lg p-1 shadow shadow-neutral-700/4 h-full grid grid-cols-[1fr_100px] select-none items-center w-full relative",
         !item.qnt ? "cursor-not-allowed" : "cursor-pointer",
       )}
       onClick={() => {
-        if (isMoving.current) return;
         if (!item.qnt) return;
         if (!!item.sections.length) {
           const next = new URLSearchParams(searchParams);
@@ -313,11 +314,8 @@ function Item({ isMoving, item }: Props) {
         <div className="flex flex-col gap-y-1">
           <span
             className={clsx(
-              "line-clamp-2 w-full text-lg leading-5 font-normal",
+              "line-clamp-2 w-full text-lg leading-5 font-semibold text-neutral-800",
             )}
-            style={{
-              color: false ? `${bg_primary || "#111111"}` : undefined,
-            }}
           >
             {item.name}
           </span>
@@ -333,12 +331,7 @@ function Item({ isMoving, item }: Props) {
         <div className="mb-1">
           <div className="w-full flex gap-x-1.5 items-center">
             {item.afterPrice && (
-              <span
-                className={`font-normal leading-3`}
-                style={{
-                  color: `${bg_primary || "#0c0c0c"}e6`,
-                }}
-              >
+              <span className={`font-bold leading-3 text-neutral-800`}>
                 {formatToBRL(item.afterPrice)}
               </span>
             )}
@@ -385,8 +378,8 @@ function Item({ isMoving, item }: Props) {
           className="absolute left-1 border-2 top-1 rounded-lg p-0.5"
           style={{
             background: "#fff",
-            color: bg_capa || "oklch(62.7% 0.194 149.214)",
-            borderColor: bg_capa || "oklch(62.7% 0.194 149.214)",
+            color: "oklch(62.7% 0.194 149.214)",
+            borderColor: "oklch(62.7% 0.194 149.214)",
           }}
         >
           <TbShoppingBagPlus size={22} />

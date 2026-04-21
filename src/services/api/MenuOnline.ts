@@ -58,39 +58,39 @@ export async function getMenuOnline(identifier: string): Promise<{
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];
   categories: {
+    items: {
+      qnt: number;
+      afterPrice: number | undefined;
+      beforePrice: number | undefined;
+      send_to_category_uuid: string | null;
+      sections: {
+        subItems: {
+          after_additional_price: number | undefined;
+          before_additional_price: number | undefined;
+          uuid: string;
+          desc: string | null;
+          status: boolean | null;
+          name: string;
+          image55x55png: string | null;
+          maxLength: number | null;
+        }[];
+        id: number;
+        uuid: string;
+        title: string | null;
+        helpText: string | null;
+        required: boolean;
+        minOptions: number;
+        maxOptions: number | null;
+      }[];
+      uuid: string;
+      desc: string | null;
+      name: string;
+      img: string;
+    }[];
     id: number;
     uuid: string;
     name: string;
-    image45x45png: string;
-  }[];
-  items: {
-    afterPrice?: number;
-    beforePrice?: number;
-    sections: {
-      subItems: {
-        after_additional_price?: number;
-        before_additional_price?: number;
-        uuid: string;
-        desc: string | null;
-        name: string;
-        status: boolean | null;
-        image55x55png: string | null;
-        maxLength: number;
-      }[];
-      id: number;
-      uuid: string;
-      title: string | null;
-      helpText: string | null;
-      required: boolean;
-      minOptions: number;
-      maxOptions: number | null;
-    }[];
-    uuid: string;
-    desc: string | null;
-    categories: { id: number; uuid: string }[];
-    name: string;
-    img: string;
-    qnt: number;
+    image45x45png: string | null;
   }[];
 }> {
   const { data } = await api.get(`/public/menu/${identifier}`);

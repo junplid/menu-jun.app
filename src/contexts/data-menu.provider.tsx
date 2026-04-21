@@ -48,40 +48,39 @@ interface IData {
   helperTextOpening: string;
   operatingDays: { day: string; time: string }[];
   categories: {
+    items: {
+      qnt: number;
+      afterPrice: number | undefined;
+      beforePrice: number | undefined;
+      send_to_category_uuid: string | null;
+      sections: {
+        subItems: {
+          after_additional_price: number | undefined;
+          before_additional_price: number | undefined;
+          uuid: string;
+          desc: string | null;
+          status: boolean | null;
+          name: string;
+          image55x55png: string | null;
+          maxLength: number | null;
+        }[];
+        id: number;
+        uuid: string;
+        title: string | null;
+        helpText: string | null;
+        required: boolean;
+        minOptions: number;
+        maxOptions: number | null;
+      }[];
+      uuid: string;
+      desc: string | null;
+      name: string;
+      img: string;
+    }[];
     id: number;
     uuid: string;
     name: string;
-    image45x45png: string;
-  }[];
-  items: {
-    afterPrice?: number;
-    beforePrice?: number;
-    sections: {
-      subItems: {
-        after_additional_price?: number;
-        before_additional_price?: number;
-        uuid: string;
-        desc: string | null;
-        name: string;
-        image55x55png: string | null;
-        maxLength: number;
-        status: boolean | null;
-      }[];
-      id: number;
-      uuid: string;
-      title: string | null;
-      helpText: string | null;
-      required: boolean;
-      minOptions: number;
-      maxOptions: number | null;
-    }[];
-    uuid: string;
-    desc: string | null;
-    categories: { id: number; uuid: string }[];
-    name: string;
-    img: string;
-    send_to_category_uuid?: string;
-    qnt: number;
+    image45x45png: string | null;
   }[];
 }
 
@@ -122,35 +121,31 @@ export function DataMenuProvider({
           result.capaImg = "";
         }
 
-        result.categories = await Promise.all(
-          result.categories.map(async (cat) => {
+        const categories = await Promise.all(
+          result.categories.map(async (item) => {
             try {
-              await preloadImage(src + cat.image45x45png);
-              cat.image45x45png = src + cat.image45x45png;
-              return cat;
-            } catch (error) {
-              return cat;
-            }
-          }),
-        );
-        const nextList = await Promise.all(
-          result.items.map(async (item) => {
-            try {
-              if (item.img) {
-                item.img = src + item.img;
+              if (item.image45x45png) {
+                await preloadImage(src + item.image45x45png);
+                item.image45x45png = src + item.image45x45png;
               }
-              item.sections = await Promise.all(
-                item.sections.map(async (sec) => {
-                  sec.subItems = await Promise.all(
-                    sec.subItems.map(async (sub) => {
-                      try {
-                        if (sub.image55x55png) {
-                          sub.image55x55png = src + sub.image55x55png;
-                        }
-                        return sub;
-                      } catch (error) {
-                        return sub;
-                      }
+
+              item.items = await Promise.all(
+                item.items.map(async (sec) => {
+                  if (sec.img) {
+                    sec.img = src + sec.img;
+                  }
+
+                  sec.sections = await Promise.all(
+                    sec.sections.map(async (sub) => {
+                      sub.subItems = await Promise.all(
+                        sub.subItems.map(async (sub2) => {
+                          if (sub2.image55x55png) {
+                            sub2.image55x55png = src + sub2.image55x55png;
+                          }
+                          return sub2;
+                        }),
+                      );
+                      return sub;
                     }),
                   );
                   return sec;
@@ -162,7 +157,7 @@ export function DataMenuProvider({
             }
           }),
         );
-        setData({ ...result, items: nextList });
+        setData({ ...result, categories });
         setIsFetching(false);
       } catch (error) {
         setIsError(true);

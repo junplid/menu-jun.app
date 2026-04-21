@@ -36,7 +36,7 @@ function PreviewCartComponent_(props: IProps) {
         paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
       }}
       // Mudei para fixed e z-50 para garantir que fique sempre por cima de tudo
-      className="absolute w-full left-0 bottom-0 bg-white rounded-t-3xl border-t border-neutral-100"
+      className="fixed z-50 w-full left-0 bottom-0 bg-white rounded-t-3xl border-t border-neutral-100"
     >
       <div
         onClick={items.length ? props.onClick : undefined}
