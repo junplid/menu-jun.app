@@ -101,7 +101,7 @@ function FormAddress(props: {
   upsertAddress: (data: Fields | "retirar") => void;
   address: Fields | null;
   deliveryArea: {
-    distanceKm: number;
+    distanceKm: number | null;
     isInside: boolean;
   } | null;
 }) {
@@ -121,8 +121,13 @@ function FormAddress(props: {
   const registerWithMask = useHookFormMask(register);
 
   const handleAddress = async (fields: Fields) => {
-    props.upsertAddress(fields);
+    props.upsertAddress({
+      ...fields,
+      lat: props.address!.lat,
+      lng: props.address!.lng,
+    });
     props.submit(); // Avança para o próximo passo
+    reset();
   };
 
   async function getAddress(lat: number, lng: number) {
@@ -132,13 +137,19 @@ function FormAddress(props: {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
       );
       if (data.address.road) {
-        setValue("address", data.address.road);
+        setValue("address", data.address.road, { shouldDirty: true });
       }
       setLoadRoad(false);
     } catch (error) {
       setLoadRoad(false);
     }
   }
+
+  useEffect(() => {
+    if (props.address?.lat && props.address?.lng) {
+      getAddress(props.address.lat, props.address.lng);
+    }
+  }, [props.address?.lat, props.address?.lng]);
 
   return (
     // Passamos um ID para o form para podermos submetê-lo a partir do botão no footer
@@ -147,23 +158,20 @@ function FormAddress(props: {
       onSubmit={handleSubmit(handleAddress, (err) => console.log(err))}
       className="flex flex-col gap-y-0 px-3"
     >
-      <div className="flex justify-between items-center bg-green-50 p-3 rounded-lg border border-green-100 mb-2">
-        <span className="text-sm text-green-800 font-medium">
-          Prefere buscar o pedido?
-        </span>
-        <Button
-          onClick={() => {
-            props.upsertAddress("retirar");
-            reset();
-            props.submit();
-          }}
-          type="button"
-          size="sm"
-          className="bg-white! border border-green-300! text-green-700! hover:bg-green-100!"
-        >
-          Retirar na loja
-        </Button>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-3">
+        <h3 className="font-semibold text-gray-800 text-base mb-1">
+          Confirme o endereço
+        </h3>
+        <p className="text-sm text-gray-500">
+          Preencha os dados abaixo para finalizar o delivery.
+        </p>
       </div>
+
+      {(errors.lat?.message || errors.lng?.message) && (
+        <span className="text-red-500 font-medium block -mt-2">
+          Defina corretamente o local de entrega movendo o pin no mapa.
+        </span>
+      )}
 
       {deliveryMessage && (
         <div className="mb-2 px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center gap-2">
@@ -173,167 +181,130 @@ function FormAddress(props: {
         </div>
       )}
 
-      <div
-        style={{ height: "calc(100vh - 225px)" }}
-        className="flex flex-col w-full gap-y-4 pb-16 overflow-y-auto"
-      >
-        <MapComponent
-          isEdit={false}
-          defaultPosition={
-            props.address
-              ? { lat: props.address.lat, lng: props.address.lng }
-              : undefined
+      <div className="grid px-2 grid-cols-[1fr_100px] justify-between gap-x-2 mb-2">
+        <Field
+          label={
+            <div className="flex items-center gap-x-2">
+              <span>
+                Endereço <span className="text-red-400">*</span>
+              </span>
+              {loadRoad && <Spinner size="sm" />}
+            </div>
           }
-          onSetPosition={({ lat, lng }) => {
-            if (info && info.lat && info.lng) {
-              const area = isWithinDeliveryArea(
-                {
-                  lat: info.lat,
-                  lng: info.lng,
-                  max_distance_km: info.max_distance_km,
-                },
-                { lat, lng },
-              );
-              if (area.isInside) {
-                setValue("lat", lat, { shouldDirty: true });
-                setValue("lng", lng, { shouldDirty: true });
-                getAddress(lat, lng);
-              }
-              return;
-            }
+          invalid={!!errors.address}
+        >
+          <Input
+            {...register("address")}
+            placeholder="Digite o endereço"
+            size="sm"
+            autoComplete="off"
+            bg="white"
+            maxLength={120}
+            minLength={5}
+          />
+        </Field>
 
-            if (!info?.max_distance_km) {
-              setValue("lat", lat, { shouldDirty: true });
-              setValue("lng", lng, { shouldDirty: true });
-              getAddress(lat, lng);
-            }
-          }}
-        />
+        <Field
+          label={<span>Número</span>}
+          errorText={errors.number?.message}
+          invalid={!!errors.number}
+        >
+          <Input
+            {...register("number")}
+            size="sm"
+            autoComplete="off"
+            bg="white"
+            minLength={1}
+            maxLength={10}
+          />
+        </Field>
+      </div>
 
-        {(errors.lat?.message || errors.lng?.message) && (
-          <span className="text-red-500 font-medium block -mt-2">
-            Defina corretamente o local de entrega movendo o pin no mapa.
-          </span>
-        )}
-
-        {props.deliveryArea && !props.deliveryArea.isInside && (
-          <span className="text-red-500 font-medium block -mt-2">
-            Ops! Ainda não entregamos nessa região 😕
-          </span>
-        )}
-
-        <div className="grid px-2 grid-cols-[1fr_100px] justify-between gap-x-2">
-          <Field
-            label={
-              <div className="flex items-center gap-x-2">
-                <span>
-                  Endereço <span className="text-red-400">*</span>
-                </span>
-                {loadRoad && <Spinner size="sm" />}
-              </div>
-            }
-            invalid={!!errors.address}
-          >
-            <Input
-              {...register("address")}
-              placeholder="Digite o endereço"
-              size="sm"
-              autoComplete="off"
-              bg="white"
-              maxLength={120}
-              minLength={5}
-            />
-          </Field>
-          <Field
-            label={<span>Número</span>}
-            errorText={errors.number?.message}
-            invalid={!!errors.number}
-          >
-            <Input
-              {...register("number")}
-              size="sm"
-              autoComplete="off"
-              bg="white"
-              minLength={1}
-              maxLength={10}
-            />
-          </Field>
-        </div>
-
-        <div className="grid px-2 grid-cols-[100px_1fr] justify-between gap-x-2">
-          <Field
-            label={
-              <span>
-                CEP <span className="text-red-400">*</span>
-              </span>
-            }
-            invalid={!!errors.cep}
-          >
-            <Input
-              {...registerWithMask("cep", "99999-999")}
-              placeholder="00000-000"
-              size="sm"
-              autoComplete="off"
-              bg="white"
-            />
-          </Field>
-          <Field
-            label={
-              <span>
-                Quem vai receber <span className="text-red-400">*</span>
-              </span>
-            }
-            invalid={!!errors.persona}
-          >
-            <Input
-              {...register("persona")}
-              size="sm"
-              autoComplete="off"
-              bg="white"
-              minLength={2}
-              maxLength={35}
-            />
-          </Field>
-        </div>
+      <div className="grid px-2 grid-cols-[100px_1fr] justify-between gap-x-2 mb-2">
+        <Field
+          label={
+            <span>
+              CEP <span className="text-red-400">*</span>
+            </span>
+          }
+          invalid={!!errors.cep}
+        >
+          <Input
+            {...registerWithMask("cep", "99999-999")}
+            placeholder="00000-000"
+            size="sm"
+            autoComplete="off"
+            bg="white"
+          />
+        </Field>
 
         <Field
           label={
             <span>
-              Ponto de referência <span className="text-red-400">*</span>
+              Quem vai receber <span className="text-red-400">*</span>
             </span>
           }
-          invalid={!!errors.reference_point}
-          className="px-2"
+          invalid={!!errors.persona}
         >
           <Input
+            {...register("persona")}
             size="sm"
-            {...register("reference_point")}
             autoComplete="off"
             bg="white"
-            minLength={4}
-            maxLength={120}
-          />
-        </Field>
-
-        <Field
-          label="Complemento"
-          invalid={!!errors.complement}
-          errorText={errors.complement?.message}
-          className=" px-2"
-        >
-          <Input
-            size="sm"
-            {...register("complement")}
-            placeholder="Apto, Bloco..."
-            autoComplete="off"
-            bg="white"
-            maxLength={60}
+            minLength={2}
+            maxLength={35}
           />
         </Field>
       </div>
+
+      <Field
+        label={
+          <span>
+            Ponto de referência <span className="text-red-400">*</span>
+          </span>
+        }
+        invalid={!!errors.reference_point}
+        className="px-2 mb-2"
+      >
+        <Input
+          size="sm"
+          {...register("reference_point")}
+          autoComplete="off"
+          bg="white"
+          minLength={4}
+          maxLength={120}
+        />
+      </Field>
+
+      <Field
+        label="Complemento"
+        invalid={!!errors.complement}
+        errorText={errors.complement?.message}
+        className="px-2 mb-2"
+      >
+        <Input
+          size="sm"
+          {...register("complement")}
+          placeholder="Apto, Bloco, Casa..."
+          autoComplete="off"
+          bg="white"
+          maxLength={60}
+        />
+      </Field>
     </form>
   );
 }
+
+type CheckoutStep = "items" | "choice" | "gps" | "map" | "address" | "payment";
+
+const stepIndexMap: Record<CheckoutStep, number> = {
+  items: 1,
+  choice: 2,
+  gps: 3,
+  map: 4,
+  address: 5,
+  payment: 6,
+};
 
 // --- Componente Principal ---
 export const ModalCarrinho: React.FC<
@@ -360,7 +331,7 @@ export const ModalCarrinho: React.FC<
   } = useContext(CartContext);
 
   const [deliveryArea, setDeliveryArea] = useState<{
-    distanceKm: number;
+    distanceKm: number | null;
     isInside: boolean;
   } | null>(null);
 
@@ -369,20 +340,127 @@ export const ModalCarrinho: React.FC<
   const isOpen = searchParams.get("c");
 
   // Controle de Fluxo (Stepped Checkout)
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<CheckoutStep>("items");
+  const currentStepIndex = stepIndexMap[step];
   const [isLoading, setIsLoading] = useState(false);
   const [redirectTo, setRedirectTo] = useState("");
+
+  const [isMobileDevice, setIsMobileDevice] = useState(true);
+  const [currentPosition, setCurrentPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [permissionLoading, setPermissionLoading] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
 
   const totalValues = useMemo(() => {
     if (!items.length) return 0;
     return items.reduce((prev, curr) => prev + curr.total * curr.qnt, 0);
   }, [items]);
 
+  useEffect(() => {
+    const checkDevice = () => {
+      if (typeof window === "undefined") return;
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const smallScreen = window.innerWidth < 1024;
+      setIsMobileDevice(coarsePointer || smallScreen);
+    };
+
+    checkDevice();
+
+    window.addEventListener("resize", checkDevice);
+    return () => window.removeEventListener("resize", checkDevice);
+  }, []);
+
+  const handleRetirarNaLoja = () => {
+    upsertAddress("retirar");
+    setStep("payment");
+  };
+
+  const handleDelivery = () => {
+    setLocationDenied(false);
+    setStep("gps");
+  };
+
+  const requestLocation = () => {
+    if (!isMobileDevice) return;
+
+    if (!navigator.geolocation) {
+      setLocationDenied(true);
+      return;
+    }
+
+    setPermissionLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        setCurrentPosition(pos);
+
+        setPermissionLoading(false);
+        setStep("map");
+      },
+      () => {
+        setPermissionLoading(false);
+        setLocationDenied(true);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0,
+      },
+    );
+  };
+
+  const confirmLocation = () => {
+    if (!currentPosition) return;
+
+    if (
+      info?.lat &&
+      info?.lng &&
+      info?.max_distance_km &&
+      address !== "retirar"
+    ) {
+      const area = isWithinDeliveryArea(
+        {
+          lat: info.lat,
+          lng: info.lng,
+          max_distance_km: info.max_distance_km,
+        },
+        currentPosition,
+      );
+
+      if (!area.isInside) {
+        setDeliveryArea(area);
+        return;
+      }
+    }
+
+    upsertAddress({
+      address: "",
+      number: "",
+      cep: "",
+      persona: "",
+      complement: "",
+      reference_point: "",
+      lat: currentPosition.lat,
+      lng: currentPosition.lng,
+    });
+
+    setStep("address");
+  };
+  const deliveryMessage = getDeliveryMessage(info?.deliveries_begin_at);
+
   const subtotal = totalValues;
+  const distanceKm = deliveryArea?.distanceKm ?? 0;
+
   const taxaEntrega =
     address !== null && address !== "retirar" && deliveryArea?.isInside
-      ? (info?.delivery_fee || 0) +
-        deliveryArea.distanceKm * 1.3 * (info?.price_per_km || 0)
+      ? (info?.delivery_fee || 0) + distanceKm * 1.3 * (info?.price_per_km || 0)
       : 0;
 
   const valorTotal = subtotal + taxaEntrega;
@@ -506,13 +584,13 @@ export const ModalCarrinho: React.FC<
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-xl font-bold text-gray-800">Seu Pedido</h2>
               <span className="text-sm font-medium text-gray-400">
-                Passo {step} de 3
+                Passo {currentStepIndex} de 6
               </span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-1.5 flex overflow-hidden">
               <div
                 className="bg-green-500 h-full transition-all duration-300"
-                style={{ width: `${(step / 3) * 100}%` }}
+                style={{ width: `${(currentStepIndex / 6) * 100}%` }}
               />
             </div>
           </div>
@@ -578,7 +656,7 @@ export const ModalCarrinho: React.FC<
                     window.open(redirectTo, "_blank");
                     resetCart();
                     setRedirectTo("");
-                    setStep(1);
+                    setStep("choice");
                     // window.history.back();
                   }}
                   size="xl"
@@ -594,7 +672,7 @@ export const ModalCarrinho: React.FC<
           {!isLoading && !redirectTo && (
             <>
               {/* === PASSO 1: MEUS ITENS === */}
-              {step === 1 && (
+              {step === "items" && (
                 <div className="relative h-full">
                   <GridWithShadows
                     grid={false}
@@ -608,7 +686,7 @@ export const ModalCarrinho: React.FC<
                       return (
                         <div
                           key={item.key}
-                          className="flex flex-col bg-white p-3 mx-4 my-1 rounded-xl shadow-md border border-gray-100"
+                          className="flex flex-col bg-white p-3 mx-4 my-1 rounded-xl shadow-sm border border-gray-100"
                         >
                           <div className="flex gap-3">
                             <div className="w-14 h-14 shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
@@ -700,44 +778,260 @@ export const ModalCarrinho: React.FC<
                 </div>
               )}
 
-              {/* === PASSO 2: ENDEREÇO === */}
-              {step === 2 && (
+              {step === "choice" && (
+                <div className="flex flex-col gap-4 px-4 pt-3">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                    <h3 className="text-lg font-bold text-gray-800">
+                      Como você quer receber?
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Escolha uma opção para continuar.
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleRetirarNaLoja}
+                    className="h-12! rounded-2xl! font-bold! text-base! bg-gray-900! text-white!"
+                    style={{ backgroundColor: bg_primary || "#111" }}
+                  >
+                    Retirar na loja
+                  </Button>
+
+                  {/* já existe um endereço salvo */}
+                  {address !== null && address !== "retirar" && (
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex flex-col">
+                            <span className="text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                              Endereço salvo
+                            </span>
+
+                            <span className="text-base font-bold text-gray-800 mt-1 leading-tight">
+                              {address.address}
+                              {address.number ? `, ${address.number}` : ""}
+                            </span>
+
+                            <span className="text-sm text-gray-500 mt-1">
+                              CEP: {address.cep}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-col gap-2 text-sm">
+                          <div className="flex flex-col">
+                            <span className="text-gray-400 text-xs uppercase font-semibold">
+                              Recebedor
+                            </span>
+
+                            <span className="text-gray-700 font-medium">
+                              {address.persona}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col">
+                            <span className="text-gray-400 text-xs uppercase font-semibold">
+                              Referência
+                            </span>
+
+                            <span className="text-gray-700">
+                              {address.reference_point}
+                            </span>
+                          </div>
+
+                          {address.complement && (
+                            <div className="flex flex-col">
+                              <span className="text-gray-400 text-xs uppercase font-semibold">
+                                Complemento
+                              </span>
+
+                              <span className="text-gray-700">
+                                {address.complement}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          onClick={() => setStep("payment")}
+                          className="rounded-2xl! font-bold! mt-3 w-full border-2! border-green-500! bg-green-50! text-green-700!"
+                          variant="outline"
+                        >
+                          Entregar nesse endereço
+                        </Button>
+                      </div>
+
+                      <Button
+                        onClick={handleDelivery}
+                        className="h-12! rounded-2xl!"
+                        variant="ghost"
+                      >
+                        Usar outro endereço
+                      </Button>
+                    </div>
+                  )}
+
+                  {(!address || address === "retirar") && (
+                    <div className="flex flex-col gap-y-2">
+                      <Button
+                        onClick={handleDelivery}
+                        className="h-14! rounded-2xl! font-bold! text-base! w-full border-2! border-green-500! bg-green-100! text-green-700!"
+                        variant="outline"
+                      >
+                        Pedir delivery
+                      </Button>
+                      {deliveryMessage && (
+                        <div className="mb-2 px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200 flex items-center gap-2">
+                          <span className="text-yellow-800 text-sm font-medium">
+                            ⏰ {deliveryMessage}
+                          </span>
+                        </div>
+                      )}
+                      {((info?.delivery_fee || 0) > 0 ||
+                        (info?.price_per_km || 0) > 0) && (
+                        <p className="text-sm text-neutral-400 leading-relaxed">
+                          *A entrega inclui taxa fixa e pode variar conforme a
+                          distância até seu endereço.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === "gps" && (
+                <div className="flex flex-col gap-4 px-4 pt-3">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                    <h3 className="text-lg font-bold text-gray-800">
+                      Precisamos da sua localização
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Isso melhora a precisão do endereço e evita erro na
+                      entrega.
+                    </p>
+                  </div>
+
+                  {!isMobileDevice ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+                      <p className="text-sm font-medium text-yellow-800">
+                        Faça o pedido pelo celular ou tablet para uma maior
+                        precisão do GPS.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 flex flex-col items-center gap-3">
+                      <Button
+                        onClick={requestLocation}
+                        loading={permissionLoading}
+                        className="w-full h-14 rounded-2xl font-bold text-base bg-green-600! text-white!"
+                      >
+                        Permitir localização
+                      </Button>
+
+                      <p className="text-xs text-gray-500 text-center leading-relaxed">
+                        Ao permitir a localização, conseguimos encontrar seu
+                        ponto com mais precisão e preencher o endereço com menos
+                        erro.
+                      </p>
+
+                      {locationDenied && (
+                        <p className="text-sm text-red-500 font-medium text-center">
+                          Não foi possível acessar sua localização.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === "map" && (
+                <div className="relative px-3 pt-2">
+                  <div
+                    style={{ height: "calc(100vh - 185px)" }}
+                    className="rounded-2xl overflow-hidden! border border-gray-200 shadow-sm relative"
+                  >
+                    <MapComponent
+                      isEdit={false}
+                      defaultPosition={currentPosition || undefined}
+                      onSetPosition={({ lat, lng }) => {
+                        const pos = { lat, lng };
+                        setCurrentPosition(pos);
+
+                        if (info?.lat && info?.lng) {
+                          const area = isWithinDeliveryArea(
+                            {
+                              lat: info.lat,
+                              lng: info.lng,
+                              max_distance_km: info.max_distance_km,
+                            },
+                            pos,
+                          );
+                          setDeliveryArea(area);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {deliveryArea && !deliveryArea.isInside && (
+                    <div className="mt-3 bg-red-50 border border-red-200 rounded-2xl p-3">
+                      <span className="text-red-600 font-medium text-sm">
+                        Ops! Ainda não entregamos nessa região 😕
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {step === "address" && address !== "retirar" && address && (
                 <div>
                   <FormAddress
-                    address={address !== "retirar" ? address : null}
+                    address={address}
                     upsertAddress={upsertAddress}
-                    submit={() => setStep(3)}
+                    submit={() => setStep("payment")}
                     deliveryArea={deliveryArea}
                   />
                 </div>
               )}
 
-              {/* === PASSO 3: PAGAMENTO === */}
-              {step === 3 && (
+              {step === "payment" && (
                 <div
                   style={{ height: "calc(100vh - 205px)" }}
                   className="flex flex-col gap-4 overflow-y-auto pb-14"
                 >
                   <div className="bg-white p-4 mx-4 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide flex justify-between">
-                      Resumo do Pedido
-                      <button
-                        onClick={() => setStep(1)}
-                        className="text-blue-500 font-normal normal-case text-sm underline"
-                      >
-                        Editar itens
-                      </button>
-                    </h3>
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-gray-800  text-sm uppercase tracking-wide flex justify-between">
+                        Resumo do Pedido
+                      </h3>
+                      <div className="flex items-center gap-x-1">
+                        <button
+                          onClick={() => setStep("choice")}
+                          className="text-blue-500 font-normal normal-case text-sm underline"
+                        >
+                          Editar endereço
+                        </button>
+                        <span>|</span>
+
+                        <button
+                          onClick={() => setStep("items")}
+                          className="text-blue-500 font-normal normal-case text-sm underline"
+                        >
+                          Editar itens
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="flex justify-between text-gray-600 text-base mb-1">
                       <span>Subtotal</span>
                       <span>{formatToBRL(subtotal)}</span>
                     </div>
+
                     {taxaEntrega > 0 && address !== "retirar" && (
                       <div className="flex justify-between text-gray-600 text-base mb-2">
                         <span>Taxa de Entrega</span>
                         <span>{formatToBRL(taxaEntrega)}</span>
                       </div>
                     )}
+
                     <div className="flex justify-between font-bold text-gray-900 text-lg border-t border-gray-100 pt-2 mt-2">
                       <span>Total</span>
                       <span style={{ color: bg_primary || "#111" }}>
@@ -757,6 +1051,7 @@ export const ModalCarrinho: React.FC<
                     >
                       Forma de Pagamento
                     </h3>
+
                     <div className="grid grid-cols-2 gap-2">
                       {payment_methods_items.map((method) => (
                         <button
@@ -797,6 +1092,7 @@ export const ModalCarrinho: React.FC<
                         >
                           Troco para quanto{error === "dinheiro" ? " ???" : "?"}
                         </label>
+
                         <Input
                           value={payment_change_to || ""}
                           onChange={({ target }) =>
@@ -809,6 +1105,7 @@ export const ModalCarrinho: React.FC<
                           className="border-gray-300"
                           ref={withMask("brl-currency")}
                         />
+
                         <Checkbox.Root
                           checked={payment_change_to === "Não"}
                           onCheckedChange={() =>
@@ -836,90 +1133,150 @@ export const ModalCarrinho: React.FC<
         {/* RODAPÉ FIXO DE AÇÕES */}
         {!isLoading && !redirectTo && (
           <div className="w-full bg-white border-t border-gray-200 p-4 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.03)]">
-            {step === 1 && (
-              <div className="flex gap-2 w-full">
-                <Button
-                  variant="outline"
-                  className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
-                  onClick={() => window.history.back()}
-                >
-                  Voltar
-                </Button>
-                <Button
-                  className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
-                  style={{ backgroundColor: bg_primary || "#111" }}
-                  onClick={() => setStep(2)}
-                  disabled={!status || !items.length}
-                >
-                  Ir para Endereço
-                </Button>
+            {!isMobileDevice ? (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
+                <p className="text-sm font-medium text-yellow-800">
+                  Faça o pedido pelo celular ou tablet para uma maior precisão
+                  do GPS.
+                </p>
               </div>
-            )}
-
-            {step === 2 && (
-              <div className="flex gap-2 w-full">
-                <Button
-                  variant="outline"
-                  className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
-                  onClick={() => setStep(1)}
-                >
-                  Voltar
-                </Button>
-                {/* O botão abaixo engatilha o formulário de endereço usando o ID "address-form" */}
-                <Button
-                  form="address-form"
-                  type="submit"
-                  className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
-                  style={{ backgroundColor: bg_primary || "#111" }}
-                  disabled={deliveryArea !== null && !deliveryArea.isInside}
-                >
-                  Ir para Pagamento
-                </Button>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="flex flex-col gap-2 w-full">
-                {minimo > 0 && !atingiuMinimo && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
-                    <div className="flex justify-between text-sm font-medium text-yellow-800 mb-1">
-                      <span>Pedido mínimo</span>
-                      <span>{formatToBRL(minimo)}</span>
-                    </div>
-
-                    <div className="w-full bg-yellow-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="h-full bg-yellow-400 transition-all"
-                        style={{ width: `${progresso}%` }}
-                      />
-                    </div>
-
-                    <p className="text-xs text-yellow-700 mt-2">
-                      Faltam <strong>{formatToBRL(falta)}</strong> para atingir
-                      o pedido mínimo
-                    </p>
+            ) : (
+              <>
+                {step === "items" && (
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                      onClick={() => window.history.back()}
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                      style={{ backgroundColor: bg_primary || "#111" }}
+                      onClick={() => setStep("choice")}
+                      disabled={!status || !items.length}
+                    >
+                      Ir para Endereço
+                    </Button>
                   </div>
                 )}
-                {atingiuMinimo && (
-                  <Button
-                    className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
-                    onClick={handleCreateOrder}
-                    disabled={
-                      !status ||
-                      (deliveryArea !== null && !deliveryArea.isInside)
-                    }
-                  >
-                    Finalizar Pedido • {formatToBRL(valorTotal)}
-                  </Button>
+
+                {step === "choice" && (
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                      onClick={() => setStep("items")}
+                    >
+                      Voltar
+                    </Button>
+                    <div className="flex-[1.3]!"></div>
+                  </div>
                 )}
-                <Button
-                  variant="ghost"
-                  className="w-full! text-gray-500! h-10! font-medium!"
-                  onClick={() => window.history.back()}
-                >
-                  Continuar comprando
-                </Button>
-              </div>
+
+                {step === "gps" && (
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                      onClick={() => setStep("choice")}
+                    >
+                      Voltar
+                    </Button>
+                    <div className="flex-[1.3]!"></div>
+                  </div>
+                )}
+
+                {step === "map" && (
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                      onClick={() => setStep("gps")}
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                      style={{ backgroundColor: bg_primary || "#111" }}
+                      onClick={confirmLocation}
+                      disabled={!!deliveryArea && !deliveryArea.isInside}
+                    >
+                      Confirmar localização
+                    </Button>
+                  </div>
+                )}
+
+                {step === "address" && (
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      variant="outline"
+                      className="flex-[0.7]! border-gray-300! text-gray-700! h-12! rounded-xl!"
+                      onClick={() => setStep("map")}
+                    >
+                      Voltar
+                    </Button>
+                    <Button
+                      form="address-form"
+                      type="submit"
+                      className="flex-[1.3]! bg-gray-900! text-white! hover:bg-black! h-12! rounded-xl! font-semibold!"
+                      style={{ backgroundColor: bg_primary || "#111" }}
+                      disabled={deliveryArea !== null && !deliveryArea.isInside}
+                    >
+                      Ir para Pagamento
+                    </Button>
+                  </div>
+                )}
+
+                {step === "payment" && (
+                  <div className="flex flex-col gap-2 w-full">
+                    {minimo > 0 && !atingiuMinimo && (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3">
+                        <div className="flex justify-between text-sm font-medium text-yellow-800 mb-1">
+                          <span>Pedido mínimo</span>
+                          <span>{formatToBRL(minimo)}</span>
+                        </div>
+
+                        <div className="w-full bg-yellow-100 rounded-full h-2 overflow-hidden">
+                          <div
+                            className="h-full bg-yellow-400 transition-all"
+                            style={{ width: `${progresso}%` }}
+                          />
+                        </div>
+
+                        <p className="text-xs text-yellow-700 mt-2">
+                          Faltam <strong>{formatToBRL(falta)}</strong> para
+                          atingir o pedido mínimo
+                        </p>
+                      </div>
+                    )}
+
+                    {atingiuMinimo && (
+                      <Button
+                        className="w-full bg-[#25D366]! text-white! hover:bg-[#128C7E]! h-14! rounded-xl! text-lg! font-bold! shadow-md!"
+                        onClick={handleCreateOrder}
+                        disabled={
+                          !status ||
+                          (address !== "retirar" &&
+                            deliveryArea !== null &&
+                            !deliveryArea.isInside)
+                        }
+                      >
+                        Finalizar Pedido • {formatToBRL(valorTotal)}
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      className="w-full! text-gray-500! h-10! font-medium!"
+                      onClick={() => window.history.back()}
+                    >
+                      Continuar comprando
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
 
             {!status && (

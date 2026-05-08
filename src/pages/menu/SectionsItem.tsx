@@ -137,6 +137,11 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
       return res(undefined);
     });
 
+  const descItem = useMemo(() => {
+    if (isOpen) return items.find((s) => s.uuid === isOpen)?.desc;
+    return null;
+  }, [isOpen, items]);
+
   return (
     <BottomSheet
       open={!!isOpen}
@@ -297,6 +302,9 @@ export function SectionsItems({ defaultStateSection, sendToCategory }: Props) {
         </div>
       }
     >
+      <div className="max-w-lg my-1 mx-auto scroll-auto gap-y-2 px-3">
+        <p className="text-sm">{descItem}</p>
+      </div>
       {items
         .find((s) => s.uuid === isOpen)
         ?.sections.map((section) => {

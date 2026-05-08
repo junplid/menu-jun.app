@@ -194,3 +194,11 @@
 .chakra-dialog__positioner {
   padding: 0 !important;
 }
+
+[data-rsbs-header="true"] {
+  z-index: 25 !important;
+}
+
+.leaflet-container {
+  background-color: transparent !important;
+}

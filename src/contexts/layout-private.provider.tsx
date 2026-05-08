@@ -313,6 +313,7 @@ function ModalInfo() {
     operatingDays,
     helperTextOpening,
     info,
+    capaImg,
     bg_capa,
   } = useContext(DataMenuContext);
   const [searchParams] = useSearchParams();
@@ -365,8 +366,12 @@ function ModalInfo() {
         <DialogBody p={0} className="flex flex-col h-full">
           {/* Header do Modal com Cover sutil */}
           <div
-            className="h-20 w-full"
-            style={{ background: bg_capa || "#111" }}
+            className="w-full h-24 transition-all duration-300 bg-center bg-cover bg-no-repeat"
+            style={
+              capaImg
+                ? { backgroundImage: `url(${capaImg})` }
+                : { backgroundColor: bg_capa || "#141414" }
+            }
           />
 
           <div className="px-6 pb-8">

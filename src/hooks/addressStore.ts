@@ -48,13 +48,6 @@ export function useAddressStore() {
   }, [address]);
 
   const upsertAddress = useCallback((data: Fields | "retirar") => {
-    if (data !== "retirar") {
-      const parsed = FormSchema.safeParse(data);
-      if (!parsed.success) {
-        throw new Error(parsed.error.format()._errors.join("; "));
-      }
-      setAddress(parsed.data);
-    }
     setAddress(data);
   }, []);
 

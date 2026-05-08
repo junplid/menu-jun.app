@@ -99,7 +99,7 @@ export const MenuPage: React.FC = (): JSX.Element => {
               block: "start",
             });
           }
-        }, 400);
+        }, 3);
       },
       {
         threshold: 0.3,
@@ -310,7 +310,12 @@ function Item({ item }: Props) {
       }}
       style={{ background: "#fff" }}
     >
-      <div className="pl-1 flex flex-col gap-y-2 py-1.5 h-full justify-between">
+      <div
+        className={clsx(
+          "pl-1 flex flex-col gap-y-2 py-1.5 h-full",
+          !!item.desc ? "justify-between" : "",
+        )}
+      >
         <div className="flex flex-col gap-y-1">
           <span
             className={clsx(
@@ -328,7 +333,7 @@ function Item({ item }: Props) {
             {item.desc}
           </span>
         </div>
-        <div className="mb-1">
+        <div className={clsx(!!item.desc ? "mb-1" : "")}>
           <div className="w-full flex gap-x-1.5 items-center">
             {item.afterPrice && (
               <span className={`font-bold leading-3 text-neutral-800`}>
@@ -340,7 +345,7 @@ function Item({ item }: Props) {
                 {formatToBRL(item.beforePrice)}
               </span>
             )}
-            {discount && (
+            {discount && discount > 0 && (
               <span className="bg-green-600 text-white text-xs font-medium px-1.5 py-0 rounded-full">
                 -{discount}%
               </span>
