@@ -711,17 +711,64 @@ export const ModalCarrinho: React.FC<
                                   </span>
                                 </div>
 
-                                {item.sections && (
-                                  <p className="text-sm text-gray-400 line-clamp-1">
-                                    {Object.values(item.sections)
-                                      .map((sub) =>
-                                        Object.keys(sub || {}).length > 0
-                                          ? "Opções selecionadas"
-                                          : "",
-                                      )
-                                      .find(Boolean)}
-                                  </p>
-                                )}
+                                <div className="flex flex-col w-full">
+                                  {item.sections && (
+                                    <ul className="list-disc ml-1 mt-0.5 text-neutral-600">
+                                      {Object.entries(item.sections).map(
+                                        ([sectionUuid, objSub]) => {
+                                          if (!objSub) return null;
+                                          const section = product.sections.find(
+                                            (sec) => sec.uuid === sectionUuid,
+                                          );
+                                          if (!section) return null;
+                                          return (
+                                            <li
+                                              className="flex flex-col"
+                                              key={sectionUuid}
+                                            >
+                                              <span className="font-normal">
+                                                • {section.title}
+                                              </span>
+                                              <div className="pl-2 -mt-1.5 flex flex-col -space-y-1">
+                                                {Object.entries(objSub).map(
+                                                  ([subUuid, value]) => {
+                                                    if (!value) return null;
+                                                    const subItem =
+                                                      section.subItems.find(
+                                                        (subitem) =>
+                                                          subitem.uuid ===
+                                                          subUuid,
+                                                      );
+                                                    if (!subItem) return null;
+
+                                                    return (
+                                                      <span
+                                                        key={subUuid}
+                                                        className="text-neutral-400 gap-x-2 flex font-light items-center"
+                                                      >
+                                                        {value > 1
+                                                          ? `${value}x`
+                                                          : null}{" "}
+                                                        {subItem.name}{" "}
+                                                        <span className="text-[13px] text-neutral-500">
+                                                          {subItem.after_additional_price &&
+                                                            `= ${formatToBRL(
+                                                              subItem.after_additional_price *
+                                                                value,
+                                                            )}`}
+                                                        </span>
+                                                      </span>
+                                                    );
+                                                  },
+                                                )}
+                                              </div>
+                                            </li>
+                                          );
+                                        },
+                                      )}
+                                    </ul>
+                                  )}
+                                </div>
                               </div>
 
                               <div className="flex items-center justify-between mt-2">
